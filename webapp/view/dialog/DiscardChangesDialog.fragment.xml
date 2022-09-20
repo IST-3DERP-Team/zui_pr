@@ -1,0 +1,11 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog title="">
+		<Panel>
+			<Text text="Discard Changes?"/>
+		</Panel>
+		<buttons>
+			<Button text="{i18n>Yes}" press="onCloseDiscardChangesDialog"/>
+			<Button text="{i18n>Cancel}" press="onCancelDiscardChangesDialog"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

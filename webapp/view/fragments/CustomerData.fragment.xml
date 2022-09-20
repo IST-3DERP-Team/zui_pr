@@ -1,0 +1,59 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:l="sap.ui.layout" 
+    xmlns:f="sap.ui.layout.form" 
+    xmlns:core="sap.ui.core" 
+    class="sapUiSizeCompact" 
+    xmlns:tnt="sap.tnt"
+    xmlns:c="zuipr.control" 
+    xmlns:t="sap.ui.table"
+>
+    <Panel id="CustDataHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
+
+            <!-- Style Header Form -->
+            <f:Form id="CustDataHeaderForm" editable="true">
+                <f:layout>
+                    <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3" singleContainerFullSize="false" />
+                </f:layout>
+                <f:formContainers>
+                    <f:FormContainer>
+                        <f:formElements>
+                            <f:FormElement label="Supply Type" visible="true">
+                                <f:fields>
+                                    <Input id="SUPTYP" value="{headerData>/SUPTYP}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="Sales Group" visible="true">
+                                <f:fields>
+                                    <Input id="SALESGRP" value="{headerData>/SALESGRP}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="Customer Group" visible="true">
+                                <f:fields>
+                                    <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="Season" visible="true">
+                                <f:fields>
+                                    <Input id="SEASONCD" value="{headerData>/SEASONCD}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:layoutData>
+                            <l:GridData span="XL5 L7 M7 S12" />
+                        </f:layoutData>
+                    </f:FormContainer>
+                </f:formContainers>
+            </f:Form>
+        </Panel>
+</core:FragmentDefinition>

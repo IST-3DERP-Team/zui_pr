@@ -1,0 +1,67 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:l="sap.ui.layout" 
+    xmlns:f="sap.ui.layout.form" 
+    xmlns:core="sap.ui.core" 
+    class="sapUiSizeCompact" 
+    xmlns:tnt="sap.tnt"
+    xmlns:c="zuipr.control" 
+    xmlns:t="sap.ui.table"
+>
+    <Panel id="QtyDtHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
+
+            <!-- Style Header Form -->
+            <f:Form id="QtyDtHeaderForm" editable="false" class="sapUiNoContentPadding">
+                <f:layout>
+                    <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3"/>
+                </f:layout>
+                <f:formContainers>
+                    <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >
+                        <f:formElements>
+                            <f:FormElement label="Quantity" visible="true">
+                                <f:fields>
+                                    <Input id="QUANTITY" value="{headerData>/QUANTITY}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange">
+                                    </Input>
+                                </f:fields>
+                            </f:FormElement>
+                            <f:FormElement label="Ordered Quantity" visible="true">
+                                <f:fields>
+                                    <Input id="POQTY" value="{headerData>/POQTY}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                            <f:FormElement label="Open Quantity" visible="true">
+                                <f:fields>
+                                    <Input id="OPENQTY" value="{headerData>/OPENQTY}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                    </f:FormContainer>
+                    <f:FormContainer ariaLabelledBy="Grp2">
+                        <f:formElements>
+                            <f:FormElement label="Delivery Date" visible="true">
+                                    <f:fields>
+                                    <Input id="DELDT" value="{headerData>/DELDT}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                            <f:FormElement label="Request Date" visible="true">
+                                <f:fields>
+                                    <Input id="FTYSTYLE" value="{headerData>/REQDT}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                             <f:FormElement label="Release Date" visible="true">
+                                <f:fields>
+                                    <Input id="RELDT" value="{headerData>/RELDT}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                    </f:FormContainer>
+                </f:formContainers>
+            </f:Form>
+        </Panel>
+</core:FragmentDefinition>

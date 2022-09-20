@@ -1,0 +1,51 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:l="sap.ui.layout" 
+    xmlns:f="sap.ui.layout.form" 
+    xmlns:core="sap.ui.core" 
+    class="sapUiSizeCompact" 
+    xmlns:tnt="sap.tnt"
+    xmlns:c="zuipr.control" 
+    xmlns:t="sap.ui.table"
+>
+    <Panel id="SupplyTypHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
+
+            <!-- Style Header Form -->
+            <f:Form id="SupplyTypHeaderForm" editable="true" class="sapUiNoContentPadding">
+                <f:layout>
+                    <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3" singleContainerFullSize="false" />
+                </f:layout>
+                <f:formContainers>
+                    <f:FormContainer>
+                        <f:formElements>
+                            <f:FormElement label="Info Record" visible="true">
+                                <f:fields>
+                                    <Input id="INFNR" value="{headerData>/INFNR}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="Vendor" visible="true">
+                                <f:fields>
+                                    <Input id="VENDOR" value="{headerData>/VENDOR}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="Purchase Org." visible="true">
+                                <f:fields>
+                                    <Input id="PURORG" value="{headerData>/PURORG}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:layoutData>
+                            <l:GridData span="XL5 L7 M7 S12" />
+                        </f:layoutData>
+                    </f:FormContainer>
+                </f:formContainers>
+            </f:Form>
+        </Panel>
+</core:FragmentDefinition>

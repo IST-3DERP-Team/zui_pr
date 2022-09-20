@@ -1,0 +1,26 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	<SelectDialog
+        id="valueHelpSelectDialog"
+		class="sapUiPopupWithPadding"
+        items="{
+            path: '/items',
+            sorter: {
+                path: 'VHTitle'
+            }
+        }"
+        growing="true"
+        title="Select {/title}"
+        noDataText="No Records Found"
+        showClearButton="true"
+		search="handleValueHelpSearch"
+		confirm="handleValueHelpClose"
+		cancel="handleValueHelpClose">
+		<StandardListItem
+            selected="{VHSelected}"
+			title="{VHTitle}"
+			description="{VHDesc}" 
+            type="Active" />
+	</SelectDialog>
+</core:FragmentDefinition>

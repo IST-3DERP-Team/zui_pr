@@ -1,0 +1,10 @@
+file:/home/user/.gitconfig	credential.helper=store
+file:/home/user/.gitconfig	user.email=darren.azur@ist-systems.com
+file:/home/user/.gitconfig	user.name=daazur-ist
+file:/home/user/.gitconfig	user.password=Darren1802
+file:.git/config	core.repositoryformatversion=0
+file:.git/config	core.filemode=true
+file:.git/config	core.bare=false
+file:.git/config	core.logallrefupdates=true
+file:.git/config	remote.origin.url=https://github.com/IST-3DERP-Team/zui_pr.git
+file:.git/config	remote.origin.fetch=+refs/heads/*:refs/remotes/origin/*

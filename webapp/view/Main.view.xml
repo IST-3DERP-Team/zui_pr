@@ -1,0 +1,87 @@
+<mvc:View
+	xmlns:m="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core" 
+    xmlns:c="zuipr.control" 
+	xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+	xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:uiT="sap.ui.table" 
+	controllerName="zuipr.controller.Main"
+    displayBlock="true">
+    <m:Page showHeader="false">
+        <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="SBU" mandatory="mandatory" width="50px">
+                    <smartFilterBar:customControl>
+                        <m:ComboBox id="cboxSBU"
+                            change="onSBUChange"
+                            items="{
+                                path: '/ZVB_3DERP_SBU_SH'
+                            }"
+                            >
+                            <core:Item key="{SBU}" text="{SBU}" />
+                        </m:ComboBox>                                  
+                    </smartFilterBar:customControl>
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterDocTyp" key="DOCTYP" groupId="_BASIC" label="Document Type" tooltip="Document Type" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterPurPlant" key="PLANTCD" groupId="_BASIC" label="Plant Code" tooltip="Plant Code" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterShipToPlant" key="SHIPTOPLANT" groupId="_BASIC" label="Ship to Plant" tooltip="Ship to Plant" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterPurGrp" key="PURGRP" groupId="_BASIC" label="Purchasing Group" tooltip="Purchasing Group" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="Vendor" tooltip="Vendor" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="Material Group" tooltip="Material Group" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="Material Type" tooltip="Material Type" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="Season" tooltip="Season" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+            <smartFilterBar:controlConfiguration>
+                <smartFilterBar:ControlConfiguration id="filterPRNO" key="PRNO" groupId="_BASIC" label="PR Number" tooltip="PR Number" preventInitialDataFetchInValueHelpDialog="false">
+                </smartFilterBar:ControlConfiguration>
+            </smartFilterBar:controlConfiguration>
+        </smartFilterBar:SmartFilterBar>
+
+        <m:Toolbar id="tableToolbar" class="sapUiSmallMargin">
+            <m:HBox>
+                <!-- <m:Title id="StylesCount"/> -->
+                <!-- <m:Title text="PR" class="sapUiTinyMarginBegin"/> -->
+            </m:HBox>
+            <m:ToolbarSpacer/>
+            <m:Button id="btnSave" text="Save" icon="sap-icon://save" tooltip="Save" press="onSaveEdit" visible="false" />
+            <m:Button id="btnCancel" text="Cancel" icon="sap-icon://sys-cancel" tooltip="Cancel" press="onCancelEdit" visible="false" />
+            <m:Button id="btnNew" text="New" icon="sap-icon://add-document" tooltip="New" press="onCreateNewStyle"/>
+            <m:Button id="btnEdit" text="Edit" icon="sap-icon://edit" tooltip="Edit" press="onEditTbl"/>
+            <m:Button id="btnDelete" text="Delete" icon="sap-icon://delete" tooltip="Delete" press="onDeletePR"/>
+            <m:Button id="btnClose" text="Close" icon="sap-icon://complete" tooltip="Close" press="onClosePR"/>
+        </m:Toolbar>
+        
+        <!-- Styles Table -->
+        <m:Panel class="sapUiTinyMarginTop">
+            <m:ScrollContainer width="100%" horizontal="true" vertical="true" focusable="true">
+                <c:DynamicTable id="styleDynTable" selectionMode="MultiToggle" class="sapUiSizeCompact" showColumnVisibilityMenu="true">
+                </c:DynamicTable>
+            </m:ScrollContainer>
+        </m:Panel>
+    </m:Page>
+</mvc:View>

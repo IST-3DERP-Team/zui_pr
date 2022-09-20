@@ -1,0 +1,201 @@
+{
+    "_version": "1.17.0",
+    "sap.app": {
+        "id": "zuipr",
+        "type": "application",
+        "i18n": "i18n/i18n.properties",
+        "applicationVersion": {
+            "version": "0.0.1"
+        },
+        "title": "{{appTitle}}",
+        "description": "{{appDescription}}",
+        "resources": "resources.json",
+        "sourceTemplate": {
+            "id": "@sap/generator-fiori:basic",
+            "version": "1.7.3",
+            "toolsId": "b96f7b30-42d8-48f2-85c6-10a807d2d871"
+        },
+        "dataSources": {
+            "mainService": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_PR_SRV/",
+                "type": "OData",
+                "settings": {
+                    "annotations": [],
+                    "localUri": "localService/mainService/metadata.xml",
+                    "odataVersion": "2.0"
+                }
+            },
+            "ZGW_3DERP_COMMON_SRV": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_COMMON_SRV",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [],
+                    "localUri": "localService/ZGW_3DERP_COMMON_SRV/metadata.xml"
+                }
+            },
+            "ZGW_3DERP_RFC_SRV": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_RFC_SRV/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [],
+                    "localUri": "localService/ZGW_3DERP_RFC_SRV/metadata.xml"
+                }
+            },
+            "ZVB_3DERP_PR_FILTERS_CDS_Annotation": {
+                "uri": "/destinations/LTD888/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PR_FILTERS_CDS_VAN',Version='0001')/$value/",
+                "type": "ODataAnnotation",
+                "settings": {
+                    "localUri": "localService/ZVB_3DERP_PR_FILTERS_CDS/ZVB_3DERP_PR_FILTERS_CDS_Annotation.xml"
+                }
+            },
+            "ZVB_3DERP_PR_FILTERS_CDS": {
+                "uri": "/sap/opu/odata/sap/ZVB_3DERP_PR_FILTERS_CDS/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [
+                        "ZVB_3DERP_PR_FILTERS_CDS_Annotation"
+                    ],
+                    "localUri": "localService/ZVB_3DERP_PR_FILTERS_CDS/metadata.xml"
+                }
+            }
+        }
+    },
+    "sap.ui": {
+        "technology": "UI5",
+        "icons": {
+            "icon": "",
+            "favIcon": "",
+            "phone": "",
+            "phone@2": "",
+            "tablet": "",
+            "tablet@2": ""
+        },
+        "deviceTypes": {
+            "desktop": true,
+            "tablet": true,
+            "phone": true
+        }
+    },
+    "sap.ui5": {
+        "flexEnabled": true,
+        "dependencies": {
+            "minUI5Version": "1.71.49",
+            "libs": {
+                "sap.m": {},
+                "sap.ui.core": {},
+                "sap.f": {},
+                "sap.suite.ui.generic.template": {},
+                "sap.ui.comp": {},
+                "sap.ui.generic.app": {},
+                "sap.ui.table": {},
+                "sap.ushell": {}
+            }
+        },
+        "contentDensities": {
+            "compact": true,
+            "cozy": true
+        },
+        "models": {
+            "i18n": {
+                "type": "sap.ui.model.resource.ResourceModel",
+                "settings": {
+                    "bundleName": "zuipr.i18n.i18n"
+                }
+            },
+            "": {
+                "dataSource": "mainService",
+                "preload": true,
+                "settings": {}
+            },
+            "ZGW_3DERP_COMMON_SRV": {
+                "dataSource": "ZGW_3DERP_COMMON_SRV",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            },
+            "ZGW_3DERP_RFC_SRV": {
+                "dataSource": "ZGW_3DERP_RFC_SRV",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            },
+            "ZVB_3DERP_PR_FILTERS_CDS": {
+                "dataSource": "ZVB_3DERP_PR_FILTERS_CDS",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            }
+        },
+        "resources": {
+            "css": [
+                {
+                    "uri": "css/style.css"
+                }
+            ]
+        },
+        "routing": {
+            "config": {
+                "routerClass": "sap.m.routing.Router",
+                "viewType": "XML",
+                "async": true,
+                "viewPath": "zuipr.view",
+                "controlAggregation": "pages",
+                "controlId": "app",
+                "clearControlAggregation": false
+            },
+            "routes": [
+                {
+                    "name": "main",
+                    "pattern": ":?query:",
+                    "target": [
+                        "main"
+                    ]
+                },
+                {
+                    "name": "PRDetail",
+                    "pattern": "PRDetail/{PRNO}/{PRITM}",
+                    "greedy": false,
+                    "target": [
+                        "TargetPRDetail"
+                    ]
+                }
+            ],
+            "targets": {
+                "main": {
+                    "viewName": "Main",
+                    "viewId": "main",
+                    "viewLevel": 1,
+                    "title": "{i18n>worklistViewTitle}"
+                },
+                "TargetPRDetail": {
+                    "viewType": "XML",
+                    "transition": "slide",
+                    "clearControlAggregation": false,
+                    "viewId": "PRDetail",
+                    "viewName": "PRDetail"
+                }
+            }
+        },
+        "rootView": {
+            "viewName": "zuipr.view.App",
+            "type": "XML",
+            "async": true,
+            "id": "App"
+        },
+        "config": {
+            "fullWidth": true
+        }
+    }
+}

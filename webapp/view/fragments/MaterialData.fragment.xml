@@ -1,0 +1,55 @@
+<core:FragmentDefinition 
+    xmlns="sap.m" 
+    xmlns:l="sap.ui.layout" 
+    xmlns:f="sap.ui.layout.form" 
+    xmlns:core="sap.ui.core" 
+    class="sapUiSizeCompact" 
+    xmlns:tnt="sap.tnt"
+    xmlns:c="zuipr.control" 
+    xmlns:t="sap.ui.table"
+>
+    <Panel id="MatDataHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
+
+            <!-- Style Header Form -->
+            <f:Form id="MatDataDetailForm" editable="false" class="sapUiNoContentPadding">
+                <f:layout>
+                    <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3"/>
+                </f:layout>
+                <f:formContainers>
+                    <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >
+                        <f:formElements>
+                            <f:FormElement label="Short Text" visible="true">
+                                <f:fields>
+                                    <Input id="SHORTTEXT" value="{headerData>/SHORTTEXT}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange">
+                                    </Input>
+                                </f:fields>
+                            </f:FormElement>
+                            <f:FormElement label="Batch" visible="true">
+                                <f:fields>
+                                    <Input id="BATCH" value="{headerData>/BATCH}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                    </f:FormContainer>
+                    <f:FormContainer ariaLabelledBy="Grp2">
+                        <f:formElements>
+                            <f:FormElement label="Material Group" visible="true">
+                                    <f:fields>
+                                    <Input id="MATGRP" value="{headerData>/MATGRP}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                            <f:FormElement label="Material Type" visible="true">
+                                <f:fields>
+                                    <Input id="MATTYP" value="{headerData>/MATTYP}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                    </f:FormContainer>
+                </f:formContainers>
+            </f:Form>
+        </Panel>
+</core:FragmentDefinition>

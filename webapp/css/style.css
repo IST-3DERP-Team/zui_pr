@@ -1,0 +1,30 @@
+/* Enter your custom styles here */
+.whiteBackground {
+    background-color: white;
+}
+
+.blueBorder {
+    border-style: solid;
+    border-width: .3px;
+    border-color: #354a5f;
+}
+
+.mainLogoBg {
+    background-color: #14254c;
+}
+
+.tag1Numbers{
+    color: #fff2cc;
+}
+
+.tag2Numbers{
+    color: #ff7979;
+}
+
+.tag3Numbers{
+    color: #c6e0b4;
+}
+
+.shippedTile{
+    background-color: #c6e0b4;
+}
