@@ -11,31 +11,31 @@
     <Panel id="PRHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
         <headerToolbar>
             <Toolbar height="3rem" style="Clear">
-                <Title text="Header" />
+                <Title text="{captionMsg>/HEADER}" />
             </Toolbar>
         </headerToolbar>
         <!-- Style Header Form -->
         <f:Form id="PRHeaderDetailForm1" editable="false" class="sapUiNoContentPadding">
             <f:layout>
-                <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3"/>
+                <f:ResponsiveGridLayout columnsXL="3" columnsL="3" columnsM="3"/>
             </f:layout>
             <f:formContainers>
                 <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >
                     <f:formElements>
-                        <f:FormElement label="PR No." visible="true">
+                        <f:FormElement label="{captionMsg>/PRNO}" visible="true">
                             <f:fields>
                                 <Input id="PRNO" value="{headerData>/PRNO}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange">
                                 </Input>
                             </f:fields>
                         </f:FormElement>
-                        <f:FormElement label="PR Item" visible="true">
+                        <f:FormElement label="{captionMsg>/PRITM}" visible="true">
                             <f:fields>
                                 <Input id="PRITM" value="{headerData>/PRITM}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
                             </f:fields>
                         </f:FormElement>
-                        <f:FormElement label="Material No." visible="true">
+                        <f:FormElement label="{captionMsg>/MATNO}" visible="true">
                             <f:fields>
                                 <Input id="MATNO" value="{headerData>/MATNO}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -45,13 +45,13 @@
                 </f:FormContainer>
                 <f:FormContainer ariaLabelledBy="Grp2">
                     <f:formElements>
-                        <f:FormElement label="Requisitioner" visible="true">
+                        <f:FormElement label="{captionMsg>/REQUISITIONER}" visible="true">
                                 <f:fields>
                                 <Input id="REQSTNR" value="{headerData>/REQSTNR}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
                             </f:fields>
                         </f:FormElement>
-                        <f:FormElement label="Request Date" visible="true">
+                        <f:FormElement label="{captionMsg>/REQDT}" visible="true">
                             <f:fields>
                                 <Input id="REQDT" value="{headerData>/REQDT}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -63,20 +63,20 @@
         </f:Form>
         <f:Form id="PRHeaderDetailForm2" editable="true">
             <f:layout>
-                <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3" singleContainerFullSize="false" />
+                <f:ResponsiveGridLayout columnsXL="3" columnsL="3" columnsM="3" singleContainerFullSize="false" />
             </f:layout>
             <f:formContainers>
                 <f:FormContainer>
                     <f:formElements>
-                        <f:FormElement label="GMC Desc." visible="true">
+                        <f:FormElement label="{captionMsg>/GMCDESCEN}" visible="true">
                             <f:fields>
-                                <Input id="REMARKS" value="{headerData>/GMCDESCEN}" editable="false" valueStateText="Required" 
+                                <Input id="GMCDESCEN" value="{headerData>/GMCDESCEN}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
                             </f:fields>
                         </f:FormElement>
                     </f:formElements>
                     <f:formElements>
-                        <f:FormElement label="Addtl. Desc." visible="true">
+                        <f:FormElement label="{captionMsg>/ADDTLDESCEN}" visible="true">
                             <f:fields>
                                 <Input id="d" value="{headerData>/ADDTLDESCEN}" editable="false" valueStateText="Required" 
                                     change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -84,7 +84,7 @@
                         </f:FormElement>
                     </f:formElements>
                     <f:layoutData>
-                        <l:GridData span="XL5 L7 M7 S12" />
+                        <l:GridData span="XL6 L9 M9 S12" />
                     </f:layoutData>
                 </f:FormContainer>
             </f:formContainers>

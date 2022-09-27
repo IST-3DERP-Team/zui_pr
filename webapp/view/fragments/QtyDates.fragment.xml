@@ -18,20 +18,20 @@
                 <f:formContainers>
                     <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >
                         <f:formElements>
-                            <f:FormElement label="Quantity" visible="true">
+                            <f:FormElement label="{captionMsg>/QUANTITY}" visible="true">
                                 <f:fields>
                                     <Input id="QUANTITY" value="{headerData>/QUANTITY}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
-                            <f:FormElement label="Ordered Quantity" visible="true">
+                            <f:FormElement label="{captionMsg>/ORDERQTY}" visible="true">
                                 <f:fields>
                                     <Input id="POQTY" value="{headerData>/POQTY}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
-                            <f:FormElement label="Open Quantity" visible="true">
+                            <f:FormElement label="{captionMsg>/OPENQTY}" visible="true">
                                 <f:fields>
                                     <Input id="OPENQTY" value="{headerData>/OPENQTY}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -41,19 +41,19 @@
                     </f:FormContainer>
                     <f:FormContainer ariaLabelledBy="Grp2">
                         <f:formElements>
-                            <f:FormElement label="Delivery Date" visible="true">
+                            <f:FormElement label="{captionMsg>/DELVDATE}" visible="true">
                                     <f:fields>
                                     <Input id="DELDT" value="{headerData>/DELDT}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
-                            <f:FormElement label="Request Date" visible="true">
+                            <f:FormElement label="{captionMsg>/REQDT}" visible="true">
                                 <f:fields>
                                     <Input id="FTYSTYLE" value="{headerData>/REQDT}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
-                             <f:FormElement label="Release Date" visible="true">
+                             <f:FormElement label="{captionMsg>/RELDT}" visible="true">
                                 <f:fields>
                                     <Input id="RELDT" value="{headerData>/RELDT}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>

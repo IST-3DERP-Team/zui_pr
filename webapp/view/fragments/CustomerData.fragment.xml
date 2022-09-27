@@ -18,7 +18,7 @@
                 <f:formContainers>
                     <f:FormContainer>
                         <f:formElements>
-                            <f:FormElement label="Supply Type" visible="true">
+                            <f:FormElement label="{captionMsg>/SUPTYP}" visible="true">
                                 <f:fields>
                                     <Input id="SUPTYP" value="{headerData>/SUPTYP}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -26,7 +26,7 @@
                             </f:FormElement>
                         </f:formElements>
                         <f:formElements>
-                            <f:FormElement label="Sales Group" visible="true">
+                            <f:FormElement label="{captionMsg>/SALESGRP}" visible="true">
                                 <f:fields>
                                     <Input id="SALESGRP" value="{headerData>/SALESGRP}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -34,7 +34,7 @@
                             </f:FormElement>
                         </f:formElements>
                         <f:formElements>
-                            <f:FormElement label="Customer Group" visible="true">
+                            <f:FormElement label="{captionMsg>/CUSTGRP}" visible="true">
                                 <f:fields>
                                     <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -42,7 +42,7 @@
                             </f:FormElement>
                         </f:formElements>
                         <f:formElements>
-                            <f:FormElement label="Season" visible="true">
+                            <f:FormElement label="{captionMsg>/SEASON}" visible="true">
                                 <f:fields>
                                     <Input id="SEASONCD" value="{headerData>/SEASONCD}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>

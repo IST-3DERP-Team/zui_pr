@@ -18,7 +18,7 @@
                 <f:formContainers>
                     <f:FormContainer>
                         <f:formElements>
-                            <f:FormElement label="Info Record" visible="true">
+                            <f:FormElement label="{captionMsg>/INFORECORD}" visible="true">
                                 <f:fields>
                                     <Input id="INFNR" value="{headerData>/INFNR}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -26,7 +26,7 @@
                             </f:FormElement>
                         </f:formElements>
                         <f:formElements>
-                            <f:FormElement label="Vendor" visible="true">
+                            <f:FormElement label="{captionMsg>/VENDOR}" visible="true">
                                 <f:fields>
                                     <Input id="VENDOR" value="{headerData>/VENDOR}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
@@ -34,7 +34,7 @@
                             </f:FormElement>
                         </f:formElements>
                         <f:formElements>
-                            <f:FormElement label="Purchase Org." visible="true">
+                            <f:FormElement label="{captionMsg>/PURORG}" visible="true">
                                 <f:fields>
                                     <Input id="PURORG" value="{headerData>/PURORG}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>

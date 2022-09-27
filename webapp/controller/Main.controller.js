@@ -26,6 +26,9 @@ sap.ui.define(
         onInit: function () {
             that = this;
             Common.openLoadingDialog(that);
+            that.callCaptionsAPI();
+            this.validationErrors = [];
+
             var oComponent = this.getOwnerComponent();
             this._router = oComponent.getRouter();
             this.setSmartFilterModel();
@@ -33,22 +36,21 @@ sap.ui.define(
             this._Model = this.getOwnerComponent().getModel();
             this._i18n = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
-            // this.getColumns();
             this._isEdited = false
             this._DiscardChangesDialog = null;
             this._oDataBeforeChange = {}
             this._sbuChange = false;
+            this._initLoadTbl = true;
             
             this.validationErrors = [];
             this.getView().setModel(new JSONModel({
-                dataMode: 'READ',
+                dataMode: 'NODATA',
                 sbu: ""
             }), "ui");
 
             var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
             oModel.read("/ZVB_3DERP_SBU_SH", {
                 success: function (oData, oResponse) {
-                    console.log(oData.results.length)
                     if (oData.results.length === 1) {
                          that.getView().getModel("ui").setProperty("/sbu", oData.results[0].SBU);
                     }
@@ -60,12 +62,7 @@ sap.ui.define(
                         that.byId("btnClose").setEnabled(false);
                         that.byId("btnSave").setEnabled(false);
                         that.byId("btnCancel").setEnabled(false);
-                        // that.byId("searchFieldMain").setEnabled(false);
-                        // that.byId("btnAssign").setEnabled(false);
-                        // that.byId("btnAssign").setEnabled(false);
-                        // that.byId("btnUnassign").setEnabled(false);
-                        // that.byId("btnCreatePO").setEnabled(false);
-                        // that.byId("btnTabLayout").setEnabled(false);
+                        that.byId("btnTabLayout").setEnabled(false);
                     }
                 },
                 error: function (err) { }
@@ -81,17 +78,90 @@ sap.ui.define(
             oSmartFilter.setModel(oModel);
         },
         
-        onSearch(){
-            Common.openLoadingDialog(that);
+        onSearch: async function(){
+            if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
+                this.onCancelEdit();
+            }else{
+                await this.getColumns("Search");
+                this.getView().getModel("ui").setProperty("/dataMode", 'READ');
+            }
+            
+        },
 
+        getColumns(type) {
+            var me = this;
+            Common.openLoadingDialog(that);
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            //get dynamic columns based on saved layout or ZERP_CHECK
+            var oJSONColumnsModel = new JSONModel();
+            var errorNull = [{}]
+            // this.oJSONModel = new JSONModel();
+
+            //MessageBox Message
+            var noLayoutMsg = this.getView().getModel("captionMsg").getData()["INFO_NO_LAYOUT"];
+
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+            oModel.setHeaders({
+                sbu: vSBU,
+                type: 'PRHDR',
+                tabname: 'ZDV_3DERP_PR'
+            });
+
+            oModel.read("/ColumnsSet", {
+                success: async function (oData, oResponse) {
+                    if(oData.results.length > 0){
+                        await oJSONColumnsModel.setData(oData);
+                        // me.oJSONModel.setData(oData);
+                        if(type === "Search"){
+                            await me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model\
+                            Common.closeLoadingDialog(that)
+                        }
+                        await me.getTableData(type);
+                        Common.closeLoadingDialog(that);
+                        me.byId("btnNew").setEnabled(true);
+                        me.byId("btnEdit").setEnabled(true);
+                        me.byId("btnDelete").setEnabled(true);
+                        me.byId("btnClose").setEnabled(true);
+                        me.byId("btnSave").setEnabled(true);
+                        me.byId("btnCancel").setEnabled(true);
+                        me.byId("btnTabLayout").setEnabled(true);
+
+                    }else{
+                        Common.closeLoadingDialog(that);
+                        await me.getView().setModel(oJSONColumnsModel, "Columns");
+                        await me.getView().setModel(oJSONColumnsModel, "TableData");
+                        await me.getTableData("Error");
+                        await me.setTableData();
+                        that.byId("btnNew").setEnabled(false);
+                        that.byId("btnEdit").setEnabled(false);
+                        that.byId("btnDelete").setEnabled(false);
+                        that.byId("btnClose").setEnabled(false);
+                        that.byId("btnSave").setEnabled(false);
+                        that.byId("btnCancel").setEnabled(false);
+                        that.byId("btnTabLayout").setEnabled(false);
+                        MessageBox.error(noLayoutMsg);
+                        that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
+                    }
+                },
+                error: function (err) { 
+                    Common.closeLoadingDialog(that);
+                    MessageBox.error(noLayoutMsg);
+                    that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
+                }
+            });
+        },
+
+        getTableData: function (type) {
             var me = this;
             var oModel = this.getOwnerComponent().getModel();
+
+            //get styles data for the table
+            var oJSONDataModel = new JSONModel();
             var aFilters = this.getView().byId("SmartFilterBar").getFilters();
             var oJSONDataModel = new JSONModel();                 
             // console.log(aFilters)
             if (aFilters.length > 0) {
                 aFilters[0].aFilters.forEach(item => {
-                    console.log(item)
                     if (item.sPath === 'PRNO') {
                         if (!isNaN(item.oValue1)) {
                             while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
@@ -99,183 +169,49 @@ sap.ui.define(
                     }
                 })
             }
-            oModel.read("/PRSet", { 
-                filters: aFilters,
-                success: function (oData, oResponse) {
-                    console.log(oData)
-                    
-                    oData.results.forEach((item, index) => {
-                        if (item.DELDT !== null)
-                            item.DELDT = dateFormat.format(item.DELDT);
-                    })
-                    oJSONDataModel.setData(oData);
-                    me.getView().setModel(oJSONDataModel, "TableData");
-                    Common.closeLoadingDialog(that);
-                    me.setEditTableData();
-                    // me.setChangeStatus(false);
-                },
-                error: function (err) { 
-                    console.log(err)
-                    Common.closeLoadingDialog(that);
-                }
-            });
-            
-        },
-
-        getColumns() {
-            var me = this;
-            Common.openLoadingDialog(that);
-
-            //get dynamic columns based on saved layout or ZERP_CHECK
-            var oJSONColumnsModel = new JSONModel();
-            // this.oJSONModel = new JSONModel();
-
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
-            console.log(oModel)
-            oModel.setHeaders({
-                sbu: 'VER',
-                type: 'PRHDR',
-                tabname: 'ZDV_3DERP_PR'
-            });
-
-            oModel.read("/ColumnsSet", {
-                success: function (oData, oResponse) {
-                    console.log(oData);
-                    oJSONColumnsModel.setData(oData);
-                    // me.oJSONModel.setData(oData);
-                    console.log(oJSONColumnsModel)
-                    me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model
-                    me.getTableData();
-                    Common.closeLoadingDialog(that);
-                },
-                error: function (err) { 
-                    Common.closeLoadingDialog(that);
-                }
-            });
-        },
-
-        getEditColumns() {
-            var me = this;
-
-            //get dynamic columns based on saved layout or ZERP_CHECK
-            var oJSONColumnsModel = new JSONModel();
-            // this.oJSONModel = new JSONModel();
-
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
-            console.log(oModel)
-            oModel.setHeaders({
-                sbu: 'VER',
-                type: 'PRHDR',
-                tabname: 'ZDV_3DERP_PR'
-            });
-
-            oModel.read("/ColumnsSet", {
-                success: function (oData, oResponse) {
-                    console.log(oData);
-                    oJSONColumnsModel.setData(oData);
-                    // me.oJSONModel.setData(oData);
-                    console.log(oJSONColumnsModel)
-                    me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model
-                },
-                error: function (err) { }
-            });
-        },
-
-        getTableData: function () {
-            var me = this;
-            var oModel = this.getOwnerComponent().getModel();
-
-            //get styles data for the table
-            var oJSONDataModel = new JSONModel();
-            // var aFilters = this.getView().byId("SmartFilterBar").getFilters();
-            // var oText = this.getView().byId("StylesCount"); //for the count of selected styles
-            // this.addDateFilters(aFilters); //date not automatically added to filters
 
             oModel.read("/PRSet", {
-                // filters: aFilters,
+                filters: aFilters,
                 success: function (oData, oResponse) {
 
                     oData.results.forEach((item, index) => {
                         if (item.DELDT !== null)
-                            item.DELDT = dateFormat.format(item.DELDT);
+                            item.DELDT = dateFormat.format(new Date(item.DELDT));
                     })
                     // oText.setText(oData.results.length + "");
                     oJSONDataModel.setData(oData);
                     me.getView().setModel(oJSONDataModel, "TableData");
-                    me.setTableData();
+                    if(type == "Search"){
+                        me.setTableData("Search");
+                    }
                     // me.setChangeStatus(false);
                 },
                 error: function (err) { }
             });
         },
 
-        setTableData: function () {
+        setTableData(type) {
             var me = this;
 
             //the selected dynamic columns
             var oColumnsModel = this.getView().getModel("Columns");
             var oDataModel = this.getView().getModel("TableData");
 
+            // console.log(oColumnsModel)
             //the selected styles data
             var oColumnsData = oColumnsModel.getProperty('/results');
             var oData = oDataModel.getProperty('/results');
             
-            oColumnsData.unshift({
-                "ColumnName": "Manage",
-                "ColumnLabel": "Manage",
-                "ColumnType": "SEL",
-                "Editable": false
-            });
-
-            //set the column and data model
-            var oModel = new JSONModel();
-            oModel.setData({
-                columns: oColumnsData,
-                rows: oData
-            });
-
-            var oTable = this.getView().byId("styleDynTable");
-            oTable.setModel(oModel);
-
-            //bind the dynamic column to the table
-            oTable.bindColumns("/columns", function (index, context) {
-                var sColumnId = context.getObject().ColumnName;
-                var sColumnLabel = context.getObject().ColumnLabel;
-                var sColumnType = context.getObject().ColumnType;
-                var sColumnVisible = context.getObject().Visible;
-                var sColumnSorted = context.getObject().Sorted;
-                var sColumnSortOrder = context.getObject().SortOrder;
-                // var sColumnToolTip = context.getObject().Tooltip;
-                //alert(sColumnId.);
-                console.log(sColumnId)
-                return new sap.ui.table.Column({
-                    id: sColumnId,
-                    label: sColumnLabel,
-                    template: me.columnTemplate(sColumnId, sColumnType),
-                    width: me.getColumnSize(sColumnId, sColumnType),
-                    sortProperty: sColumnId,
-                    filterProperty: sColumnId,
-                    autoResizable: true,
-                    visible: sColumnVisible,
-                    sorted: sColumnSorted,
-                    sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+            if(type == "Search"){
+                oColumnsData.unshift({
+                    "ColumnName": "Manage",
+                    "ColumnLabel": "Manage",
+                    "ColumnType": "SEL",
+                    "ColumnWidth": "80",
+                    "Editable": false
                 });
-            });
-
-            //bind the data to the table
-            oTable.bindRows("/rows");
-        },
-
-        setEditTableData: function () {
-            var me = this;
-
-            //the selected dynamic columns
-            var oColumnsModel = this.getView().getModel("Columns");
-            var oDataModel = this.getView().getModel("TableData");
-
-            //the selected styles data
-            var oColumnsData = oColumnsModel.getProperty('/results');
-            var oData = oDataModel.getProperty('/results');
+            }
+            
 
             //set the column and data model
             var oModel = new JSONModel();
@@ -295,14 +231,16 @@ sap.ui.define(
                 var sColumnVisible = context.getObject().Visible;
                 var sColumnSorted = context.getObject().Sorted;
                 var sColumnSortOrder = context.getObject().SortOrder;
+                var sColumnWidth = context.getObject().ColumnWidth;
                 // var sColumnToolTip = context.getObject().Tooltip;
                 //alert(sColumnId.);
-                console.log(sColumnId)
+                // console.log(context.getObject())
                 return new sap.ui.table.Column({
                     id: sColumnId,
                     label: sColumnLabel,
                     template: me.columnTemplate(sColumnId, sColumnType),
-                    width: me.getColumnSize(sColumnId, sColumnType),
+                    width: sColumnWidth + "px",
+                    hAlign: me.columnAlign(sColumnId),
                     sortProperty: sColumnId,
                     filterProperty: sColumnId,
                     autoResizable: true,
@@ -318,7 +256,7 @@ sap.ui.define(
 
         columnTemplate: function (sColumnId, sColumnType) {
             var oColumnTemplate;
-
+            // console.log(sColumnId);
             oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}" }); //default text
             
             if (sColumnType === "SEL") { 
@@ -351,6 +289,19 @@ sap.ui.define(
             }
 
             return oColumnTemplate;
+        },
+
+        columnAlign: function(sColumnId){
+            var ocolumnAlign;
+
+            if(sColumnId === "QUANTITY"){
+                ocolumnAlign = "End";
+            }else{
+                ocolumnAlign = "Center";
+            }
+
+            return ocolumnAlign;
+
         },
 
         getColumnSize: function (sColumnId, sColumnType) {
@@ -405,6 +356,12 @@ sap.ui.define(
         },
 
         onEditTbl: function(){
+            if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
+                return;
+            }
+            if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
+                return;
+            }
             var oModel = this.getOwnerComponent().getModel();
             var oEntitySet = "/PRSet";
             var me = this;
@@ -416,6 +373,11 @@ sap.ui.define(
             var aDataToEdit = [];
             var bDeleted = false, bWithMaterial = false;
             var iCounter = 0;
+
+            //MessageBox Message
+            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+            var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
+            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
             
             if (aSelIndices.length > 0) {
                 aSelIndices.forEach(item => {
@@ -430,7 +392,12 @@ sap.ui.define(
                         bDeleted = true;
 
                         if (aSelIndices.length === iCounter) {
-                            MessageBox.information("Selected record(s) either has assigned material or deleted already, no record to edit.");
+                            MessageBox.information(msgAlreadyDeleted);
+                        }
+                    }else if(aData.at(item).CLOSED === true){
+                        iCounter++;
+                        if (aSelIndices.length === iCounter) {
+                            MessageBox.information(msgAlreadyClosed);
                         }
                     }
                     else {
@@ -447,7 +414,7 @@ sap.ui.define(
 
                                 if (aSelIndices.length === iCounter) {
                                     if (aDataToEdit.length === 0) {
-                                        MessageBox.information("Selected record(s) either has assigned material already or deleted, no record to edit.");
+                                        MessageBox.information(msgNoDataToEdit);
                                     }
                                     else {
                                         me.byId("btnNew").setVisible(false);
@@ -456,13 +423,14 @@ sap.ui.define(
                                         me.byId("btnClose").setVisible(false);
                                         me.byId("btnSave").setVisible(true);
                                         me.byId("btnCancel").setVisible(true);
+                                        me.byId("btnTabLayout").setVisible(false);
 
 
                                         me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
                                         
                                         me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
-                                        me.getEditColumns();
-                                        me.setEditTableData();
+                                        me.getColumns("Edit");
+                                        me.setTableData();
                                         me.setRowEditMode("TableData");
                         
                                         me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
@@ -479,7 +447,7 @@ sap.ui.define(
             }
             else {
                 // aDataToEdit = aData;
-                MessageBox.information("No selected record(s) to edit.");
+                MessageBox.information(msgNoDataToEdit);
             }
             // aDataToEdit = aDataToEdit.filter(item => item.Deleted === false);
         },
@@ -497,7 +465,6 @@ sap.ui.define(
             var oModel = this.getOwnerComponent().getModel('ZVB_3DERP_PR_FILTERS_CDS');
 
             oTable.getColumns().forEach((col, idx) => {
-                console.log(col)
                 oColumnsData.filter(item => item.ColumnName === col.sId)
                     .forEach(ci => {
                         if (ci.Editable) {
@@ -521,20 +488,18 @@ sap.ui.define(
                                     //     }),
                                     //     templateShareable: false
                                     // },
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "QUANTITY"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: sap.m.InputType.Number,
-                                    value: "{path:'" + ci.ColumnName + "', type:'sap.ui.model.odata.type.Decimal', formatOptions:{ minFractionDigits:" + null + ", maxFractionDigits:" + null + " }, constraints:{ precision:" + ci.Decimal + ", scale:" + null + " }}",
+                                    value: "{path:'" + ci.ColumnName + "', type:'sap.ui.model.type.Decimal', formatOptions:{ minFractionDigits:" + null + ", maxFractionDigits:" + null + " }, constraints:{ precision:" + ci.Decimal + ", scale:" + null + " }}",
                                     
                                     maxLength: +ci.Length,
-                                    showValueHelp: true,
-                                    valueHelpRequest: this.handleValueHelp.bind(this),
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    liveChange: this.onNumberLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "DELDT"){
@@ -543,9 +508,8 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     displayFormat:"short",
                                     change:"handleChange",
-                                    class:"sapUiSmallMarginBottom"
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "BATCH"){
@@ -555,7 +519,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "MATGRP"){
@@ -568,7 +532,7 @@ sap.ui.define(
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SHIPTOPLANT"){
@@ -580,7 +544,7 @@ sap.ui.define(
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PLANTCD"){
@@ -592,7 +556,7 @@ sap.ui.define(
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "VENDOR"){
@@ -604,7 +568,7 @@ sap.ui.define(
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PURORG"){
@@ -614,7 +578,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "TRCKNO"){
@@ -624,7 +588,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "REQSTNR"){
@@ -634,7 +598,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SUPTYP"){
@@ -647,7 +611,7 @@ sap.ui.define(
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SALESGRP"){
@@ -657,7 +621,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "CUSTGRP"){
@@ -667,7 +631,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SEASONCD"){
@@ -677,7 +641,7 @@ sap.ui.define(
                                     value: "{" + ci.ColumnName + "}",
                                     maxLength: +ci.Length,
                                    
-                                    // change: this.onValueHelpLiveInputChange.bind(this)
+                                    change: this.onInputLiveChange.bind(this)
                                 }));
                             }
 
@@ -738,64 +702,76 @@ sap.ui.define(
             })
         },
         onInputLiveChange: function(oEvent) {
-            var oSource = oEvent.getSource();
-            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-            var sModel = oSource.getBindingInfo("value").parts[0].model;
-            
-            this.getView().getModel(sModel).setProperty(sRowPath + '/Edited', true);
-            
-            if (sModel === 'gmc') this._isGMCEdited = true;
-            else this._isAttrEdited = true;
+            this._isEdited = true;
         },
-        onValueHelpLiveInputChange: function(oEvent) {
-            if (this.validationErrors === undefined) this.validationErrors = [];
+        onNumberLiveChange: function(oEvent){
+            if (oEvent.getParameters().value.split(".").length > 1) {
+                if (oEvent.getParameters().value.split(".")[1].length > 3) {
+                    // console.log("invalid");
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Enter a number with a maximum of 3 decimal places.");
+                    this.validationErrors.push(oEvent.getSource().getId());
 
-            var oSource = oEvent.getSource();
-            var isInvalid = !oSource.getSelectedKey() && oSource.getValue().trim();
-            oSource.setValueState(isInvalid ? "Error" : "None");
-
-            var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
-            var sModel = oSource.getBindingInfo("value").parts[0].path;
-
-            console.log(oSource.getSuggestionItems())
-            console.log(oSource.getValue().trim())
-            console.log(sRowPath)
-            console.log(oSource.getBindingInfo("value"))
-            // if (!oSource.getSelectedKey()) {
-                oSource.getSuggestionItems().forEach(item => {
-                    // console.log(item.getProperty("key"), oSource.getValue().trim())
-                    if (item.getProperty("key") === oSource.getValue().trim()) {
-                        isInvalid = false;
-                        oSource.setValueState(isInvalid ? "Error" : "None");                            
-                        
-                        if (oSource.getBindingInfo("value").parts[0].path === 'MATTYP') {
-                            var et = item.getBindingContext().sPath;
-                            this.getView().getModel(sModel).setProperty(sRowPath + '/PROCESSCD', item.getBindingContext().getModel().oData[et.slice(1, et.length)].Processcd);
+                }else{
+                    oEvent.getSource().setValueState("None");
+                    this.validationErrors.forEach((item, index) => {
+                        if (item === oEvent.getSource().getId()) {
+                            this.validationErrors.splice(index, 1)
                         }
-                    }
-                })
-            // }
-
-            if (isInvalid) this.validationErrors.push(oEvent.getSource().getId());
-            else {
+                    })
+                }
+            }else{
+                oEvent.getSource().setValueState("None");
                 this.validationErrors.forEach((item, index) => {
                     if (item === oEvent.getSource().getId()) {
                         this.validationErrors.splice(index, 1)
                     }
                 })
             }
-
-            // this.getView().getModel(sModel).setProperty(sRowPath + '/Edited', true);
-
-            if (sModel === 'gmc') this._isGMCEdited = true;
-            else if (sModel === 'attributes') this._isAttrEdited = true;
-            // console.log(oSource.getBindingInfo("value").parts)
         },
+        // onValueHelpLiveInputChange: function(oEvent) {
+        //     if (this.validationErrors === undefined) this.validationErrors = [];
+
+        //     var oSource = oEvent.getSource();
+        //     var isInvalid = !oSource.getSelectedKey() && oSource.getValue().trim();
+        //     oSource.setValueState(isInvalid ? "Error" : "None");
+
+        //     var sRowPath = oSource.getBindingInfo("value").binding.oContext.sPath;
+        //     var sModel = oSource.getBindingInfo("value").parts[0].path;
+
+        //     // if (!oSource.getSelectedKey()) {
+        //         oSource.getSuggestionItems().forEach(item => {
+        //             // console.log(item.getProperty("key"), oSource.getValue().trim())
+        //             if (item.getProperty("key") === oSource.getValue().trim()) {
+        //                 isInvalid = false;
+        //                 oSource.setValueState(isInvalid ? "Error" : "None");                            
+                        
+        //                 if (oSource.getBindingInfo("value").parts[0].path === 'MATTYP') {
+        //                     var et = item.getBindingContext().sPath;
+        //                     this.getView().getModel(sModel).setProperty(sRowPath + '/PROCESSCD', item.getBindingContext().getModel().oData[et.slice(1, et.length)].Processcd);
+        //                 }
+        //             }
+        //         })
+        //     // }
+
+        //     if (isInvalid) this.validationErrors.push(oEvent.getSource().getId());
+        //     else {
+        //         this.validationErrors.forEach((item, index) => {
+        //             if (item === oEvent.getSource().getId()) {
+        //                 this.validationErrors.splice(index, 1)
+        //             }
+        //         })
+        //     }
+
+        //     // this.getView().getModel(sModel).setProperty(sRowPath + '/Edited', true);
+
+        //     if (sModel === 'gmc') this._isGMCEdited = true;
+        //     else if (sModel === 'attributes') this._isAttrEdited = true;
+        //     // console.log(oSource.getBindingInfo("value").parts)
+        // },
         handleValueHelp: function(oEvent) {
             var oModel = this.getOwnerComponent().getModel('ZVB_3DERP_PR_FILTERS_CDS');
-            console.log(oModel)
             var oSource = oEvent.getSource();
-            console.log(oSource)
             // var sEntity = oSource.getBindingInfo("suggestionItems").path;
             var sModel = oSource.getBindingInfo("value").parts[0].model;
             var _this = this;
@@ -869,12 +845,12 @@ sap.ui.define(
                             _this._valueHelpDialog = sap.ui.xmlfragment(
                                 "zuipr.view.dialog.ValueHelpDialog",
                                 _this
-                            ).setProperty("title", "Select Material");
+                            ).setProperty("title", "Select Material Group");
                         
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Material Group"
                                 })
                             )
                             _this.getView().addDependent(_this._valueHelpDialog);
@@ -883,7 +859,7 @@ sap.ui.define(
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Mat. Grp."
                                 })
                             )
                         }
@@ -910,12 +886,12 @@ sap.ui.define(
                             _this._valueHelpDialog = sap.ui.xmlfragment(
                                 "zuipr.view.dialog.ValueHelpDialog",
                                 _this
-                            ).setProperty("title", "Select Material");
+                            ).setProperty("title", "Select Ship-to Plant");
                         
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Ship-To Plant"
                                 })
                             )
                             _this.getView().addDependent(_this._valueHelpDialog);
@@ -924,7 +900,7 @@ sap.ui.define(
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Ship-To Plant"
                                 })
                             )
                         }
@@ -951,12 +927,12 @@ sap.ui.define(
                             _this._valueHelpDialog = sap.ui.xmlfragment(
                                 "zuipr.view.dialog.ValueHelpDialog",
                                 _this
-                            ).setProperty("title", "Select Material");
+                            ).setProperty("title", "Select Plant");
                         
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Plant"
                                 })
                             )
                             _this.getView().addDependent(_this._valueHelpDialog);
@@ -965,7 +941,7 @@ sap.ui.define(
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Plant"
                                 })
                             )
                         }
@@ -992,12 +968,12 @@ sap.ui.define(
                             _this._valueHelpDialog = sap.ui.xmlfragment(
                                 "zuipr.view.dialog.ValueHelpDialog",
                                 _this
-                            ).setProperty("title", "Select Material");
+                            ).setProperty("title", "Select Vendor");
                         
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Vendor"
                                 })
                             )
                             _this.getView().addDependent(_this._valueHelpDialog);
@@ -1006,7 +982,7 @@ sap.ui.define(
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Vendor"
                                 })
                             )
                         }
@@ -1033,12 +1009,12 @@ sap.ui.define(
                             _this._valueHelpDialog = sap.ui.xmlfragment(
                                 "zuipr.view.dialog.ValueHelpDialog",
                                 _this
-                            ).setProperty("title", "Select Material");
+                            ).setProperty("title", "Select Supply Type");
                         
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Supply Type"
                                 })
                             )
                             _this.getView().addDependent(_this._valueHelpDialog);
@@ -1047,7 +1023,7 @@ sap.ui.define(
                             _this._valueHelpDialog.setModel(
                                 new JSONModel({
                                     items: data.results,
-                                    title: "Material"
+                                    title: "Supply Type"
                                 })
                             )
                         }
@@ -1057,62 +1033,6 @@ sap.ui.define(
                     error: function (err) { }
                 })
             }
-            
-            // else {
-            //     var vCellPath = this._inputField;
-            //     var vColProp = this._aColumns[sModel].filter(item => item.name === vCellPath);
-            //     var vItemValue = vColProp[0].valueHelp.items.value;
-            //     var vItemDesc = vColProp[0].valueHelp.items.text;
-            //     var sEntity = vColProp[0].valueHelp.items.path;
-
-            //     oModel.read(sEntity, {
-            //         success: function (data, response) {
-            //             data.results.forEach(item => {
-            //                 item.VHTitle = item[vItemValue];
-            //                 item.VHDesc = item[vItemDesc];
-            //                 item.VHSelected = (item[vItemValue] === _this._inputValue);
-            //             });
-                        
-            //             var oVHModel = new JSONModel({
-            //                 items: data.results,
-            //                 title: vColProp[0].label,
-            //                 table: sModel
-            //             });                            
-
-            //             // create value help dialog
-            //             if (!_this._valueHelpDialog) {
-            //                 _this._valueHelpDialog = sap.ui.xmlfragment(
-            //                     "zuigmc2.view.ValueHelpDialog",
-            //                     _this
-            //                 );
-                            
-            //                 // _this._valueHelpDialog.setModel(
-            //                 //     new JSONModel({
-            //                 //         items: data.results,
-            //                 //         title: vColProp[0].label,
-            //                 //         table: sModel
-            //                 //     })
-            //                 // )
-
-            //                 _this._valueHelpDialog.setModel(oVHModel);
-            //                 _this.getView().addDependent(_this._valueHelpDialog);
-            //             }
-            //             else {
-            //                 _this._valueHelpDialog.setModel(oVHModel);
-            //                 // _this._valueHelpDialog.setModel(
-            //                 //     new JSONModel({
-            //                 //         items: data.results,
-            //                 //         title: vColProp[0].label,
-            //                 //         table: sModel
-            //                 //     })
-            //                 // )
-            //             }                            
-
-            //             _this._valueHelpDialog.open();
-            //         },
-            //         error: function (err) { }
-            //     })
-            // }
         },
         handleValueHelpSearch : function (oEvent) {
             var sValue = oEvent.getParameter("value");
@@ -1131,14 +1051,10 @@ sap.ui.define(
             if (oEvent.sId === "confirm") {
                 var oSelectedItem = oEvent.getParameter("selectedItem");
                 var sTable = this._valueHelpDialog.getModel().getData().table;
-                console.log(oSelectedItem)
-                console.log(this._inputValue)
-                console.log(oSelectedItem.getTitle())
                 if (oSelectedItem) {
                     this._inputSource.setValue(oSelectedItem.getTitle());
 
                     var sRowPath = this._inputSource.getBindingInfo("value").binding.oContext.sPath;
-                    console.log(sRowPath)
                     if (this._inputValue !== oSelectedItem.getTitle()) {                                
                         this.getView().getModel(sTable).setProperty(sRowPath + '/Edited', true);
 
@@ -1183,9 +1099,10 @@ sap.ui.define(
                 this.byId("btnClose").setVisible(true);
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
+                this.byId("btnTabLayout").setVisible(true);
                 this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                this.getEditColumns();
-                this.setEditTableData();
+                this.getColumns("Cancel");
+                this.setTableData();
 
                 if (this.getView().getModel("ui").getData().dataMode === 'NEW') this.setFilterAfterCreate();
 
@@ -1200,11 +1117,12 @@ sap.ui.define(
                 this.byId("btnClose").setVisible(true);
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
+                this.byId("btnTabLayout").setVisible(true);
                 // this.onTableResize("Hdr","Min");
                 // this.setRowReadMode("gmc");\
                 this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                this.getEditColumns();
-                this.setEditTableData();
+                this.getColumns("Discard");
+                this.setTableData();
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
                 this._isEdited = false;
             }
@@ -1246,7 +1164,10 @@ sap.ui.define(
 
             return oConnector;
         },
-        onSaveEdit(){
+        onSaveEdit: async function(){
+            if(this.getView().getModel("ui").getData().dataMode != 'EDIT'){
+                return;
+            }
             Common.openLoadingDialog(that);
             var me = this;
             var oTable = this.byId("styleDynTable");
@@ -1256,9 +1177,15 @@ sap.ui.define(
             var oParamData = [];
             var oParam = {};
             var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var vSBU = 'VER';
             var message = "";
+
+            //MessageBox Message
+            var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
             
+            if (this.validationErrors.length != 0){
+                MessageBox.error(msgError);
+                return;
+            }
             oSelectedIndices.forEach(item => {
                 oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
             })
@@ -1271,7 +1198,7 @@ sap.ui.define(
                     Matno: aData.at(item).MATNO,
                     Uom: aData.at(item).UOM,
                     Quantity: aData.at(item).QUANTITY,
-                    DelivDate: sapDateFormat.format(new Date(aData.at(item).DELDT)),
+                    DelivDate: sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
                     Batch: aData.at(item).BATCH,
                     Plant: aData.at(item).PLANTCD,
                     Purgrp: aData.at(item).PURGRP,
@@ -1287,12 +1214,12 @@ sap.ui.define(
                     Callbapi: 'X'
                 })
             })
-            console.log(oParamData)
+            // console.log(oParamData)
 
             if (oParamData.length > 0) {
                 oParam['N_ChangePRParam'] = oParamData;
                 oParam['N_ChangePRReturn'] = [];
-                oModel.create("/ChangePRSet", oParam, {
+                await oModel.create("/ChangePRSet", oParam, {
                     method: "POST",
                     success: function(oResultCPR, oResponse) {
                         oSelectedIndices.forEach((item, index) => {
@@ -1316,35 +1243,67 @@ sap.ui.define(
                         
                     },
                     error: function() {
-                        message = "Encountered Error during PR Update"
+                        message = msgError
                         Common.closeLoadingDialog(that);
                         MessageBox.error(message);
                         return;
                     }
                 })
+                var prModel = this.getOwnerComponent().getModel();
+                var prEntitySet = "/PRSet";  
 
-                for (var i = 0; i < this._oDataBeforeChange.results.length; i++) {
-                    for(var x = 0; x < aData.length; x++){
-                        if (this._oDataBeforeChange.results[i].PRNO === aData.at(x).PRNO && this._oDataBeforeChange.results[i].PRITM === aData.at(x).PRITM) {
-                            this._oDataBeforeChange.results[i] = aData.at(x);
-                            break;
-                        }
-                    }
+                // for (var i = 0; i < this._oDataBeforeChange.results.length; i++) {
+                //     for(var x = 0; x < aData.length; x++){
+                //         if (this._oDataBeforeChange.results[i].PRNO === aData.at(x).PRNO && this._oDataBeforeChange.results[i].PRITM === aData.at(x).PRITM) {
+                //             this._oDataBeforeChange.results[i] = aData.at(x);
+                //             break;
+                //         }
+                //     }
                     
-                }
+                // }
+                await oModel.attachRequestCompleted(function(){
+                    for(var x = 0; x < aData.length; x++){
+                        prModel.read(prEntitySet + "(PRNO='" + aData.at(x).PRNO + "',PRITM='"+ aData.at(x).PRITM +"')", {
+                            success: function (data, response) {
+                                data.DELDT = dateFormat.format(new Date(data.DELDT));
+                                for (var i = 0; i < me._oDataBeforeChange.results.length; i++) {
+                                    if (me._oDataBeforeChange.results[i].PRNO === data.PRNO && me._oDataBeforeChange.results[i].PRITM === data.PRITM) {
+                                        // console.log(me._oDataBeforeChange.results[i]);
+                                        // console.log(data);
+                                        me._oDataBeforeChange.results[i] = data;
+                                        // console.log(me._oDataBeforeChange.results[i]);
+                                        me.getView().getModel("TableData").setProperty("/", me._oDataBeforeChange);  
+                                    }
+                                }
+                                me.getColumns("Save");
+                                me.setTableData();  
+                                                 
+                            },
+                            error: function (err) {
+                            }
+                        }); 
+                    }
+                })
+                
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
                 this.byId("btnClose").setVisible(true);
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
-                this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                this.getEditColumns();
-                this.setEditTableData();
+                this.byId("btnTabLayout").setVisible(true);
+                
+                
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
             }
         },
         onDeletePR: async function(){
+            if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
+                return;
+            }
+            if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
+                return;
+            }
             this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
             var oTable = this.byId("styleDynTable");
             var oSelectedIndices = oTable.getSelectedIndices();
@@ -1356,6 +1315,12 @@ sap.ui.define(
             var iCounter = 0;
             var message = "";
             var isError = false;
+
+            //MessageBox Message
+            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+            var msgNoDataToDelete = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_DELETE"];
+            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
             
             if(oSelectedIndices.length > 0){
                 oSelectedIndices.forEach(item => {
@@ -1369,13 +1334,13 @@ sap.ui.define(
                         
                         iCounter++;
                         if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information("Selected Record Already Deleted");
+                            MessageBox.information(msgAlreadyDeleted);
                         }
                     }else if(aData.at(item).CLOSED === true){
                         iCounter++;
 
                         if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information("Selected Record is Already Closed");
+                            MessageBox.information(msgAlreadyClosed);
                         }
                     }
                     else{
@@ -1401,7 +1366,7 @@ sap.ui.define(
                     await oModel.create("/DelClosePRSet", oParam, {
                         method: "POST",
                         success: async function(oResultDCPR, oResponse){
-                            console.log(oResultDCPR)
+                            // console.log(oResultDCPR)
                             await oSelectedIndices.forEach((item, index) => {
                                 
                                 var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
@@ -1414,7 +1379,7 @@ sap.ui.define(
                                     }
                                 }else{
                                     isError = true;
-                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " is Either Already Deleted or Closed" + "\n"
+                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                 }
                             });
                             
@@ -1429,16 +1394,19 @@ sap.ui.define(
                         }
                     })
                     this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    this.getEditColumns();
-                    this.setEditTableData();
+                    this.getColumns("Delete");
+                    this.setTableData();
                 }
             }else{
-                MessageBox.information("No selected record(s) to Delete.");
+                MessageBox.information(msgNoDataToDelete);
             }
             
             
         },
         onClosePR: async function(){
+            if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
+                return;
+            }
             this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
             var oTable = this.byId("styleDynTable");
             var oSelectedIndices = oTable.getSelectedIndices();
@@ -1450,6 +1418,12 @@ sap.ui.define(
             var iCounter = 0;
             var message = "";
             var isError = false;
+
+            //MessageBox Message
+            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+            var msgNoDataToClose = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_CLOSE"];
+            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
 
             if(oSelectedIndices.length > 0){
                 oSelectedIndices.forEach(item => {
@@ -1463,12 +1437,12 @@ sap.ui.define(
                         
                         iCounter++;
                         if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information("Selected Record is Marked as Deleted");
+                            MessageBox.information(msgAlreadyDeleted);
                         }
                     }else if(aData.at(item).CLOSED === true){
                         iCounter++;
                         if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information("Selected Record is Already Closed");
+                            MessageBox.information(msgAlreadyClosed);
                         }
                     }
                     else{
@@ -1493,7 +1467,7 @@ sap.ui.define(
                     await oModel.create("/DelClosePRSet", oParam, {
                         method: "POST",
                         success: async function(oResultDCPR, oResponse){
-                            console.log(oResultDCPR)
+                            // console.log(oResultDCPR)
                             await oSelectedIndices.forEach((item, index) => {
                                 
                                 var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
@@ -1506,7 +1480,7 @@ sap.ui.define(
                                     }
                                 }else{
                                     isError = true;
-                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " is Either Already Closed or Deleted" + "\n"
+                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                 }
                             });
                             
@@ -1522,14 +1496,116 @@ sap.ui.define(
 
                     })
                     this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    this.getEditColumns();
-                    this.setEditTableData();
+                    this.getColumns("Close");
+                    this.setTableData();
                 }
                 
             }else{
-                MessageBox.information("No selected record(s) to Close.");
+                MessageBox.information(msgNoDataToClose);
             }
         },
+
+        onSaveTableLayout: function () {
+            //saving of the layout of table
+            var me = this;
+            var ctr = 1;
+            var oTable = this.getView().byId("styleDynTable");
+            var oColumns = oTable.getColumns();
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+
+            var oParam = {
+                "SBU": vSBU,
+                "TYPE": "PRHDR",
+                "TABNAME": "ZDV_3DERP_PR",
+                "TableLayoutToItems": []
+            };
+            
+            //get information of columns, add to payload
+            oColumns.forEach((column) => {
+                oParam.TableLayoutToItems.push({
+                    COLUMNNAME: column.sId,
+                    ORDER: ctr.toString(),
+                    SORTED: column.mProperties.sorted,
+                    SORTORDER: column.mProperties.sortOrder,
+                    SORTSEQ: "1",
+                    VISIBLE: column.mProperties.visible,
+                    WIDTH: column.mProperties.width.replace('rem','')
+                });
+
+                ctr++;
+            });
+
+            //call the layout save
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+
+            oModel.create("/TableLayoutSet", oParam, {
+                method: "POST",
+                success: function(data, oResponse) {
+                    sap.m.MessageBox.information("Layout saved.");
+                    //Common.showMessage(me._i18n.getText('t6'));
+                },
+                error: function(err) {
+                    sap.m.MessageBox.error(err);
+                }
+            });                
+        },
+
+        callCaptionsAPI: async function(){
+            var oJSONModel = new JSONModel();
+            var oDDTextParam = [];
+            var oDDTextResult = [];
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+
+            //SmartFilter Search Label
+            oDDTextParam.push({CODE: "SBU"});
+            oDDTextParam.push({CODE: "PRNO"});
+            oDDTextParam.push({CODE: "DOCTYP"});
+            oDDTextParam.push({CODE: "PLANTCD"});
+            oDDTextParam.push({CODE: "SHIPTOPLANT"});
+            oDDTextParam.push({CODE: "PURGRP"});
+            oDDTextParam.push({CODE: "VENDOR"});
+            oDDTextParam.push({CODE: "FTYSTYLE"});
+            oDDTextParam.push({CODE: "MATGRP"});
+            oDDTextParam.push({CODE: "MATTYP"});
+            oDDTextParam.push({CODE: "IONO"});
+            oDDTextParam.push({CODE: "BATCH"});
+
+            //Button Label
+            oDDTextParam.push({CODE: "NEW"});
+            oDDTextParam.push({CODE: "EDIT"});
+            oDDTextParam.push({CODE: "DELETE"});
+            oDDTextParam.push({CODE: "CLOSE"});
+            oDDTextParam.push({CODE: "SAVE"});
+            oDDTextParam.push({CODE: "CANCEL"});
+            oDDTextParam.push({CODE: "SAVELAYOUT"});
+
+            //MessageBox
+            oDDTextParam.push({CODE: "INFO_NO_LAYOUT"});
+            oDDTextParam.push({CODE: "INFO_ALREADY_DELETED"});
+            oDDTextParam.push({CODE: "INFO_ERROR"});
+            oDDTextParam.push({CODE: "INFO_ALREADY_CLOSED"});
+            oDDTextParam.push({CODE: "INFO_NO_RECORD_SELECT"});
+            oDDTextParam.push({CODE: "INFO_NO_DATA_EDIT"});
+            oDDTextParam.push({CODE: "INFO_NO_DATA_DELETE"});
+            oDDTextParam.push({CODE: "INFO_NO_DATA_CLOSE"});
+            oDDTextParam.push({CODE: "INFO_DELETED_OR_CLOSED"});
+
+            await oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
+                method: "POST",
+                success: function(oData, oResponse) {
+                    oData.CaptionMsgItems.results.forEach(item=>{
+                        oDDTextResult[item.CODE] = item.TEXT;
+                    })
+                    
+                    // console.log(oDDTextResult)
+                    oJSONModel.setData(oDDTextResult);
+                    that.getView().setModel(oJSONModel, "captionMsg");
+                },
+                error: function(err) {
+                    sap.m.MessageBox.error(err);
+                }
+            });
+        }
 
       });
     }

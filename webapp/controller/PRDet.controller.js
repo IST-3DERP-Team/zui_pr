@@ -10,7 +10,7 @@ sap.ui.define([
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, Filter, Common, Utils, JSONModel, jQuery, HashChanger) {
+    function (Controller, Filter, Common, JSONModel, Utils, jQuery, HashChanger) {
         "use strict";
 
         var that;
@@ -24,6 +24,7 @@ sap.ui.define([
                 //Initialize router
                 var oComponent = this.getOwnerComponent();
                 this._router = oComponent.getRouter();
+                that.callCaptionsAPI();
                 this._router.getRoute("PRDetail").attachPatternMatched(this._routePatternMatched, this);
                 
                 //Initialize translations
@@ -46,6 +47,69 @@ sap.ui.define([
                 // //Attachments
                 // this.bindUploadCollection();
                 // this.getView().getModel("FileModel").refresh();
+            },
+            callCaptionsAPI: async function(){
+                var oJSONModel = new JSONModel();
+                var oDDTextParam = [];
+                var oDDTextResult = [];
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+    
+                //Detail IconTabFilter
+                oDDTextParam.push({CODE: "MATDATA"});
+                oDDTextParam.push({CODE: "QTYDT"});
+                oDDTextParam.push({CODE: "SUPTYP"});
+                oDDTextParam.push({CODE: "CUSTDATA"});
+
+                //Header Top
+                oDDTextParam.push({CODE: "CREATEDBY"});
+                oDDTextParam.push({CODE: "CREATEDDT"});
+                oDDTextParam.push({CODE: "HEADER"});
+                oDDTextParam.push({CODE: "DETAILS"});
+                //Header
+                oDDTextParam.push({CODE: "PRNO"});
+                oDDTextParam.push({CODE: "PRITM"});
+                oDDTextParam.push({CODE: "MATNO"});
+                oDDTextParam.push({CODE: "REQUISITIONER"});
+                oDDTextParam.push({CODE: "REQDT"});
+                oDDTextParam.push({CODE: "GMCDESCEN"});
+                oDDTextParam.push({CODE: "ADDTLDESCEN"});
+                //Material Data
+                oDDTextParam.push({CODE: "SHORTTEXT"});
+                oDDTextParam.push({CODE: "BATCH"});
+                oDDTextParam.push({CODE: "MATGRP"});
+                oDDTextParam.push({CODE: "MATTYP"});
+                //Quantities/Dates
+                oDDTextParam.push({CODE: "QUANTITY"});
+                oDDTextParam.push({CODE: "ORDERQTY"});
+                oDDTextParam.push({CODE: "OPENQTY"});
+                oDDTextParam.push({CODE: "DELVDATE"});
+                oDDTextParam.push({CODE: "REQDT"});
+                oDDTextParam.push({CODE: "RELDT"});
+                //Supply Type
+                oDDTextParam.push({CODE: "INFORECORD"});
+                oDDTextParam.push({CODE: "VENDOR"});
+                oDDTextParam.push({CODE: "PURORG"});
+                //Customer Data
+                oDDTextParam.push({CODE: "SUPTYP"});
+                oDDTextParam.push({CODE: "SALESGRP"});
+                oDDTextParam.push({CODE: "CUSTGRP"});
+                oDDTextParam.push({CODE: "SEASON"});
+                
+                await oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
+                    method: "POST",
+                    success: function(oData, oResponse) {
+                        oData.CaptionMsgItems.results.forEach(item=>{
+                            oDDTextResult[item.CODE] = item.TEXT;
+                        })
+                        
+                        console.log(oDDTextResult)
+                        oJSONModel.setData(oDDTextResult);
+                        that.getView().setModel(oJSONModel, "captionMsg");
+                    },
+                    error: function(err) {
+                        sap.m.MessageBox.error(err);
+                    }
+                });
             },
             getHeaderData: function () {
                 var me = this;

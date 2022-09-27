@@ -25,15 +25,6 @@
                     "odataVersion": "2.0"
                 }
             },
-            "ZGW_3DERP_COMMON_SRV": {
-                "uri": "/sap/opu/odata/sap/ZGW_3DERP_COMMON_SRV",
-                "type": "OData",
-                "settings": {
-                    "odataVersion": "2.0",
-                    "annotations": [],
-                    "localUri": "localService/ZGW_3DERP_COMMON_SRV/metadata.xml"
-                }
-            },
             "ZGW_3DERP_RFC_SRV": {
                 "uri": "/sap/opu/odata/sap/ZGW_3DERP_RFC_SRV/",
                 "type": "OData",
@@ -59,6 +50,15 @@
                         "ZVB_3DERP_PR_FILTERS_CDS_Annotation"
                     ],
                     "localUri": "localService/ZVB_3DERP_PR_FILTERS_CDS/metadata.xml"
+                }
+            },
+            "ZGW_3DERP_COMMON_SRV": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_COMMON_SRV",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [],
+                    "localUri": "localService/ZGW_3DERP_COMMON_SRV/metadata.xml"
                 }
             }
         }
@@ -94,6 +94,17 @@
                 "sap.ushell": {}
             }
         },
+        "commands": {
+			"Save": {
+				"shortcut": "Ctrl+S"
+			},
+			"Delete": {
+				"shortcut": "Ctrl+D"
+			},
+            "Edit": {
+				"shortcut": "Ctrl+E"
+			}
+		},
         "contentDensities": {
             "compact": true,
             "cozy": true
@@ -110,15 +121,6 @@
                 "preload": true,
                 "settings": {}
             },
-            "ZGW_3DERP_COMMON_SRV": {
-                "dataSource": "ZGW_3DERP_COMMON_SRV",
-                "preload": true,
-                "settings": {
-                    "defaultBindingMode": "TwoWay",
-                    "defaultCountMode": "Inline",
-                    "refreshAfterChange": false
-                }
-            },
             "ZGW_3DERP_RFC_SRV": {
                 "dataSource": "ZGW_3DERP_RFC_SRV",
                 "preload": true,
@@ -130,6 +132,15 @@
             },
             "ZVB_3DERP_PR_FILTERS_CDS": {
                 "dataSource": "ZVB_3DERP_PR_FILTERS_CDS",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            },
+            "ZGW_3DERP_COMMON_SRV": {
+                "dataSource": "ZGW_3DERP_COMMON_SRV",
                 "preload": true,
                 "settings": {
                     "defaultBindingMode": "TwoWay",

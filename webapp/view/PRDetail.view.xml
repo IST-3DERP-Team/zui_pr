@@ -11,48 +11,51 @@
     xmlns:c="zuipr.control" 
     xmlns:t="sap.ui.table" >
     <Page showHeader="false" title="Manage Style" showNavButton="true" navButtonPress="onNavBack">
+        <content>
+            <VBox fitContainer="true">
+                 <!-- OBJECT HEADER -->
+                <ObjectHeader id="objectHeader" responsive="true" fullScreenOptimized="true" intro="{captionMsg>/PRITM}: {headerData>/PRITM}" backgroundDesign="Solid" icon="sap-icon://blank-tag-2"
+                        title="{captionMsg>/PRNO}: {headerData>/PRNO}" number="{headerData>/Statuscd}" numberUnit="{i18n>Status}" numberState="{= ${headerData>/Statuscd} === 'CMP' ? 'Success' : ${headerData>/Statuscd} === 'CRT' ? 'Error' : 'Warning'}">
+                    <attributes>
+                        <ObjectAttribute title="{captionMsg>/CREATEDBY}" text="{headerData>/CREATEDBY}"/>
+                        <ObjectAttribute title="{captionMsg>/CREATEDDT}" text="{headerData>/CHANGEDT}"/>
+                    </attributes>
+                </ObjectHeader>
+                <!-- HEADER -->
+                <core:Fragment fragmentName="zuipr.view.fragments.PRHeader" type="XML"/>
+                
+                <!-- DETAILS -->
+                <Panel id="detailPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
+                    <headerToolbar>
+                        <Toolbar height="3rem" style="Clear">
+                            <Title text="{captionMsg>/DETAILS}" />
+                        </Toolbar>
+                    </headerToolbar>
+                    <IconTabBar tabDensityMode="Cozy" expandable="false" class="sapUiNoContentPadding">
+                        <items>
+                            <IconTabFilter text="{captionMsg>/MATDATA}" tooltip="{i18n>Styleattributes}">
+                                <core:Fragment fragmentName="zuipr.view.fragments.MaterialData" type="XML"/>
+                            </IconTabFilter>
 
-        <!-- OBJECT HEADER -->
-        <ObjectHeader id="objectHeader" responsive="true" fullScreenOptimized="true" intro="PR Item: {headerData>/PRITM}" backgroundDesign="Solid" icon="sap-icon://blank-tag-2"
-		        title="PR No: {headerData>/PRNO}" number="{headerData>/Statuscd}" numberUnit="{i18n>Status}" numberState="{= ${headerData>/Statuscd} === 'CMP' ? 'Success' : ${headerData>/Statuscd} === 'CRT' ? 'Error' : 'Warning'}">
-            <attributes>
-                <ObjectAttribute title="Created By" text="{headerData>/CREATEDBY}"/>
-                <ObjectAttribute title="Change On" text="{headerData>/CHANGEDT}"/>
-            </attributes>
-        </ObjectHeader>
-         <!-- HEADER -->
-        <core:Fragment fragmentName="zuipr.view.fragments.PRHeader" type="XML"/>
-         
-        <!-- DETAILS -->
-        <Panel id="detailPanel" expandable="true" expanded="false" width="auto" class="sapUiSizeCompact">
-            <headerToolbar>
-                <Toolbar height="3rem" style="Clear">
-                    <Title text="{i18n>Detail}" />
-                </Toolbar>
-            </headerToolbar>
-            <IconTabBar tabDensityMode="Cozy" expandable="false" class="sapUiNoContentPadding">
-                <items>
-                    <IconTabFilter text="Material Data" tooltip="{i18n>Styleattributes}">
-                        <core:Fragment fragmentName="zuipr.view.fragments.MaterialData" type="XML"/>
-                    </IconTabFilter>
+                            <!-- VERSIONS -->
+                            <IconTabFilter text="{captionMsg>/QTYDT}" tooltip="{i18n>Manageversions}">
+                                <core:Fragment fragmentName="zuipr.view.fragments.QtyDates" type="XML"/>
+                            </IconTabFilter>
 
-                    <!-- VERSIONS -->
-                    <IconTabFilter text="Quantities/Dates" tooltip="{i18n>Manageversions}">
-                        <core:Fragment fragmentName="zuipr.view.fragments.QtyDates" type="XML"/>
-                    </IconTabFilter>
-
-                    <!-- ATTACHMENTS -->
-                    <IconTabFilter text="Supply Type" tooltip="{i18n>Manageattachments}">
-                        <core:Fragment fragmentName="zuipr.view.fragments.SupplyType" type="XML"/>
-                    </IconTabFilter>
-                     <!-- ATTACHMENTS -->
-                    <IconTabFilter text="Customer Data" tooltip="{i18n>Manageattachments}">
-                        <core:Fragment fragmentName="zuipr.view.fragments.CustomerData" type="XML"/>
-                    </IconTabFilter>
-                </items>
-            </IconTabBar>
-        </Panel>
-        
-        <!-- <VBox height="200px"/> -->
+                            <!-- ATTACHMENTS -->
+                            <IconTabFilter text="{captionMsg>/SUPTYP}" tooltip="{i18n>Manageattachments}">
+                                <core:Fragment fragmentName="zuipr.view.fragments.SupplyType" type="XML"/>
+                            </IconTabFilter>
+                            <!-- ATTACHMENTS -->
+                            <IconTabFilter text="{captionMsg>/CUSTDATA}" tooltip="{i18n>Manageattachments}">
+                                <core:Fragment fragmentName="zuipr.view.fragments.CustomerData" type="XML"/>
+                            </IconTabFilter>
+                        </items>
+                    </IconTabBar>
+                </Panel>
+                
+                <!-- <VBox height="200px"/> -->
+            </VBox>
+        </content>
     </Page>
 </mvc:View>

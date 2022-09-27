@@ -9,79 +9,117 @@
 	controllerName="zuipr.controller.Main"
     displayBlock="true">
     <m:Page showHeader="false">
-        <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="SBU" mandatory="mandatory" width="50px">
-                    <smartFilterBar:customControl>
-                        <m:ComboBox id="cboxSBU"
-                            change="onSBUChange"
-                            items="{
-                                path: '/ZVB_3DERP_SBU_SH'
-                            }"
-                            >
-                            <core:Item key="{SBU}" text="{SBU}" />
-                        </m:ComboBox>                                  
-                    </smartFilterBar:customControl>
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterDocTyp" key="DOCTYP" groupId="_BASIC" label="Document Type" tooltip="Document Type" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterPurPlant" key="PLANTCD" groupId="_BASIC" label="Plant Code" tooltip="Plant Code" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterShipToPlant" key="SHIPTOPLANT" groupId="_BASIC" label="Ship to Plant" tooltip="Ship to Plant" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterPurGrp" key="PURGRP" groupId="_BASIC" label="Purchasing Group" tooltip="Purchasing Group" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="Vendor" tooltip="Vendor" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="Material Group" tooltip="Material Group" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="Material Type" tooltip="Material Type" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="Season" tooltip="Season" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-            <smartFilterBar:controlConfiguration>
-                <smartFilterBar:ControlConfiguration id="filterPRNO" key="PRNO" groupId="_BASIC" label="PR Number" tooltip="PR Number" preventInitialDataFetchInValueHelpDialog="false">
-                </smartFilterBar:ControlConfiguration>
-            </smartFilterBar:controlConfiguration>
-        </smartFilterBar:SmartFilterBar>
+        <m:dependents>
+            <core:CommandExecution id="CE_SAVE" command="Save" enabled="true" execute="onSaveEdit" />
+            <core:CommandExecution id="CE_EDIT" command="Edit" enabled="true" execute="onEditTbl" />
+            <core:CommandExecution id="CE_DELETE" command="Delete" enabled="true" execute="onDeletePR" />
+        </m:dependents>
+        <m:content>
+            <m:VBox fitContainer="true">
+                <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" persistencyKey="3DERP_StylesPKey" filterContainerWidth="15rem">
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="{captionMsg>/SBU}" mandatory="mandatory" width="50px">
+                            <smartFilterBar:customControl>
+                                <m:ComboBox id="cboxSBU"
+                                    change="onSBUChange"
+                                    items="{
+                                        path: '/ZVB_3DERP_SBU_SH'
+                                    }"
+                                    >
+                                    <core:Item key="{SBU}" text="{SBU}" />
+                                </m:ComboBox>                                  
+                            </smartFilterBar:customControl>
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterDocTyp" key="DOCTYP" groupId="_BASIC" label="{captionMsg>/DOCTYP}" tooltip="{captionMsg>/DOCTYP}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterPurPlant" key="PLANTCD" groupId="_BASIC" label="{captionMsg>/PLANTCD}" tooltip="{captionMsg>/PLANTCD}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterShipToPlant" key="SHIPTOPLANT" groupId="_BASIC" label="{captionMsg>/SHIPTOPLANT}" tooltip="{captionMsg>/SHIPTOPLANT}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterPurGrp" key="PURGRP" groupId="_BASIC" label="{captionMsg>/PURGRP}" tooltip="{captionMsg>/PURGRP}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="{captionMsg>/VENDOR}" tooltip="{captionMsg>/VENDOR}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="{captionMsg>/MATGRP}" tooltip="{captionMsg>/MATGRP}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="{captionMsg>/MATTYP}" tooltip="{captionMsg>/MATTYP}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/BATCH}" tooltip="{captionMsg>/BATCH}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterPRNO" key="PRNO" groupId="_BASIC" label="{captionMsg>/PRNO}" tooltip="{captionMsg>/PRNO}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:layoutData>
+                        <m:FlexItemData growFactor="0"/>
+                    </smartFilterBar:layoutData>
+                </smartFilterBar:SmartFilterBar>
 
-        <m:Toolbar id="tableToolbar" class="sapUiSmallMargin">
-            <m:HBox>
-                <!-- <m:Title id="StylesCount"/> -->
-                <!-- <m:Title text="PR" class="sapUiTinyMarginBegin"/> -->
-            </m:HBox>
-            <m:ToolbarSpacer/>
-            <m:Button id="btnSave" text="Save" icon="sap-icon://save" tooltip="Save" press="onSaveEdit" visible="false" />
-            <m:Button id="btnCancel" text="Cancel" icon="sap-icon://sys-cancel" tooltip="Cancel" press="onCancelEdit" visible="false" />
-            <m:Button id="btnNew" text="New" icon="sap-icon://add-document" tooltip="New" press="onCreateNewStyle"/>
-            <m:Button id="btnEdit" text="Edit" icon="sap-icon://edit" tooltip="Edit" press="onEditTbl"/>
-            <m:Button id="btnDelete" text="Delete" icon="sap-icon://delete" tooltip="Delete" press="onDeletePR"/>
-            <m:Button id="btnClose" text="Close" icon="sap-icon://complete" tooltip="Close" press="onClosePR"/>
-        </m:Toolbar>
-        
-        <!-- Styles Table -->
-        <m:Panel class="sapUiTinyMarginTop">
-            <m:ScrollContainer width="100%" horizontal="true" vertical="true" focusable="true">
-                <c:DynamicTable id="styleDynTable" selectionMode="MultiToggle" class="sapUiSizeCompact" showColumnVisibilityMenu="true">
-                </c:DynamicTable>
-            </m:ScrollContainer>
-        </m:Panel>
+                <!-- <m:Toolbar id="tableToolbar" class="sapUiSmallMargin"> -->
+                    <!-- <m:HBox> -->
+                        <!-- <m:Title id="StylesCount"/> -->
+                        <!-- <m:Title text="PR" class="sapUiTinyMarginBegin"/> -->
+                    <!-- </m:HBox> -->
+                    <!-- <m:ToolbarSpacer/>
+                    <m:Button id="btnSave" text="Save" icon="sap-icon://save" tooltip="Save" press="onSaveEdit" visible="false" />
+                    <m:Button id="btnCancel" text="Cancel" icon="sap-icon://sys-cancel" tooltip="Cancel" press="onCancelEdit" visible="false" />
+                    <m:Button id="btnNew" text="New" icon="sap-icon://add-document" tooltip="New" press="onCreateNewStyle"/>
+                    <m:Button id="btnEdit" text="Edit" icon="sap-icon://edit" tooltip="Edit" press="onEditTbl"/>
+                    <m:Button id="btnDelete" text="Delete" icon="sap-icon://delete" tooltip="Delete" press="onDeletePR"/>
+                    <m:Button id="btnClose" text="Close" icon="sap-icon://complete" tooltip="Close" press="onClosePR"/>
+                </m:Toolbar> -->
+                
+                <!-- Styles Table -->
+                <uiT:Table 
+                    id="styleDynTable"
+                    class="sapUiTinyMarginBottom sapUiTinyMarginBegin sapUiTinyMarginEnd"
+                    visibleRowCountMode="Auto"
+                    showColumnVisibilityMenu="true"
+                    enableColumnFreeze="true"
+                    selectionMode="MultiToggle"
+                    sort="onSorted"
+                >
+                    <uiT:extension>
+                        <m:Toolbar id="tableToolbar" class="sapUiTinyMarginBottom">
+                            <m:ToolbarSpacer/>
+                            <m:ToolbarSeparator />
+                            <m:Button id="btnSave" text="{captionMsg>/SAVE}" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveEdit" visible="false" />
+                            <m:Button id="btnCancel" text="{captionMsg>/CANCEL}" icon="sap-icon://sys-cancel" tooltip="{captionMsg>/CANCEL}" press="onCancelEdit" visible="false" />
+                            <m:Button id="btnNew" text="{captionMsg>/NEW}" icon="sap-icon://add-document" tooltip="{captionMsg>/NEW}" press="onCreateNewStyle"/>
+                            <m:Button id="btnEdit" text="{captionMsg>/EDIT}" icon="sap-icon://edit" tooltip="{captionMsg>/EDIT}" press="onEditTbl"/>
+                            <m:Button id="btnDelete" text="{captionMsg>/DELETE}" icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onDeletePR"/>
+                            <m:Button id="btnClose" text="{captionMsg>/CLOSE}" icon="sap-icon://complete" tooltip="{captionMsg>/CLOSE}" press="onClosePR"/>
+                            <m:Button id="btnTabLayout" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>   
+                        </m:Toolbar>
+                    </uiT:extension>
+                    <uiT:layoutData>
+                        <m:FlexItemData growFactor="1" baseSize="0%"/>
+                    </uiT:layoutData>       
+                </uiT:Table>
+                <!-- <m:Panel class="sapUiTinyMarginTop">
+                    <m:ScrollContainer width="100%" horizontal="true" vertical="true" focusable="true">
+                        <c:DynamicTable id="styleDynTable" selectionMode="MultiToggle" class="sapUiSizeCompact" showColumnVisibilityMenu="true">
+                        </c:DynamicTable>
+                    </m:ScrollContainer>
+                </m:Panel> -->
+            </m:VBox>
+        </m:content>
     </m:Page>
 </mvc:View>
