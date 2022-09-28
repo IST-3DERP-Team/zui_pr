@@ -82,6 +82,7 @@ sap.ui.define(
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
                 this.onCancelEdit();
             }else{
+                this._oDataBeforeChange = {}
                 await this.getColumns("Search");
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
             }
@@ -94,7 +95,6 @@ sap.ui.define(
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
             //get dynamic columns based on saved layout or ZERP_CHECK
             var oJSONColumnsModel = new JSONModel();
-            var errorNull = [{}]
             // this.oJSONModel = new JSONModel();
 
             //MessageBox Message
@@ -369,16 +369,16 @@ sap.ui.define(
             var oTable = this.byId("styleDynTable");
             var aSelIndices = oTable.getSelectedIndices();
             var oTmpSelectedIndices = [];
-            var aData = this.getView().getModel("TableData").getData().results;
+            var aData = this._oDataBeforeChange.results != undefined? this._oDataBeforeChange.results : this.getView().getModel("TableData").getData().results;
             var aDataToEdit = [];
             var bDeleted = false, bWithMaterial = false;
             var iCounter = 0;
-
+            
             //MessageBox Message
             var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
             var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
             var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            
+
             if (aSelIndices.length > 0) {
                 aSelIndices.forEach(item => {
                     oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
@@ -472,7 +472,7 @@ sap.ui.define(
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
@@ -488,7 +488,7 @@ sap.ui.define(
                                     //     }),
                                     //     templateShareable: false
                                     // },
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "QUANTITY"){
@@ -505,143 +505,143 @@ sap.ui.define(
                             if(ci.ColumnName === "DELDT"){
                                 col.setTemplate(new sap.m.DatePicker({
                                     // id: "ipt" + ci.name,
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     displayFormat:"short",
                                     change:"handleChange",
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "BATCH"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "MATGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SHIPTOPLANT"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PLANTCD"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "VENDOR"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PURORG"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "TRCKNO"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "REQSTNR"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SUPTYP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SALESGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "CUSTGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SEASONCD"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
 
@@ -702,9 +702,50 @@ sap.ui.define(
             })
         },
         onInputLiveChange: function(oEvent) {
-            this._isEdited = true;
+            // console.log(oEvent.getSource().getBindingInfo("value").binding.oValue);
+            // console.log(oEvent.getSource().getBindingInfo("value").mandatory);
+            // console.log(oEvent.getParameters().value);
+            // console.log(oEvent.getSource().getBindingInfo("value"));
+            // console.log(oEvent.getSource());
+            // console.log(oEvent.getParameters());
+
+            if(oEvent.getSource().getBindingInfo("value").mandatory){
+                if(oEvent.getParameters().value === ""){
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Required Field");
+                    this.validationErrors.push(oEvent.getSource().getId());
+                }else{
+                    oEvent.getSource().setValueState("None");
+                    this.validationErrors.forEach((item, index) => {
+                        if (item === oEvent.getSource().getId()) {
+                            this.validationErrors.splice(index, 1)
+                        }
+                    })
+                }
+            }
+            //if original value is equal to change value
+            if(oEvent.getParameters().value === oEvent.getSource().getBindingInfo("value").binding.oValue){
+                this._isEdited = false;
+            }else{
+                this._isEdited = true;
+            }
         },
         onNumberLiveChange: function(oEvent){
+            if(oEvent.getSource().getBindingInfo("value").mandatory){
+                if(oEvent.getParameters().value === ""){
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Required Field");
+                    this.validationErrors.push(oEvent.getSource().getId());
+                }else{
+                    oEvent.getSource().setValueState("None");
+                    this.validationErrors.forEach((item, index) => {
+                        if (item === oEvent.getSource().getId()) {
+                            this.validationErrors.splice(index, 1)
+                        }
+                    })
+                }
+            }
+
             if (oEvent.getParameters().value.split(".").length > 1) {
                 if (oEvent.getParameters().value.split(".")[1].length > 3) {
                     // console.log("invalid");
@@ -727,6 +768,12 @@ sap.ui.define(
                         this.validationErrors.splice(index, 1)
                     }
                 })
+            }
+            //if original value is equal to change value
+            if(oEvent.getParameters().value === oEvent.getSource().getBindingInfo("value").binding.oValue){
+                this._isEdited = false;
+            }else{
+                this._isEdited = true;
             }
         },
         // onValueHelpLiveInputChange: function(oEvent) {
@@ -1100,10 +1147,10 @@ sap.ui.define(
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
+                this.validationErrors = [];
                 this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
                 this.getColumns("Cancel");
                 this.setTableData();
-
                 if (this.getView().getModel("ui").getData().dataMode === 'NEW') this.setFilterAfterCreate();
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
@@ -1126,6 +1173,8 @@ sap.ui.define(
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
                 this._isEdited = false;
             }
+            this.validationErrors = [];
+            
             this._DiscardChangesDialog.close();
         },
         onCancelDiscardChangesDialog() {
@@ -1184,6 +1233,7 @@ sap.ui.define(
             
             if (this.validationErrors.length != 0){
                 MessageBox.error(msgError);
+                Common.closeLoadingDialog(that);
                 return;
             }
             oSelectedIndices.forEach(item => {

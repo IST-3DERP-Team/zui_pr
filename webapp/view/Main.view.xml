@@ -52,6 +52,10 @@
                         </smartFilterBar:ControlConfiguration>
                     </smartFilterBar:controlConfiguration>
                     <smartFilterBar:controlConfiguration>
+                        <smartFilterBar:ControlConfiguration id="filterFtyStyle" key="FTYSTYLE" groupId="_BASIC" label="{captionMsg>/FTYSTYLE}" tooltip="{captionMsg>/FTYSTYLE}" preventInitialDataFetchInValueHelpDialog="false">
+                        </smartFilterBar:ControlConfiguration>
+                    </smartFilterBar:controlConfiguration>
+                    <smartFilterBar:controlConfiguration>
                         <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="{captionMsg>/MATGRP}" tooltip="{captionMsg>/MATGRP}" preventInitialDataFetchInValueHelpDialog="false">
                         </smartFilterBar:ControlConfiguration>
                     </smartFilterBar:controlConfiguration>
