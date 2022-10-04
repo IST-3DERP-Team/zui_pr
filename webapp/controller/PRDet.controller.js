@@ -85,6 +85,8 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "DELVDATE"});
                 oDDTextParam.push({CODE: "REQDT"});
                 oDDTextParam.push({CODE: "RELDT"});
+                oDDTextParam.push({CODE: "DELETED"});
+                oDDTextParam.push({CODE: "CLOSED"});
                 //Supply Type
                 oDDTextParam.push({CODE: "INFORECORD"});
                 oDDTextParam.push({CODE: "VENDOR"});
