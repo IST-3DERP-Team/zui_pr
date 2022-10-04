@@ -37,6 +37,14 @@
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
+                             <f:FormElement label="{captionMsg>/DELETED}" visible="true">
+                                    <CheckBox id="DELETED" selected="{headerData>/DELETED}"  editable="false"/>
+                            </f:FormElement>
+                            <f:FormElement label="{captionMsg>/CLOSED}" visible="true">
+                                <f:fields>
+                                    <CheckBox id="CLOSED" selected="{headerData>/CLOSED}" editable="false"/>
+                                </f:fields>
+                            </f:FormElement>
                         </f:formElements>
                     </f:FormContainer>
                     <f:FormContainer ariaLabelledBy="Grp2">
