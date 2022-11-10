@@ -402,38 +402,40 @@ sap.ui.define(
 
         onEditTbl: async function(){
             Common.openLoadingDialog(that);
+            var bProceed = true;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
             if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
-                return;
+                bProceed = false;
             }
-            var oModel = this.getOwnerComponent().getModel();
-            var oEntitySet = "/PRSet";
-            var me = this;
 
-            var oTable = this.byId("styleDynTable");
-            var aSelIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = this._oDataBeforeChange.results != undefined? this._oDataBeforeChange.results : this.getView().getModel("TableData").getData().results;
-            var aDataToEdit = [];
-            var bDeleted = false, bWithMaterial = false;
-            var iCounter = 0;
-            var promiseResult;
-            
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+            if(bProceed){
+                var oModel = this.getOwnerComponent().getModel();
+                var oEntitySet = "/PRSet";
+                var me = this;
 
-            if (aSelIndices.length > 0) {
-                aSelIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
+                var oTable = this.byId("styleDynTable");
+                var aSelIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = this._oDataBeforeChange.results != undefined? this._oDataBeforeChange.results : this.getView().getModel("TableData").getData().results;
+                var aDataToEdit = [];
+                var bDeleted = false, bWithMaterial = false;
+                var iCounter = 0;
+                var promiseResult;
+                
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
 
-                aSelIndices = oTmpSelectedIndices;
-                promiseResult = new Promise((resolve, reject)=>{
-                    setTimeout(() => {
+                if (aSelIndices.length > 0) {
+                    aSelIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+
+                    aSelIndices = oTmpSelectedIndices;
+                    promiseResult = new Promise((resolve, reject)=>{
                         aSelIndices.forEach((item, index) => {
                             if (aData.at(item).DELETED === true) {
                                 iCounter++;
@@ -463,6 +465,7 @@ sap.ui.define(
                                         if (aSelIndices.length === iCounter) {
                                             if (aDataToEdit.length === 0) {
                                                 MessageBox.information(msgNoDataToEdit);
+                                                resolve();
                                             }
                                             else {
                                                 me.byId("btnNew").setVisible(false);
@@ -484,26 +487,26 @@ sap.ui.define(
                                 
                                                 me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
                                                 me._isGMCEdited = false;
+                                                resolve();
                                             }
                                         }                                    
                                     },
                                     error: function (err) {
                                         iCounter++;
+                                        resolve();
                                     }
                                 })
                             }
                         });
-                        resolve();
-                    }, 500);
-                });
-                await promiseResult;
-                
-                Common.closeLoadingDialog(that);
+                    });
+                    await promiseResult;
+                }
+                else {
+                    // aDataToEdit = aData;
+                    MessageBox.information(msgNoDataToEdit);
+                }
             }
-            else {
-                // aDataToEdit = aData;
-                MessageBox.information(msgNoDataToEdit);
-            }
+            Common.closeLoadingDialog(that);
             // aDataToEdit = aDataToEdit.filter(item => item.Deleted === false);
         },
         setRowEditMode(arg) {
@@ -1485,242 +1488,250 @@ sap.ui.define(
             }
         },
         onDeletePR: async function(){
+            var bProceed = true;
             Common.openLoadingDialog(that);
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
             if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
-                return;
+                bProceed = false;
             }
-            this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
-            var oTable = this.byId("styleDynTable");
-            var oSelectedIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = oTable.getModel().getData().rows;
-            var oParamData = [];
-            var oParam = {};
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var iCounter = 0;
-            var message = "";
-            var isError = false;
-            var promiseResult;
 
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            var msgNoDataToDelete = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_DELETE"];
-            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
-            
-            if(oSelectedIndices.length > 0){
-                oSelectedIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
-    
-                oSelectedIndices = oTmpSelectedIndices;
+            if(bProceed){
+                this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
+                var oTable = this.byId("styleDynTable");
+                var oSelectedIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+                var oParamData = [];
+                var oParam = {};
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var iCounter = 0;
+                var message = "";
+                var isError = false;
+                var promiseResult;
 
-                await oSelectedIndices.forEach((item, index) => {
-                    if(aData.at(item).DELETED === true){
-                        
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyDeleted);
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+                var msgNoDataToDelete = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_DELETE"];
+                var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
+                
+                if(oSelectedIndices.length > 0){
+                    oSelectedIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+        
+                    oSelectedIndices = oTmpSelectedIndices;
+
+                    await oSelectedIndices.forEach((item, index) => {
+                        if(aData.at(item).DELETED === true){
+                            
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyDeleted);
+                            }
+                        }else if(aData.at(item).CLOSED === true){
+                            iCounter++;
+
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyClosed);
+                            }
                         }
-                    }else if(aData.at(item).CLOSED === true){
-                        iCounter++;
+                        else{
+                            var PRNo = aData.at(item).PRNO
+                            var PRItm = aData.at(item).PRITM
+        
+                            // if(PRNo != "" || PRNo != null){
+                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            // }
 
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyClosed);
+                            oParamData.push({
+                                PreqNo: PRNo,
+                                PreqItem: PRItm,
+                                DeleteInd: 'X',
+                                CloseInd: ''
+                            })
                         }
-                    }
-                    else{
-                        var PRNo = aData.at(item).PRNO
-                        var PRItm = aData.at(item).PRITM
-    
-                        // if(PRNo != "" || PRNo != null){
-                        //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                        // }
+                    })
 
-                        oParamData.push({
-                            PreqNo: PRNo,
-                            PreqItem: PRItm,
-                            DeleteInd: 'X',
-                            CloseInd: ''
-                        })
-                    }
-                })
-
-                if (oParamData.length > 0) {
-                    oParam['N_DelClosePRParam'] = oParamData;
-                    oParam['N_DelClosePRReturn'] = [];
-                    promiseResult = new Promise((resolve, reject)=>{
-                        setTimeout(() => {
-                            oModel.create("/DelClosePRSet", oParam, {
-                                method: "POST",
-                                success: function(oResultDCPR, oResponse){
-                                    // console.log(oResultDCPR)
-                                    oSelectedIndices.forEach((item, index) => {
-                                        
-                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                        if (oRetMsg.length > 0) {
-                                            if (oRetMsg[0].Type === 'I') {
-                                                message = message + oRetMsg[0].Message + "\n"
+                    if (oParamData.length > 0) {
+                        oParam['N_DelClosePRParam'] = oParamData;
+                        oParam['N_DelClosePRReturn'] = [];
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        // console.log(oResultDCPR)
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
                                             }else{
                                                 isError = true;
-                                                message = message + oRetMsg[0].Message + "\n"
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                             }
-                                        }else{
-                                            isError = true;
-                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                        }
-                                    });
-                                    
-                                    MessageBox.information(message);
-                                }
-                            });
-                            resolve();
-                        }, 500);
-                    });
-                    await promiseResult;
+                                        });
+                                        
+                                        MessageBox.information(message);
+                                    }
+                                });
+                                resolve();
+                            }, 500);
+                        });
+                        await promiseResult;
+                    }
+                    if (!isError){
+                        await oSelectedIndices.forEach(item => {
+                            if(this._oDataBeforeChange.results[item].DELETED != true && this._oDataBeforeChange.results[item].CLOSED != true){        
+                                this._oDataBeforeChange.results[item].DELETED = true;
+                            }
+                        })
+                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                this.getColumns("Delete");
+                                resolve();
+                            }, 500);
+                        })
+                        await promiseResult;
+                        Common.closeLoadingDialog(that);
+                        this.setTableData();
+                    }
+                }else{
+                    MessageBox.information(msgNoDataToDelete);
                 }
-                if (!isError){
-                    await oSelectedIndices.forEach(item => {
-                        if(this._oDataBeforeChange.results[item].DELETED != true && this._oDataBeforeChange.results[item].CLOSED != true){        
-                            this._oDataBeforeChange.results[item].DELETED = true;
-                        }
-                    })
-                    this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    promiseResult = new Promise((resolve, reject)=>{
-                        setTimeout(() => {
-                            this.getColumns("Delete");
-                            resolve();
-                        }, 500);
-                    })
-                    await promiseResult;
-                    Common.closeLoadingDialog(that);
-                    this.setTableData();
-                }
-            }else{
-                MessageBox.information(msgNoDataToDelete);
             }
-            
+            Common.closeLoadingDialog(that);
             
         },
         onClosePR: async function(){
             Common.openLoadingDialog(that);
+            var bProceed = true;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
-            this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
-            var oTable = this.byId("styleDynTable");
-            var oSelectedIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = oTable.getModel().getData().rows;
-            var oParamData = [];
-            var oParam = {};
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var iCounter = 0;
-            var message = "";
-            var isError = false;
-            var promiseResult;
+            if(bProceed){
+                this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
+                var oTable = this.byId("styleDynTable");
+                var oSelectedIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+                var oParamData = [];
+                var oParam = {};
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var iCounter = 0;
+                var message = "";
+                var isError = false;
+                var promiseResult;
 
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            var msgNoDataToClose = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_CLOSE"];
-            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+                var msgNoDataToClose = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_CLOSE"];
+                var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
 
-            if(oSelectedIndices.length > 0){
-                oSelectedIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
-    
-                oSelectedIndices = oTmpSelectedIndices;
+                if(oSelectedIndices.length > 0){
+                    oSelectedIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+        
+                    oSelectedIndices = oTmpSelectedIndices;
 
-                await oSelectedIndices.forEach((item, index) => {
-                    if(aData.at(item).DELETED === true){
-                        
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyDeleted);
+                    await oSelectedIndices.forEach((item, index) => {
+                        if(aData.at(item).DELETED === true){
+                            
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyDeleted);
+                            }
+                        }else if(aData.at(item).CLOSED === true){
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyClosed);
+                            }
                         }
-                    }else if(aData.at(item).CLOSED === true){
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyClosed);
-                        }
-                    }
-                    else{
-                        var PRNo = aData.at(item).PRNO
-                        var PRItm = aData.at(item).PRITM
-    
-                        // if(PRNo != "" || PRNo != null){
-                        //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                        // }
+                        else{
+                            var PRNo = aData.at(item).PRNO
+                            var PRItm = aData.at(item).PRITM
+        
+                            // if(PRNo != "" || PRNo != null){
+                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            // }
 
-                        oParamData.push({
-                            PreqNo: PRNo,
-                            PreqItem: PRItm,
-                            DeleteInd: '',
-                            CloseInd: 'X'
-                        })
-                    }
-                })
-                if (oParamData.length > 0) {
-                    oParam['N_DelClosePRParam'] = oParamData;
-                    oParam['N_DelClosePRReturn'] = [];
-                    promiseResult = new Promise((resolve, reject)=>{
-                        setTimeout(() => {
-                            oModel.create("/DelClosePRSet", oParam, {
-                                method: "POST",
-                                success: function(oResultDCPR, oResponse){
-                                    // console.log(oResultDCPR)
-                                    oSelectedIndices.forEach((item, index) => {
-                                        
-                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                        if (oRetMsg.length > 0) {
-                                            if (oRetMsg[0].Type === 'I') {
-                                                message = message + oRetMsg[0].Message + "\n"
+                            oParamData.push({
+                                PreqNo: PRNo,
+                                PreqItem: PRItm,
+                                DeleteInd: '',
+                                CloseInd: 'X'
+                            })
+                        }
+                    })
+                    if (oParamData.length > 0) {
+                        oParam['N_DelClosePRParam'] = oParamData;
+                        oParam['N_DelClosePRReturn'] = [];
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        // console.log(oResultDCPR)
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
                                             }else{
                                                 isError = true;
-                                                message = message + oRetMsg[0].Message + "\n"
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                             }
-                                        }else{
-                                            isError = true;
-                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                        }
-                                    });
-                                    
-                                    MessageBox.information(message);
-                                }
-                            });
-                            resolve();
-                        }, 500);
+                                        });
+                                        
+                                        MessageBox.information(message);
+                                    }
+                                });
+                                resolve();
+                            }, 500);
 
-                    });
-                    await promiseResult;
-                }
-                if (!isError){
-                    await oSelectedIndices.forEach(item => {
-                        if(this._oDataBeforeChange.results[item].DELETED != true){        
-                            this._oDataBeforeChange.results[item].CLOSED = true;
-                        }
+                        });
+                        await promiseResult;
+                    }
+                    if (!isError){
+                        await oSelectedIndices.forEach(item => {
+                            if(this._oDataBeforeChange.results[item].DELETED != true){        
+                                this._oDataBeforeChange.results[item].CLOSED = true;
+                            }
 
-                    })
-                    this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    promiseResult = new Promise((resolve, reject)=>{
-                        setTimeout(() => {
-                            this.getColumns("Close");
-                            resolve();
-                        }, 500);
-                    })
-                    await promiseResult;
-                    Common.closeLoadingDialog(that);
-                    this.setTableData();
+                        })
+                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                this.getColumns("Close");
+                                resolve();
+                            }, 500);
+                        })
+                        await promiseResult;
+                        Common.closeLoadingDialog(that);
+                        this.setTableData();
+                    }
+                    
+                }else{
+                    MessageBox.information(msgNoDataToClose);
                 }
-                
-            }else{
-                MessageBox.information(msgNoDataToClose);
             }
+            Common.closeLoadingDialog(that);
         },
 
         onSaveTableLayout: function () {
