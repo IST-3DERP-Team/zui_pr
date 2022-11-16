@@ -443,11 +443,13 @@ sap.ui.define(
         
                                 if (aSelIndices.length === iCounter) {
                                     MessageBox.information(msgAlreadyDeleted);
+                                    resolve();
                                 }
                             }else if(aData.at(item).CLOSED === true){
                                 iCounter++;
                                 if (aSelIndices.length === iCounter) {
                                     MessageBox.information(msgAlreadyClosed);
+                                    resolve();
                                 }
                             }
                             else {
