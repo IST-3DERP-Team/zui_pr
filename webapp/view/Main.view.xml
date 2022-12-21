@@ -32,7 +32,7 @@
 			<DynamicPageHeader>
 				<content>
                     <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" assignedFiltersChanged="onAssignedFiltersChanged" smartVariant="__SVM01" useToolbar="false" filterContainerWidth="15rem">
-                        <smartFilterBar:controlConfiguration>
+                        <!-- <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSearch" key="Search" groupId="_BASIC" label="{captionMsg>/SEARCH}" width="50px">
                                 <smartFilterBar:customControl>
                                     <m:SearchField
@@ -43,7 +43,7 @@
                                         width="15rem"/>                        
                                 </smartFilterBar:customControl>
                             </smartFilterBar:ControlConfiguration>
-                        </smartFilterBar:controlConfiguration>
+                        </smartFilterBar:controlConfiguration> -->
                         <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="{captionMsg>/SBU}" mandatory="mandatory" width="50px">
                                 <smartFilterBar:customControl>
@@ -91,7 +91,11 @@
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/BATCH}" tooltip="{captionMsg>/BATCH}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/SEASON}" tooltip="{captionMsg>/SEASON}" preventInitialDataFetchInValueHelpDialog="false">
+                            </smartFilterBar:ControlConfiguration>
+                        </smartFilterBar:controlConfiguration>
+                        <smartFilterBar:controlConfiguration>
+                            <smartFilterBar:ControlConfiguration id="filterIO" key="IONO" groupId="_BASIC" label="{captionMsg>/IONO}" tooltip="{captionMsg>/IONO}" preventInitialDataFetchInValueHelpDialog="false">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
@@ -137,6 +141,12 @@
                         <m:Toolbar id="tableToolbar" class="sapUiTinyMarginBottom">
                             <m:ToolbarSpacer/>
                             <m:ToolbarSeparator />
+                            <m:SearchField
+                                id="searchFieldMain"
+                                placeholder="{captionMsg>/SEARCH}"
+                                value=""
+                                search=".searchGlobal"
+                                width="15rem"/>
                             <m:Button id="btnSave" text="{captionMsg>/SAVE}" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveEdit" visible="false" />
                             <m:Button id="btnCancel" text="{captionMsg>/CANCEL}" icon="sap-icon://sys-cancel" tooltip="{captionMsg>/CANCEL}" press="onCancelEdit" visible="false" />
                             <m:Button id="btnNew" text="{captionMsg>/NEW}" icon="sap-icon://add-document" tooltip="{captionMsg>/NEW}" press="onCreateNewStyle"/>

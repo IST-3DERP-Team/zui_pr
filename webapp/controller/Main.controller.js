@@ -1800,7 +1800,7 @@ sap.ui.define(
             oDDTextParam.push({CODE: "MATGRP"});
             oDDTextParam.push({CODE: "MATTYP"});
             oDDTextParam.push({CODE: "IONO"});
-            oDDTextParam.push({CODE: "BATCH"});
+            oDDTextParam.push({CODE: "SEASON"});
 
             //Button Label
             oDDTextParam.push({CODE: "NEW"});
