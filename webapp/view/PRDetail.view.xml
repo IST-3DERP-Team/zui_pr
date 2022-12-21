@@ -1,61 +1,108 @@
 <mvc:View controllerName="zuipr.controller.PRDet" 
     xmlns:mvc="sap.ui.core.mvc" 
     displayBlock="true" 
-    xmlns:u="sap.uxap"
-    xmlns="sap.m" 
-    xmlns:l="sap.ui.layout" 
+    xmlns="sap.uxap"
+    xmlns:m="sap.m"  
+    xmlns:layout="sap.ui.layout"
     xmlns:f="sap.ui.layout.form" 
     xmlns:core="sap.ui.core" 
     class="sapUiSizeCompact" 
     xmlns:tnt="sap.tnt"
     xmlns:c="zuipr.control" 
     xmlns:t="sap.ui.table" >
-    <Page showHeader="false" title="Manage Style" showNavButton="true" navButtonPress="onNavBack">
-        <content>
-            <VBox fitContainer="true">
-                 <!-- OBJECT HEADER -->
-                <ObjectHeader id="objectHeader" responsive="true" fullScreenOptimized="true" intro="{captionMsg>/PRITM}: {headerData>/PRITM}" backgroundDesign="Solid" icon="sap-icon://blank-tag-2"
-                        title="{captionMsg>/PRNO}: {headerData>/PRNO}" number="{headerData>/Statuscd}" numberUnit="{i18n>Status}" numberState="{= ${headerData>/Statuscd} === 'CMP' ? 'Success' : ${headerData>/Statuscd} === 'CRT' ? 'Error' : 'Warning'}">
-                    <attributes>
-                        <ObjectAttribute title="{captionMsg>/CREATEDBY}" text="{headerData>/CREATEDBY}"/>
-                        <ObjectAttribute title="{captionMsg>/CREATEDDT}" text="{headerData>/CHANGEDT}"/>
-                    </attributes>
-                </ObjectHeader>
-                <!-- HEADER -->
-                <core:Fragment fragmentName="zuipr.view.fragments.PRHeader" type="XML"/>
-                
-                <!-- DETAILS -->
-                <Panel id="detailPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
-                    <headerToolbar>
-                        <Toolbar height="3rem" style="Clear">
-                            <Title text="{captionMsg>/DETAILS}" />
-                        </Toolbar>
-                    </headerToolbar>
-                    <IconTabBar tabDensityMode="Cozy" expandable="false" class="sapUiNoContentPadding">
-                        <items>
-                            <IconTabFilter text="{captionMsg>/MATDATA}" tooltip="{i18n>Styleattributes}">
-                                <core:Fragment fragmentName="zuipr.view.fragments.MaterialData" type="XML"/>
-                            </IconTabFilter>
+    <ObjectPageLayout id="ObjectPageLayout" 	
+        showTitleInHeaderContent="true"
+		upperCaseAnchorBar="false"
+		backgroundDesignAnchorBar="Translucent">
+		<headerTitle>
+			<ObjectPageDynamicHeaderTitle backgroundDesign="Solid">
+				<expandedHeading>
+					<m:Title text="{captionMsg>/PRNO}: {headerData>/PRNO}" wrapping="true" class="sapUiTinyMarginTop"/>
+				</expandedHeading>
 
-                            <!-- VERSIONS -->
-                            <IconTabFilter text="{captionMsg>/QTYDT}" tooltip="{i18n>Manageversions}">
-                                <core:Fragment fragmentName="zuipr.view.fragments.QtyDates" type="XML"/>
-                            </IconTabFilter>
+				<snappedHeading>
+					<m:Title text="{captionMsg>/PRNO}: {headerData>/PRNO}" wrapping="true" class="sapUiTinyMarginTop"/>
+				</snappedHeading>
 
-                            <!-- ATTACHMENTS -->
-                            <IconTabFilter text="{captionMsg>/SUPTYP}" tooltip="{i18n>Manageattachments}">
-                                <core:Fragment fragmentName="zuipr.view.fragments.SupplyType" type="XML"/>
-                            </IconTabFilter>
-                            <!-- ATTACHMENTS -->
-                            <IconTabFilter text="{captionMsg>/CUSTDATA}" tooltip="{i18n>Manageattachments}">
-                                <core:Fragment fragmentName="zuipr.view.fragments.CustomerData" type="XML"/>
-                            </IconTabFilter>
-                        </items>
-                    </IconTabBar>
-                </Panel>
-                
-                <!-- <VBox height="200px"/> -->
-            </VBox>
-        </content>
-    </Page>
+				<expandedContent>
+					<m:Text text="{captionMsg>/PRITM}: {headerData>/PRITM}"/>
+				</expandedContent>
+
+				<snappedContent>
+					<m:Text text="{captionMsg>/PRITM}: {headerData>/PRITM}"/>
+				</snappedContent>
+
+			</ObjectPageDynamicHeaderTitle>
+		</headerTitle>
+
+		<headerContent>
+			<layout:HorizontalLayout
+					allowWrapping="true" class ="sapUiNoContentPadding">
+				<layout:VerticalLayout
+						class="sapUiMediumMarginEnd sapUiMediumMarginBottom">
+					<m:ObjectAttribute title="{captionMsg>/MATNO}" class="sapUiTinyMarginBottom"/>
+					<m:Text text="{headerData>/MATNO}" wrapping = "false" width="200px" tooltip="{headerData>/MATNO}"/>
+				</layout:VerticalLayout>
+
+				<layout:VerticalLayout class="sapUiMediumMarginEnd sapUiMediumMarginBottom">
+                    <m:ObjectAttribute title="{captionMsg>/GMCDESCEN}" class="sapUiTinyMarginBottom"/>
+					<m:Text text="{headerData>/GMCDESCEN}" wrapping = "true" width="400px" tooltip="{headerData>/GMCDESCEN}"/>
+				</layout:VerticalLayout>
+
+                <layout:VerticalLayout class="sapUiMediumMarginEnd sapUiMediumMarginBottom">
+                    <m:ObjectAttribute title="{captionMsg>/ADDTLDESCEN}" class="sapUiTinyMarginBottom"/>
+					<m:Text text="{headerData>/ADDTLDESCEN}" wrapping = "true" width="400px" tooltip="{headerData>/ADDTLDESCEN}"/>
+				</layout:VerticalLayout>
+
+                <layout:VerticalLayout class="sapUiMediumMarginEnd sapUiMediumMarginBottom">
+                    <m:ObjectAttribute title="{captionMsg>/REQUISITIONER}" class="sapUiTinyMarginBottom"/>
+					<m:Text class="sapUiTinyMarginBottom" text="{headerData>/REQSTNR}"/>
+                    <m:ObjectAttribute title="{captionMsg>/REQDT}" class="sapUiTinyMarginBottom"/>
+					<m:Text text="{headerData>/REQDT}"/>
+				</layout:VerticalLayout>
+			</layout:HorizontalLayout>
+		</headerContent>
+
+		<sections>
+			<ObjectPageSection title="{captionMsg>/MATDATA}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+                            <core:Fragment fragmentName="zuipr.view.fragments.MaterialData" type="XML"/>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+			<ObjectPageSection title="{captionMsg>/QTYDT}">
+                <subSections>
+					<ObjectPageSubSection>
+						<blocks>
+                            <core:Fragment fragmentName="zuipr.view.fragments.QtyDates" type="XML"/>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+			<ObjectPageSection title="{captionMsg>/SUPTYP}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+                            <core:Fragment fragmentName="zuipr.view.fragments.SupplyType" type="XML"/>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+
+			<ObjectPageSection title="{captionMsg>/CUSTDATA}">
+				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+                            <core:Fragment fragmentName="zuipr.view.fragments.CustomerData" type="XML"/>
+						</blocks>
+					</ObjectPageSubSection>
+				</subSections>
+			</ObjectPageSection>
+		</sections>
+    </ObjectPageLayout>
 </mvc:View>

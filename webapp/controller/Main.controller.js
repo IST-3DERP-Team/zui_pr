@@ -6,21 +6,22 @@ sap.ui.define(
         "../js/Common",
         "zuipr/model/formatter",
         "sap/ui/model/Filter",
-        "sap/ui/Device",
-        "sap/ui/model/Filter",
         "sap/ui/model/FilterOperator",
+        "sap/ui/Device",
         'sap/ui/model/Sorter',
         "sap/ui/table/library",
         "sap/m/TablePersoController",
         "sap/ui/model/xml/XMLModel",
         "../control/DynamicTable"
     ],
-    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator, XMLModel, Device) {
+    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator,Device, XMLModel) {
       "use strict";
 
       var that;
       var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
       var sapDateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "yyyy-MM-dd" });
+      var _PRNO;
+      var _PRITM;
   
       return BaseController.extend("zuipr.controller.Main", {
         onInit: function () {
@@ -41,6 +42,7 @@ sap.ui.define(
             this._oDataBeforeChange = {}
             this._sbuChange = false;
             this._initLoadTbl = true;
+            this._smartFilterBar = this.getView().byId("SmartFilterBar");
             
             this.validationErrors = [];
             this.getView().setModel(new JSONModel({
@@ -63,10 +65,19 @@ sap.ui.define(
                         that.byId("btnSave").setEnabled(false);
                         that.byId("btnCancel").setEnabled(false);
                         that.byId("btnTabLayout").setEnabled(false);
+                        that.byId("btnView").setEnabled(false);
                     }
                 },
                 error: function (err) { }
             });
+        },
+        onAssignedFiltersChanged: function(oEvent){
+            var oStatusText = this.getView().byId("statusText");
+			if (oStatusText && this._smartFilterBar) {
+				var sText = this._smartFilterBar.retrieveFiltersWithValuesAsText();
+
+				oStatusText.setText(sText);
+			}
         },
         onSBUChange: function(oEvent) {
             this._sbuChange = true;
@@ -79,22 +90,29 @@ sap.ui.define(
         },
         
         onSearch: async function(){
+            var promiseResult;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
                 this.onCancelEdit();
             }else{
-                await this.getColumns("Search");
+                this._oDataBeforeChange = {}
+                Common.openLoadingDialog(that);
+                promiseResult = new Promise((resolve, resject)=>{
+                    setTimeout(() => {
+                        resolve(this.getColumns("Search"));
+                    }, 500);
+                })
+                await promiseResult;
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
+                Common.closeLoadingDialog(that);
             }
             
         },
 
         getColumns(type) {
             var me = this;
-            Common.openLoadingDialog(that);
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
             //get dynamic columns based on saved layout or ZERP_CHECK
             var oJSONColumnsModel = new JSONModel();
-            var errorNull = [{}]
             // this.oJSONModel = new JSONModel();
 
             //MessageBox Message
@@ -108,16 +126,16 @@ sap.ui.define(
             });
 
             oModel.read("/ColumnsSet", {
-                success: async function (oData, oResponse) {
+                success: function (oData, oResponse) {
                     if(oData.results.length > 0){
-                        await oJSONColumnsModel.setData(oData);
+                        oJSONColumnsModel.setData(oData);
                         // me.oJSONModel.setData(oData);
                         if(type === "Search"){
-                            await me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model\
+                            me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model\
                             Common.closeLoadingDialog(that)
                         }
-                        await me.getTableData(type);
-                        Common.closeLoadingDialog(that);
+                        me.getTableData(type);
+                        
                         me.byId("btnNew").setEnabled(true);
                         me.byId("btnEdit").setEnabled(true);
                         me.byId("btnDelete").setEnabled(true);
@@ -125,13 +143,13 @@ sap.ui.define(
                         me.byId("btnSave").setEnabled(true);
                         me.byId("btnCancel").setEnabled(true);
                         me.byId("btnTabLayout").setEnabled(true);
+                        me.byId("btnView").setEnabled(true);
 
                     }else{
-                        Common.closeLoadingDialog(that);
-                        await me.getView().setModel(oJSONColumnsModel, "Columns");
-                        await me.getView().setModel(oJSONColumnsModel, "TableData");
-                        await me.getTableData("Error");
-                        await me.setTableData();
+                        me.getView().setModel(oJSONColumnsModel, "Columns");
+                        me.getView().setModel(oJSONColumnsModel, "TableData");
+                        me.getTableData("Error");
+                        me.setTableData();
                         that.byId("btnNew").setEnabled(false);
                         that.byId("btnEdit").setEnabled(false);
                         that.byId("btnDelete").setEnabled(false);
@@ -139,12 +157,12 @@ sap.ui.define(
                         that.byId("btnSave").setEnabled(false);
                         that.byId("btnCancel").setEnabled(false);
                         that.byId("btnTabLayout").setEnabled(false);
+                        that.byId("btnView").setEnabled(false);
                         MessageBox.error(noLayoutMsg);
                         that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
                     }
                 },
                 error: function (err) { 
-                    Common.closeLoadingDialog(that);
                     MessageBox.error(noLayoutMsg);
                     that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
                 }
@@ -202,15 +220,15 @@ sap.ui.define(
             var oColumnsData = oColumnsModel.getProperty('/results');
             var oData = oDataModel.getProperty('/results');
             
-            if(type == "Search"){
-                oColumnsData.unshift({
-                    "ColumnName": "Manage",
-                    "ColumnLabel": "Manage",
-                    "ColumnType": "SEL",
-                    "ColumnWidth": "80",
-                    "Editable": false
-                });
-            }
+            // if(type == "Search"){
+            //     oColumnsData.unshift({
+            //         "ColumnName": "Manage",
+            //         "ColumnLabel": "Manage",
+            //         "ColumnType": "SEL",
+            //         "ColumnWidth": "80",
+            //         "Editable": false
+            //     });
+            // }
             
 
             //set the column and data model
@@ -219,9 +237,28 @@ sap.ui.define(
                 columns: oColumnsData,
                 rows: oData
             });
+            var oDelegateKeyUp = {
+                onkeyup: function(oEvent){
+                    that.onkeyup(oEvent);
+                },
+                
+                
+                onsapenter : function(oEvent){
+                    that.onSapEnter(oEvent);
+                }
+            };
+
+            this.byId("styleDynTable").addEventDelegate(oDelegateKeyUp);
 
             var oTable = this.getView().byId("styleDynTable");
             oTable.setModel(oModel);
+            //double click event
+            oTable.attachBrowserEvent('dblclick',function(e){
+                e.preventDefault();
+                if(me.getView().getModel("ui").getData().dataMode === 'READ'){
+                    me.goToDetail(); //navigate to detail page
+                }
+             });
 
             //bind the dynamic column to the table
             oTable.bindColumns("/columns", function (index, context) {
@@ -254,22 +291,60 @@ sap.ui.define(
             oTable.bindRows("/rows");
         },
 
+        onSapEnter(oEvent) {
+            if(that.getView().getModel("ui").getData().dataMode === 'READ'){
+                that.goToDetail(); //navigate to detail page
+            }
+        },
+
+        onkeyup: function(oEvent){
+            if ((oEvent.key === "ArrowUp" || oEvent.key === "ArrowDown") && oEvent.srcControl.sParentAggregationName === "rows"){
+                var oTable = this.byId("styleDynTable");
+                
+                var sRowPath = this.byId(oEvent.srcControl.sId).oBindingContexts["undefined"].sPath;
+
+                var index = sRowPath.split("/");
+                
+                oTable.setSelectedIndex(parseInt(index[2]));
+            }
+        },
+
+        onSelectionChange: function(oEvent) {
+            // var oTable = this.getView().byId("styleDynTable");
+            // iSelectedIndex = oEvent.getSource().getSelectedIndex();
+            // oTable.setSelectedIndex(iSelectedIndex);
+
+            var sPath = oEvent.getParameter("rowContext").getPath();
+            var oTable = this.getView().byId("styleDynTable");
+            var model = oTable.getModel();
+
+            // var index = sPath.split("/");
+            // console.log(index[2]);
+            // oTable.removeSelectionInterval(parseInt(index[2] - 1), parseInt(index[2] - 1));
+
+            //get the selected  data from the model and set to variable PRNo/PRITM
+            var data  = model.getProperty(sPath); 
+
+            _PRNO = data['PRNO'];
+            _PRITM = data['PRITM'];
+        },
+
         columnTemplate: function (sColumnId, sColumnType) {
             var oColumnTemplate;
             // console.log(sColumnId);
-            oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}" }); //default text
+            oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}", wrapping: false, tooltip: "{" + sColumnId + "}" }); //default text
             
-            if (sColumnType === "SEL") { 
-                //Manage button
-                oColumnTemplate = new sap.m.Button({
-                    text: "",
-                    icon: "sap-icon://detail-view",
-                    type: "Ghost",
-                    press: this.goToDetail,
-                    tooltip: "Manage this style"
-                });
-                oColumnTemplate.data("PRNO", "{}");
-            }
+            // if (sColumnType === "SEL") { 
+            //     //Manage button
+            //     oColumnTemplate = new sap.m.Button({
+            //         text: "",
+            //         icon: "sap-icon://detail-view",
+            //         type: "Ghost",
+            //         press: this.goToDetail,
+            //         tooltip: "Manage this style"
+            //     });
+            //     oColumnTemplate.data("PRNO", "{}");
+            // }
 
             if (sColumnId === "DELETED") { 
                 //Manage button
@@ -297,48 +372,18 @@ sap.ui.define(
             if(sColumnId === "QUANTITY"){
                 ocolumnAlign = "End";
             }else{
-                ocolumnAlign = "Center";
+                ocolumnAlign = "Left";
             }
 
             return ocolumnAlign;
 
         },
 
-        getColumnSize: function (sColumnId, sColumnType) {
-            //column width of fields
-            var mSize = '7rem';
-            if(sColumnId === "DELDT"){
-                var mSize = '20rem';
-            }
-            if(sColumnId === "MATNO"){
-                var mSize = '15rem';
-            }
-            if(sColumnId === "GMCDESCEN"){
-                var mSize = '20rem';
-            }
-            if(sColumnId === "GMCDESCZH"){
-                var mSize = '20rem';
-            }
-            if(sColumnId === "SHORTTEXT"){
-                var mSize = '20rem';
-            }
-            // if (sColumnType === "SEL") {
-            //     mSize = '5rem';
-            // } else if (sColumnType === "COPY") {
-            //     mSize = '4rem';
-            // } else if (sColumnId === "STYLECD") {
-            //     mSize = '25rem';
-            // } else if (sColumnId === "DESC1" || sColumnId === "PRODTYP") {
-            //     mSize = '15rem';
-            // }
-            return mSize;
-        },
-
         goToDetail: function (oEvent) {
-            var oButton = oEvent.getSource();
-            var PRNo = oButton.data("PRNO").PRNO; //get the styleno binded to manage button
-            var PRItm = oButton.data("PRNO").PRITM;
-
+            //var oButton = oEvent.getSource();
+            var PRNo = _PRNO;//oButton.data("PRNO").PRNO; //get the styleno binded to manage button
+            var PRItm = _PRITM;//oButton.data("PRNO").PRITM;
+            
             if(PRNo != "" || PRNo != null){
                 while(PRNo.length < 10) PRNo = "0" + PRNo;
             }
@@ -355,100 +400,115 @@ sap.ui.define(
             });
         },
 
-        onEditTbl: function(){
+        onEditTbl: async function(){
+            Common.openLoadingDialog(that);
+            var bProceed = true;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
             if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
-                return;
+                bProceed = false;
             }
-            var oModel = this.getOwnerComponent().getModel();
-            var oEntitySet = "/PRSet";
-            var me = this;
 
-            var oTable = this.byId("styleDynTable");
-            var aSelIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = this.getView().getModel("TableData").getData().results;
-            var aDataToEdit = [];
-            var bDeleted = false, bWithMaterial = false;
-            var iCounter = 0;
+            if(bProceed){
+                var oModel = this.getOwnerComponent().getModel();
+                var oEntitySet = "/PRSet";
+                var me = this;
 
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            
-            if (aSelIndices.length > 0) {
-                aSelIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
+                var oTable = this.byId("styleDynTable");
+                var aSelIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = this._oDataBeforeChange.results != undefined? this._oDataBeforeChange.results : this.getView().getModel("TableData").getData().results;
+                var aDataToEdit = [];
+                var bDeleted = false, bWithMaterial = false;
+                var iCounter = 0;
+                var promiseResult;
+                
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
 
-                aSelIndices = oTmpSelectedIndices;
+                if (aSelIndices.length > 0) {
+                    aSelIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
 
-                aSelIndices.forEach((item, index) => {
-                    if (aData.at(item).DELETED === true) {
-                        iCounter++;
-                        bDeleted = true;
-
-                        if (aSelIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyDeleted);
-                        }
-                    }else if(aData.at(item).CLOSED === true){
-                        iCounter++;
-                        if (aSelIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyClosed);
-                        }
-                    }
-                    else {
-                        var PRNo = aData.at(item).PRNO
-                        var PRItm = aData.at(item).PRITM
-
-                        if(PRNo != "" || PRNo != null){
-                            while(PRNo.length < 10) PRNo = "0" + PRNo;
-                        }
-                        oModel.read(oEntitySet + "(PRNO='" + PRNo + "',PRITM='"+ PRItm +"')", {
-                            success: function (data, response) {
+                    aSelIndices = oTmpSelectedIndices;
+                    promiseResult = new Promise((resolve, reject)=>{
+                        aSelIndices.forEach((item, index) => {
+                            if (aData.at(item).DELETED === true) {
                                 iCounter++;
-                                aDataToEdit.push(aData.at(item));
-
+                                bDeleted = true;
+        
                                 if (aSelIndices.length === iCounter) {
-                                    if (aDataToEdit.length === 0) {
-                                        MessageBox.information(msgNoDataToEdit);
-                                    }
-                                    else {
-                                        me.byId("btnNew").setVisible(false);
-                                        me.byId("btnEdit").setVisible(false);
-                                        me.byId("btnDelete").setVisible(false);
-                                        me.byId("btnClose").setVisible(false);
-                                        me.byId("btnSave").setVisible(true);
-                                        me.byId("btnCancel").setVisible(true);
-                                        me.byId("btnTabLayout").setVisible(false);
-
-
-                                        me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
-                                        
-                                        me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
-                                        me.getColumns("Edit");
-                                        me.setTableData();
-                                        me.setRowEditMode("TableData");
-                        
-                                        me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
-                                        me._isGMCEdited = false;
-                                    }
-                                }                                    
-                            },
-                            error: function (err) {
+                                    MessageBox.information(msgAlreadyDeleted);
+                                    resolve();
+                                }
+                            }else if(aData.at(item).CLOSED === true){
                                 iCounter++;
+                                if (aSelIndices.length === iCounter) {
+                                    MessageBox.information(msgAlreadyClosed);
+                                    resolve();
+                                }
                             }
-                        })
-                    }
-                })
+                            else {
+                                var PRNo = aData.at(item).PRNO
+                                var PRItm = aData.at(item).PRITM
+        
+                                if(PRNo != "" || PRNo != null){
+                                    while(PRNo.length < 10) PRNo = "0" + PRNo;
+                                }
+                                oModel.read(oEntitySet + "(PRNO='" + PRNo + "',PRITM='"+ PRItm +"')", {
+                                    success: function (data, response) {
+                                        iCounter++;
+                                        aDataToEdit.push(aData.at(item));
+        
+                                        if (aSelIndices.length === iCounter) {
+                                            if (aDataToEdit.length === 0) {
+                                                MessageBox.information(msgNoDataToEdit);
+                                                resolve();
+                                            }
+                                            else {
+                                                me.byId("btnNew").setVisible(false);
+                                                me.byId("btnEdit").setVisible(false);
+                                                me.byId("btnDelete").setVisible(false);
+                                                me.byId("btnClose").setVisible(false);
+                                                me.byId("btnSave").setVisible(true);
+                                                me.byId("btnCancel").setVisible(true);
+                                                me.byId("btnTabLayout").setVisible(false);
+                                                me.byId("btnView").setVisible(false);
+        
+        
+                                                me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
+                                                
+                                                me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
+                                                me.getColumns("Edit");
+                                                me.setTableData();
+                                                me.setRowEditMode("TableData");
+                                
+                                                me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
+                                                me._isGMCEdited = false;
+                                                resolve();
+                                            }
+                                        }                                    
+                                    },
+                                    error: function (err) {
+                                        iCounter++;
+                                        resolve();
+                                    }
+                                })
+                            }
+                        });
+                    });
+                    await promiseResult;
+                }
+                else {
+                    // aDataToEdit = aData;
+                    MessageBox.information(msgNoDataToEdit);
+                }
             }
-            else {
-                // aDataToEdit = aData;
-                MessageBox.information(msgNoDataToEdit);
-            }
+            Common.closeLoadingDialog(that);
             // aDataToEdit = aDataToEdit.filter(item => item.Deleted === false);
         },
         setRowEditMode(arg) {
@@ -472,7 +532,7 @@ sap.ui.define(
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
@@ -488,7 +548,7 @@ sap.ui.define(
                                     //     }),
                                     //     templateShareable: false
                                     // },
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "QUANTITY"){
@@ -505,143 +565,143 @@ sap.ui.define(
                             if(ci.ColumnName === "DELDT"){
                                 col.setTemplate(new sap.m.DatePicker({
                                     // id: "ipt" + ci.name,
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     displayFormat:"short",
                                     change:"handleChange",
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "BATCH"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "MATGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SHIPTOPLANT"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PLANTCD"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "VENDOR"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "PURORG"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "TRCKNO"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "REQSTNR"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SUPTYP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: true,
                                     valueHelpRequest: this.handleValueHelp.bind(this),
                                     showSuggestion: true,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SALESGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "CUSTGRP"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
                             if(ci.ColumnName === "SEASONCD"){
                                 col.setTemplate(new sap.m.Input({
                                     // id: "ipt" + ci.name,
                                     type: "Text",
-                                    value: "{" + ci.ColumnName + "}",
+                                    value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                     maxLength: +ci.Length,
                                    
-                                    change: this.onInputLiveChange.bind(this)
+                                    liveChange: this.onInputLiveChange.bind(this)
                                 }));
                             }
 
@@ -702,9 +762,50 @@ sap.ui.define(
             })
         },
         onInputLiveChange: function(oEvent) {
-            this._isEdited = true;
+            // console.log(oEvent.getSource().getBindingInfo("value").binding.oValue);
+            // console.log(oEvent.getSource().getBindingInfo("value").mandatory);
+            // console.log(oEvent.getParameters().value);
+            // console.log(oEvent.getSource().getBindingInfo("value"));
+            // console.log(oEvent.getSource());
+            // console.log(oEvent.getParameters());
+
+            if(oEvent.getSource().getBindingInfo("value").mandatory){
+                if(oEvent.getParameters().value === ""){
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Required Field");
+                    this.validationErrors.push(oEvent.getSource().getId());
+                }else{
+                    oEvent.getSource().setValueState("None");
+                    this.validationErrors.forEach((item, index) => {
+                        if (item === oEvent.getSource().getId()) {
+                            this.validationErrors.splice(index, 1)
+                        }
+                    })
+                }
+            }
+            //if original value is equal to change value
+            if(oEvent.getParameters().value === oEvent.getSource().getBindingInfo("value").binding.oValue){
+                this._isEdited = false;
+            }else{
+                this._isEdited = true;
+            }
         },
         onNumberLiveChange: function(oEvent){
+            if(oEvent.getSource().getBindingInfo("value").mandatory){
+                if(oEvent.getParameters().value === ""){
+                    oEvent.getSource().setValueState("Error");
+                    oEvent.getSource().setValueStateText("Required Field");
+                    this.validationErrors.push(oEvent.getSource().getId());
+                }else{
+                    oEvent.getSource().setValueState("None");
+                    this.validationErrors.forEach((item, index) => {
+                        if (item === oEvent.getSource().getId()) {
+                            this.validationErrors.splice(index, 1)
+                        }
+                    })
+                }
+            }
+
             if (oEvent.getParameters().value.split(".").length > 1) {
                 if (oEvent.getParameters().value.split(".")[1].length > 3) {
                     // console.log("invalid");
@@ -727,6 +828,12 @@ sap.ui.define(
                         this.validationErrors.splice(index, 1)
                     }
                 })
+            }
+            //if original value is equal to change value
+            if(oEvent.getParameters().value === oEvent.getSource().getBindingInfo("value").binding.oValue){
+                this._isEdited = false;
+            }else{
+                this._isEdited = true;
             }
         },
         // onValueHelpLiveInputChange: function(oEvent) {
@@ -1082,7 +1189,42 @@ sap.ui.define(
                 // }
             }
         },
-        onCancelEdit() {
+        searchGlobal: function(oEvent){
+            if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
+                return;
+            }
+            var oTable = oEvent.getSource().oParent.oParent;
+            var sTable = oTable.getBindingInfo("rows");
+            var sQuery = oEvent.getParameter("query");
+            if (sTable === "gmc") {
+                this.byId("searchFieldAttr").setProperty("value", "");
+                this.byId("searchFieldMatl").setProperty("value", "");
+            }
+
+            this.exeGlobalSearch(sQuery);
+        },
+        exeGlobalSearch(query) {
+            var oFilter = null;
+            var aFilter = [];
+            var oTable = this.byId("styleDynTable");
+            var oColumnsModel = this.getView().getModel("Columns");
+            var oColumnsData = oColumnsModel.getProperty('/results');
+            
+            if (query) {
+                oTable.getColumns().forEach((col, idx) => {
+                    var sDataType = oColumnsData.filter(item => item.ColumnName === col.sId)[0].ColumnName
+
+                    if(sDataType != "DELETED" && sDataType != "CLOSED")
+                        aFilter.push(new Filter(sDataType, FilterOperator.Contains, query));
+                    else
+                        aFilter.push(new Filter(sDataType, FilterOperator.EQ, query));
+                })
+                oFilter = new Filter(aFilter, false);
+            }
+            this.byId("styleDynTable").getBinding("rows").filter(oFilter, "Application");
+        },
+        onCancelEdit: async function() {
+            var promiseResult;
             if (this._isEdited) {
 
                 if (!this._DiscardChangesDialog) {
@@ -1093,6 +1235,7 @@ sap.ui.define(
                 this._DiscardChangesDialog.open();
             }
             else {
+                Common.openLoadingDialog(that);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
@@ -1100,17 +1243,27 @@ sap.ui.define(
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
+                this.byId("btnView").setVisible(true);
+                this.validationErrors = [];
                 this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                this.getColumns("Cancel");
-                this.setTableData();
-
+                promiseResult = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        this.getColumns("Cancel");
+                        this.setTableData();
+                        resolve();
+                    }, 500);
+                });
+                await promiseResult;
                 if (this.getView().getModel("ui").getData().dataMode === 'NEW') this.setFilterAfterCreate();
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
+                Common.closeLoadingDialog(that);
             }
         },
-        onCloseDiscardChangesDialog() {
+        onCloseDiscardChangesDialog: async function() {
+            var promiseResult;
             if (this._isEdited) {
+                Common.openLoadingDialog(that);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
@@ -1118,15 +1271,24 @@ sap.ui.define(
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
+                this.byId("btnView").setVisible(true);
                 // this.onTableResize("Hdr","Min");
                 // this.setRowReadMode("gmc");\
                 this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                this.getColumns("Discard");
-                this.setTableData();
-                this.getView().getModel("ui").setProperty("/dataMode", 'READ');
-                this._isEdited = false;
+                promiseResult = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        this.getColumns("Discard");
+                        this.setTableData();
+                        resolve();
+                    }, 500);
+                });
+                await promiseResult;
+                Common.closeLoadingDialog(that);
             }
+            this.validationErrors = [];
             this._DiscardChangesDialog.close();
+            this.getView().getModel("ui").setProperty("/dataMode", 'READ');
+            this._isEdited = false;
         },
         onCancelDiscardChangesDialog() {
             // console.log(this._DiscardChangesgDialog)
@@ -1178,6 +1340,7 @@ sap.ui.define(
             var oParam = {};
             var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
             var message = "";
+            var promiseResult;
 
             //MessageBox Message
             var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
@@ -1192,6 +1355,9 @@ sap.ui.define(
 
             oSelectedIndices = oTmpSelectedIndices;
             oSelectedIndices.forEach((item, index) => {
+                if(aData.at(item).PRNO != "" || aData.at(item).PRNO != null){
+                    while(aData.at(item).PRNO.length < 10) aData.at(item).PRNO = "0" + aData.at(item).PRNO;
+                }
                 oParamData.push({
                     PreqNo: aData.at(item).PRNO,
                     PreqItem: aData.at(item).PRITM,
@@ -1219,36 +1385,42 @@ sap.ui.define(
             if (oParamData.length > 0) {
                 oParam['N_ChangePRParam'] = oParamData;
                 oParam['N_ChangePRReturn'] = [];
-                await oModel.create("/ChangePRSet", oParam, {
-                    method: "POST",
-                    success: function(oResultCPR, oResponse) {
-                        oSelectedIndices.forEach((item, index) => {
-                            var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-
-                            if (oRetMsg.length > 0) {
-                                if (oRetMsg[0].Type === 'S') {
-                                    message = message + oRetMsg[0].Message + "\n"
-                                }else{
-                                    message = message + oRetMsg[0].Message + "\n"
+                promiseResult = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        resolve(
+                            oModel.create("/ChangePRSet", oParam, {
+                                method: "POST",
+                                success: function(oResultCPR, oResponse) {
+                                    oSelectedIndices.forEach((item, index) => {
+                                        var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+            
+                                        if (oRetMsg.length > 0) {
+                                            if (oRetMsg[0].Type === 'S') {
+                                                message = message + oRetMsg[0].Message + "\n"
+                                            }else{
+                                                message = message + oRetMsg[0].Message + "\n"
+                                            }
+                                        }
+                                        else{
+                                            message = message + "Error Occured in " + aData.at(item).PRNO + "\n"
+                                        }
+            
+                                    })
+                                    
+                                    MessageBox.information(message);
+                                    
+                                },
+                                error: function() {
+                                    message = msgError
+                                    MessageBox.error(message);
+                                    return;
                                 }
-                            }
-                            else{
-                                message = message + oRetMsg[0].Message + "\n"
-                            }
+                            })
+                        );
+                    }, 500);
+                });
 
-                        })
-                        
-                        Common.closeLoadingDialog(that);
-                        MessageBox.information(message);
-                        
-                    },
-                    error: function() {
-                        message = msgError
-                        Common.closeLoadingDialog(that);
-                        MessageBox.error(message);
-                        return;
-                    }
-                })
+                await promiseResult;
                 var prModel = this.getOwnerComponent().getModel();
                 var prEntitySet = "/PRSet";  
 
@@ -1261,29 +1433,46 @@ sap.ui.define(
                 //     }
                     
                 // }
-                await oModel.attachRequestCompleted(function(){
-                    for(var x = 0; x < aData.length; x++){
-                        prModel.read(prEntitySet + "(PRNO='" + aData.at(x).PRNO + "',PRITM='"+ aData.at(x).PRITM +"')", {
-                            success: function (data, response) {
-                                data.DELDT = dateFormat.format(new Date(data.DELDT));
-                                for (var i = 0; i < me._oDataBeforeChange.results.length; i++) {
-                                    if (me._oDataBeforeChange.results[i].PRNO === data.PRNO && me._oDataBeforeChange.results[i].PRITM === data.PRITM) {
-                                        // console.log(me._oDataBeforeChange.results[i]);
-                                        // console.log(data);
-                                        me._oDataBeforeChange.results[i] = data;
-                                        // console.log(me._oDataBeforeChange.results[i]);
-                                        me.getView().getModel("TableData").setProperty("/", me._oDataBeforeChange);  
-                                    }
-                                }
-                                me.getColumns("Save");
-                                me.setTableData();  
-                                                 
-                            },
-                            error: function (err) {
+                for(var x = 0; x < aData.length; x++){
+                    promiseResult = new Promise((resolve, reject)=>{
+                        setTimeout(() => {
+                            if(aData.at(x).PRNO != "" || aData.at(x).PRNO != null){
+                                while(aData.at(x).PRNO.length < 10) aData.at(x).PRNO = "0" + aData.at(x).PRNO;
                             }
-                        }); 
-                    }
-                })
+                            resolve(
+                                prModel.read(prEntitySet + "(PRNO='" + aData.at(x).PRNO + "',PRITM='"+ aData.at(x).PRITM +"')", {
+                                    success: function (data, response) {
+                                        data.DELDT = dateFormat.format(new Date(data.DELDT));
+                                        for (var i = 0; i < me._oDataBeforeChange.results.length; i++) {
+                                            if (me._oDataBeforeChange.results[i].PRNO === data.PRNO && me._oDataBeforeChange.results[i].PRITM === data.PRITM) {
+                                                // console.log(me._oDataBeforeChange.results[i]);
+                                                // console.log(data);
+                                                me._oDataBeforeChange.results[i] = data;
+                                                // console.log(me._oDataBeforeChange.results[i]);
+                                                me.getView().getModel("TableData").setProperty("/", me._oDataBeforeChange);  
+                                            }
+                                        }              
+                                    },
+                                    error: function (err) {
+                                    }
+                                })
+                            );
+                        }, 500);
+                        
+                    });
+                    
+                    await promiseResult;
+                }
+                promiseResult = new Promise((resolve, reject)=>{
+                    setTimeout(() => {
+                        this.getColumns("Save");
+                        this.setTableData(); 
+                        resolve()
+                    }, 500);
+                });
+                await promiseResult;
+                
+                Common.closeLoadingDialog(that);
                 
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
@@ -1292,217 +1481,259 @@ sap.ui.define(
                 this.byId("btnSave").setVisible(false);
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
+                that.byId("btnView").setVisible(true);
+                this.validationErrors = [];
+                this._isEdited = false;
                 
                 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
             }
         },
         onDeletePR: async function(){
+            var bProceed = true;
+            Common.openLoadingDialog(that);
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
             if(this.getView().getModel("ui").getData().dataMode === 'NODATA'){
-                return;
+                bProceed = false;
             }
-            this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
-            var oTable = this.byId("styleDynTable");
-            var oSelectedIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = oTable.getModel().getData().rows;
-            var oParamData = [];
-            var oParam = {};
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var iCounter = 0;
-            var message = "";
-            var isError = false;
 
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            var msgNoDataToDelete = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_DELETE"];
-            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
-            
-            if(oSelectedIndices.length > 0){
-                oSelectedIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
-    
-                oSelectedIndices = oTmpSelectedIndices;
+            if(bProceed){
+                this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
+                var oTable = this.byId("styleDynTable");
+                var oSelectedIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+                var oParamData = [];
+                var oParam = {};
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var iCounter = 0;
+                var message = "";
+                var isError = false;
+                var promiseResult;
 
-                await oSelectedIndices.forEach((item, index) => {
-                    if(aData.at(item).DELETED === true){
-                        
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyDeleted);
-                        }
-                    }else if(aData.at(item).CLOSED === true){
-                        iCounter++;
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+                var msgNoDataToDelete = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_DELETE"];
+                var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
+                
+                if(oSelectedIndices.length > 0){
+                    oSelectedIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+        
+                    oSelectedIndices = oTmpSelectedIndices;
 
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyClosed);
-                        }
-                    }
-                    else{
-                        var PRNo = aData.at(item).PRNO
-                        var PRItm = aData.at(item).PRITM
-    
-                        // if(PRNo != "" || PRNo != null){
-                        //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                        // }
-
-                        oParamData.push({
-                            PreqNo: PRNo,
-                            PreqItem: PRItm,
-                            DeleteInd: 'X',
-                            CloseInd: ''
-                        })
-                    }
-                })
-
-                if (oParamData.length > 0) {
-                    oParam['N_DelClosePRParam'] = oParamData;
-                    oParam['N_DelClosePRReturn'] = [];
-                    await oModel.create("/DelClosePRSet", oParam, {
-                        method: "POST",
-                        success: async function(oResultDCPR, oResponse){
-                            // console.log(oResultDCPR)
-                            await oSelectedIndices.forEach((item, index) => {
-                                
-                                var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                if (oRetMsg.length > 0) {
-                                    if (oRetMsg[0].Type === 'I') {
-                                        message = message + oRetMsg[0].Message + "\n"
-                                    }else{
-                                        isError = true;
-                                        message = message + oRetMsg[0].Message + "\n"
-                                    }
-                                }else{
-                                    isError = true;
-                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                }
-                            });
+                    await oSelectedIndices.forEach((item, index) => {
+                        if(aData.at(item).DELETED === true){
                             
-                            MessageBox.information(message);
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyDeleted);
+                            }
+                        }else if(aData.at(item).CLOSED === true){
+                            iCounter++;
+
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyClosed);
+                            }
+                        }
+                        else{
+                            var PRNo = aData.at(item).PRNO
+                            var PRItm = aData.at(item).PRITM
+        
+                            // if(PRNo != "" || PRNo != null){
+                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            // }
+
+                            oParamData.push({
+                                PreqNo: PRNo,
+                                PreqItem: PRItm,
+                                DeleteInd: 'X',
+                                CloseInd: ''
+                            })
                         }
                     })
+
+                    if (oParamData.length > 0) {
+                        oParam['N_DelClosePRParam'] = oParamData;
+                        oParam['N_DelClosePRReturn'] = [];
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        // console.log(oResultDCPR)
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
+                                            }else{
+                                                isError = true;
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                            }
+                                        });
+                                        
+                                        MessageBox.information(message);
+                                    }
+                                });
+                                resolve();
+                            }, 500);
+                        });
+                        await promiseResult;
+                    }
+                    if (!isError){
+                        await oSelectedIndices.forEach(item => {
+                            if(this._oDataBeforeChange.results[item].DELETED != true && this._oDataBeforeChange.results[item].CLOSED != true){        
+                                this._oDataBeforeChange.results[item].DELETED = true;
+                            }
+                        })
+                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                this.getColumns("Delete");
+                                resolve();
+                            }, 500);
+                        })
+                        await promiseResult;
+                        Common.closeLoadingDialog(that);
+                        this.setTableData();
+                    }
+                }else{
+                    MessageBox.information(msgNoDataToDelete);
                 }
-                if (!isError){
-                    await oSelectedIndices.forEach(item => {
-                        if(this._oDataBeforeChange.results[item].DELETED != true && this._oDataBeforeChange.results[item].CLOSED != true){        
-                            this._oDataBeforeChange.results[item].DELETED = true;
-                        }
-                    })
-                    this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    this.getColumns("Delete");
-                    this.setTableData();
-                }
-            }else{
-                MessageBox.information(msgNoDataToDelete);
             }
-            
+            Common.closeLoadingDialog(that);
             
         },
         onClosePR: async function(){
+            Common.openLoadingDialog(that);
+            var bProceed = true;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
-                return;
+                bProceed = false;
             }
-            this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
-            var oTable = this.byId("styleDynTable");
-            var oSelectedIndices = oTable.getSelectedIndices();
-            var oTmpSelectedIndices = [];
-            var aData = oTable.getModel().getData().rows;
-            var oParamData = [];
-            var oParam = {};
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
-            var iCounter = 0;
-            var message = "";
-            var isError = false;
+            if(bProceed){
+                this._oDataBeforeChange = jQuery.extend(true, {}, this.getView().getModel("TableData").getData());
+                var oTable = this.byId("styleDynTable");
+                var oSelectedIndices = oTable.getSelectedIndices();
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+                var oParamData = [];
+                var oParam = {};
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_RFC_SRV");
+                var iCounter = 0;
+                var message = "";
+                var isError = false;
+                var promiseResult;
 
-            //MessageBox Message
-            var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
-            var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
-            var msgNoDataToClose = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_CLOSE"];
-            var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
+                //MessageBox Message
+                var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
+                var msgAlreadyClosed = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_CLOSED"];
+                var msgNoDataToClose = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_CLOSE"];
+                var msgDeletedOrClosed = this.getView().getModel("captionMsg").getData()["INFO_DELETED_OR_CLOSED"];
 
-            if(oSelectedIndices.length > 0){
-                oSelectedIndices.forEach(item => {
-                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
-    
-                oSelectedIndices = oTmpSelectedIndices;
+                if(oSelectedIndices.length > 0){
+                    oSelectedIndices.forEach(item => {
+                        oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    })
+        
+                    oSelectedIndices = oTmpSelectedIndices;
 
-                await oSelectedIndices.forEach((item, index) => {
-                    if(aData.at(item).DELETED === true){
-                        
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyDeleted);
-                        }
-                    }else if(aData.at(item).CLOSED === true){
-                        iCounter++;
-                        if (oSelectedIndices.length === iCounter) {
-                            MessageBox.information(msgAlreadyClosed);
-                        }
-                    }
-                    else{
-                        var PRNo = aData.at(item).PRNO
-                        var PRItm = aData.at(item).PRITM
-    
-                        // if(PRNo != "" || PRNo != null){
-                        //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                        // }
-
-                        oParamData.push({
-                            PreqNo: PRNo,
-                            PreqItem: PRItm,
-                            DeleteInd: '',
-                            CloseInd: 'X'
-                        })
-                    }
-                })
-                if (oParamData.length > 0) {
-                    oParam['N_DelClosePRParam'] = oParamData;
-                    oParam['N_DelClosePRReturn'] = [];
-                    await oModel.create("/DelClosePRSet", oParam, {
-                        method: "POST",
-                        success: async function(oResultDCPR, oResponse){
-                            // console.log(oResultDCPR)
-                            await oSelectedIndices.forEach((item, index) => {
-                                
-                                var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                if (oRetMsg.length > 0) {
-                                    if (oRetMsg[0].Type === 'I') {
-                                        message = message + oRetMsg[0].Message + "\n"
-                                    }else{
-                                        isError = true;
-                                        message = message + oRetMsg[0].Message + "\n"
-                                    }
-                                }else{
-                                    isError = true;
-                                    message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                }
-                            });
+                    await oSelectedIndices.forEach((item, index) => {
+                        if(aData.at(item).DELETED === true){
                             
-                            MessageBox.information(message);
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyDeleted);
+                            }
+                        }else if(aData.at(item).CLOSED === true){
+                            iCounter++;
+                            if (oSelectedIndices.length === iCounter) {
+                                MessageBox.information(msgAlreadyClosed);
+                            }
                         }
-                    })
-                }
-                if (!isError){
-                    await oSelectedIndices.forEach(item => {
-                        if(this._oDataBeforeChange.results[item].DELETED != true){        
-                            this._oDataBeforeChange.results[item].CLOSED = true;
-                        }
+                        else{
+                            var PRNo = aData.at(item).PRNO
+                            var PRItm = aData.at(item).PRITM
+        
+                            // if(PRNo != "" || PRNo != null){
+                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            // }
 
+                            oParamData.push({
+                                PreqNo: PRNo,
+                                PreqItem: PRItm,
+                                DeleteInd: '',
+                                CloseInd: 'X'
+                            })
+                        }
                     })
-                    this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                    this.getColumns("Close");
-                    this.setTableData();
+                    if (oParamData.length > 0) {
+                        oParam['N_DelClosePRParam'] = oParamData;
+                        oParam['N_DelClosePRReturn'] = [];
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        // console.log(oResultDCPR)
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
+                                            }else{
+                                                isError = true;
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                            }
+                                        });
+                                        
+                                        MessageBox.information(message);
+                                    }
+                                });
+                                resolve();
+                            }, 500);
+
+                        });
+                        await promiseResult;
+                    }
+                    if (!isError){
+                        await oSelectedIndices.forEach(item => {
+                            if(this._oDataBeforeChange.results[item].DELETED != true){        
+                                this._oDataBeforeChange.results[item].CLOSED = true;
+                            }
+
+                        })
+                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
+                        promiseResult = new Promise((resolve, reject)=>{
+                            setTimeout(() => {
+                                this.getColumns("Close");
+                                resolve();
+                            }, 500);
+                        })
+                        await promiseResult;
+                        Common.closeLoadingDialog(that);
+                        this.setTableData();
+                    }
+                    
+                }else{
+                    MessageBox.information(msgNoDataToClose);
                 }
-                
-            }else{
-                MessageBox.information(msgNoDataToClose);
             }
+            Common.closeLoadingDialog(that);
         },
 
         onSaveTableLayout: function () {
@@ -1557,6 +1788,7 @@ sap.ui.define(
             var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
 
             //SmartFilter Search Label
+            oDDTextParam.push({CODE: "SEARCH"});
             oDDTextParam.push({CODE: "SBU"});
             oDDTextParam.push({CODE: "PRNO"});
             oDDTextParam.push({CODE: "DOCTYP"});
@@ -1568,7 +1800,7 @@ sap.ui.define(
             oDDTextParam.push({CODE: "MATGRP"});
             oDDTextParam.push({CODE: "MATTYP"});
             oDDTextParam.push({CODE: "IONO"});
-            oDDTextParam.push({CODE: "BATCH"});
+            oDDTextParam.push({CODE: "SEASON"});
 
             //Button Label
             oDDTextParam.push({CODE: "NEW"});
