@@ -104,7 +104,6 @@ sap.ui.define([
                             oDDTextResult[item.CODE] = item.TEXT;
                         })
                         
-                        console.log(oDDTextResult)
                         oJSONModel.setData(oDDTextResult);
                         that.getView().setModel(oJSONModel, "captionMsg");
                     },

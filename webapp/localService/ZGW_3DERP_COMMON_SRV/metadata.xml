@@ -57,6 +57,26 @@
                 <Property Name="CODE" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
                 <NavigationProperty Name="CaptionMsgItems" Relationship="ZGW_3DERP_COMMON_SRV.CaptionMsgItems" FromRole="FromRole_CaptionMsgItems" ToRole="ToRole_CaptionMsgItems"/>
             </EntityType>
+            <EntityType Name="ChangeTable" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="TABLE"/>
+                </Key>
+                <Property Name="TABLE" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Table" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="OPERATION" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Operation" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_ChangeTableItems" Relationship="ZGW_3DERP_COMMON_SRV.A_ChangeTableItems" FromRole="FromRole_A_ChangeTableItems" ToRole="ToRole_A_ChangeTableItems"/>
+            </EntityType>
+            <EntityType Name="ChangeTableItems" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="FIELD"/>
+                </Key>
+                <Property Name="FIELD" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Field" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="VALUE" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Value" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="KEY" Type="Edm.String" Nullable="false" sap:unicode="false" sap:label="Key" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <Association Name="A_ChangeTableItems" sap:content-version="1">
+                <End Type="ZGW_3DERP_COMMON_SRV.ChangeTable" Multiplicity="1" Role="FromRole_A_ChangeTableItems"/>
+                <End Type="ZGW_3DERP_COMMON_SRV.ChangeTableItems" Multiplicity="*" Role="ToRole_A_ChangeTableItems"/>
+            </Association>
             <Association Name="TableLayoutToItems" sap:content-version="1">
                 <End Type="ZGW_3DERP_COMMON_SRV.TableLayout" Multiplicity="1" Role="FromRole_TableLayoutToItems"/>
                 <End Type="ZGW_3DERP_COMMON_SRV.TableLayoutItems" Multiplicity="*" Role="ToRole_TableLayoutToItems"/>
@@ -86,6 +106,12 @@
                 <EntitySet Name="TableLayoutSet" EntityType="ZGW_3DERP_COMMON_SRV.TableLayout" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
                 <EntitySet Name="TableLayoutItemsSet" EntityType="ZGW_3DERP_COMMON_SRV.TableLayoutItems" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
                 <EntitySet Name="CaptionMsgSet" EntityType="ZGW_3DERP_COMMON_SRV.CaptionMsg" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="ChangeTableSet" EntityType="ZGW_3DERP_COMMON_SRV.ChangeTable" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="ChangeTableItemsSet" EntityType="ZGW_3DERP_COMMON_SRV.ChangeTableItems" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <AssociationSet Name="A_ChangeTableItemsSet" Association="ZGW_3DERP_COMMON_SRV.A_ChangeTableItems" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ChangeTableSet" Role="FromRole_A_ChangeTableItems"/>
+                    <End EntitySet="ChangeTableItemsSet" Role="ToRole_A_ChangeTableItems"/>
+                </AssociationSet>
                 <AssociationSet Name="CaptionMsgItemsSet" Association="ZGW_3DERP_COMMON_SRV.CaptionMsgItems" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
                     <End EntitySet="CaptionMsgSet" Role="FromRole_CaptionMsgItems"/>
                     <End EntitySet="CaptionMsgSet" Role="ToRole_CaptionMsgItems"/>

@@ -28,3 +28,6 @@
 .shippedTile{
     background-color: #c6e0b4;
 }
+.activeRow {
+    background-color: #e1ebf3 !important;
+}

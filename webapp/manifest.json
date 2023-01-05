@@ -20,9 +20,9 @@
                 "uri": "/sap/opu/odata/sap/ZGW_3DERP_PR_SRV/",
                 "type": "OData",
                 "settings": {
+                    "odataVersion": "2.0",
                     "annotations": [],
-                    "localUri": "localService/mainService/metadata.xml",
-                    "odataVersion": "2.0"
+                    "localUri": "localService/mainService/metadata.xml"
                 }
             },
             "ZGW_3DERP_RFC_SRV": {
@@ -95,16 +95,16 @@
             }
         },
         "commands": {
-			"Save": {
-				"shortcut": "Ctrl+S"
-			},
-			"Delete": {
-				"shortcut": "Ctrl+D"
-			},
+            "Save": {
+                "shortcut": "Ctrl+S"
+            },
+            "Delete": {
+                "shortcut": "Ctrl+D"
+            },
             "Edit": {
-				"shortcut": "Ctrl+E"
-			}
-		},
+                "shortcut": "Ctrl+E"
+            }
+        },
         "contentDensities": {
             "compact": true,
             "cozy": true
@@ -119,7 +119,11 @@
             "": {
                 "dataSource": "mainService",
                 "preload": true,
-                "settings": {}
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
             },
             "ZGW_3DERP_RFC_SRV": {
                 "dataSource": "ZGW_3DERP_RFC_SRV",
