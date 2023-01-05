@@ -1,29 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
-    <edmx:Reference Uri="http://159.138.39.203:8000/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
         <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
     </edmx:Reference>
-    <edmx:Reference Uri="http://159.138.39.203:8000/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
         <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
     </edmx:Reference>
-    <edmx:Reference Uri="http://159.138.39.203:8000/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
         <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
     </edmx:Reference>
-    <edmx:Reference Uri="http://159.138.39.203:8000/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
         <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
     </edmx:Reference>
-    <edmx:Reference Uri="http://159.138.39.203:8000/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
         <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
     </edmx:Reference>
     <edmx:DataServices m:DataServiceVersion="2.0">
         <Schema Namespace="ZVB_3DERP_PR_FILTERS_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
-            <EntityType Name="ZVB_3DERP_DOCTYPE_SHType" sap:label="3DERP: Document Type" sap:value-list="true" sap:content-version="1">
-                <Key>
-                    <PropertyRef Name="DocType"/>
-                </Key>
-                <Property Name="DocType" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="UpperCase" sap:text="Description" sap:label="Purchasing Doc. Type" sap:quickinfo="Purchasing Document Type"/>
-                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Doc. Type Descript." sap:quickinfo="Short Description of Purchasing Document Type"/>
-            </EntityType>
             <EntityType Name="ZVB_3DERP_FTYSTYLE_SHType" sap:label="3DERP: Factory Style" sap:value-list="true" sap:content-version="1">
                 <Key>
                     <PropertyRef Name="FtyStyle"/>
@@ -46,13 +39,22 @@
                     <PropertyRef Name="MaterialGrp"/>
                 </Key>
                 <Property Name="MaterialGrp" Type="Edm.String" Nullable="false" MaxLength="9" sap:display-format="UpperCase" sap:label="Material Group"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Material Group Desc." sap:quickinfo="Material Group Description"/>
             </EntityType>
             <EntityType Name="ZVB_3DERP_MATTYPE_SHType" sap:label="3DERP: Material Type" sap:value-list="true" sap:content-version="1">
                 <Key>
                     <PropertyRef Name="MaterialType"/>
                 </Key>
                 <Property Name="MaterialType" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="UpperCase" sap:label="Material type"/>
-                <Property Name="HasGMC" Type="Edm.Boolean" sap:display-format="UpperCase" sap:label="HasGMC?"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="25" sap:label="Material Type Descr." sap:quickinfo="Description of Material Type"/>
+                <Property Name="SBU" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PRDOCTYPE_SHType" sap:label="PR DocType Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DocType"/>
+                </Key>
+                <Property Name="DocType" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="UpperCase" sap:text="Description" sap:label="Purchasing Doc. Type" sap:quickinfo="Purchasing Document Type"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Doc. Type Descript." sap:quickinfo="Short Description of Purchasing Document Type"/>
             </EntityType>
             <EntityType Name="ZVB_3DERP_PRMATNOType" sap:label="PR Material No" sap:value-list="true" sap:content-version="1">
                 <Key>
@@ -99,7 +101,7 @@
                 <Property Name="POQTY" Type="Edm.Decimal" Precision="13" Scale="3" sap:unit="UOM" sap:label="Quantity ordered" sap:quickinfo="Quantity ordered against this purchase requisition"/>
                 <Property Name="OPENQTY" Type="Edm.Decimal" Precision="14" Scale="3"/>
                 <Property Name="RELDT" Type="Edm.DateTime" Precision="0" sap:display-format="Date" sap:label="Release Date" sap:quickinfo="Purchase Requisition Release Date"/>
-                <Property Name="SUPTYP" Type="Edm.String" MaxLength="10" sap:value-list="standard"/>
+                <Property Name="SUPTYP" Type="Edm.String" MaxLength="10" sap:label="Supply Type" sap:value-list="standard"/>
                 <Property Name="SALESGRP" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Sales group"/>
                 <Property Name="CUSTGRP" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Customer Group"/>
                 <Property Name="DOCTYP" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Document Type" sap:quickinfo="Purchase Requisition Document Type" sap:value-list="standard"/>
@@ -161,11 +163,11 @@
                 <Property Name="CountryCode" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Country" sap:quickinfo="Country Key"/>
             </EntityType>
             <EntityContainer Name="ZVB_3DERP_PR_FILTERS_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
-                <EntitySet Name="ZVB_3DERP_DOCTYPE_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_DOCTYPE_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_FTYSTYLE_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_FTYSTYLE_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_IONO_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_IONO_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_MATGRP_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_MATGRP_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_MATTYPE_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_MATTYPE_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PRDOCTYPE_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_PRDOCTYPE_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_PRMATNO" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_PRMATNOType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_PRNO_SH" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_PRNO_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
                 <EntitySet Name="ZVB_3DERP_PR_FILTERS" EntityType="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_PR_FILTERSType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
@@ -266,8 +268,8 @@
             <Annotations Target="ZVB_3DERP_PR_FILTERS_CDS.ZVB_3DERP_PR_FILTERSType/DOCTYP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
                 <Annotation Term="Common.ValueList">
                     <Record>
-                        <PropertyValue Property="Label" String="3DERP: Document Type"/>
-                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_DOCTYPE_SH"/>
+                        <PropertyValue Property="Label" String="PR DocType Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PRDOCTYPE_SH"/>
                         <PropertyValue Property="SearchSupported" Bool="false"/>
                         <PropertyValue Property="Parameters">
                             <Collection>
@@ -398,6 +400,9 @@
                                     <PropertyValue Property="LocalDataProperty" PropertyPath="MATGRP"/>
                                     <PropertyValue Property="ValueListProperty" String="MaterialGrp"/>
                                 </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
                             </Collection>
                         </PropertyValue>
                     </Record>
@@ -416,7 +421,10 @@
                                     <PropertyValue Property="ValueListProperty" String="MaterialType"/>
                                 </Record>
                                 <Record Type="Common.ValueListParameterDisplayOnly">
-                                    <PropertyValue Property="ValueListProperty" String="HasGMC"/>
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
                                 </Record>
                             </Collection>
                         </PropertyValue>

@@ -133,8 +133,7 @@
                     showColumnVisibilityMenu="true"
                     enableColumnFreeze="true"
                     selectionMode="MultiToggle"
-                    selectionBehavior="Row"
-                    rowSelectionChange="onSelectionChange"
+                    cellClick="onCellClick"
                     sort="onSorted"
                 >
                     <uiT:extension>
@@ -154,7 +153,7 @@
                             <m:Button id="btnDelete" text="{captionMsg>/DELETE}" icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onDeletePR"/>
                             <m:Button id="btnClose" text="{captionMsg>/CLOSE}" icon="sap-icon://complete" tooltip="{captionMsg>/CLOSE}" press="onClosePR"/>
                             <m:Button id="btnTabLayout" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>   
-                            <m:Button id="btnView" icon="sap-icon://detail-view" tooltip="{captionMsg>/SAVELAYOUT}" press="goToDetail"/>   
+                            <m:Button id="btnView" icon="sap-icon://detail-view" tooltip="{captionMsg>/VIEW}" press="goToDetail"/>   
                         </m:Toolbar>
                     </uiT:extension>
                     <uiT:layoutData>
