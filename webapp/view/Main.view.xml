@@ -31,7 +31,7 @@
         <header>
 			<DynamicPageHeader>
 				<content>
-                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" assignedFiltersChanged="onAssignedFiltersChanged" smartVariant="__SVM01" useToolbar="false" filterContainerWidth="15rem">
+                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" smartVariant="__SVM01" filterContainerWidth="15rem">
                         <!-- <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSearch" key="Search" groupId="_BASIC" label="{captionMsg>/SEARCH}" width="50px">
                                 <smartFilterBar:customControl>

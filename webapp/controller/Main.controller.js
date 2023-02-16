@@ -193,6 +193,11 @@ sap.ui.define(
                             while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
                         }
                     }
+                    if (item.sPath === 'VENDOR') {
+                        if (!isNaN(item.oValue1)) {
+                            while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
+                        }
+                    }
                 })
             }
 
@@ -200,8 +205,13 @@ sap.ui.define(
                 oModel.read("/PRSet", {
                     filters: aFilters,
                     success: function (oData, oResponse) {
-    
+                        
                         oData.results.forEach((item, index) => {
+                            console.log(item)
+                            item.CREATEDDT = dateFormat.format(new Date(item.CREATEDDT));
+                            item.UPDATEDDT = dateFormat.format(new Date(item.UPDATEDDT));
+                            item.RELDT = dateFormat.format(new Date(item.RELDT));
+                            item.REQDT = dateFormat.format(new Date(item.REQDT));
                             if (item.DELDT !== null)
                                 item.DELDT = dateFormat.format(new Date(item.DELDT));
                         })
