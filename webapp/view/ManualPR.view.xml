@@ -1,0 +1,63 @@
+<mvc:View
+	controllerName="zuipr.controller.ManualPR"
+    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
+    xmlns="sap.m" xmlns:cards="sap.f.cards"
+    xmlns:core="sap.ui.core" 
+    xmlns:smartFilterBar="sap.ui.comp.smartfilterbar"
+    xmlns:smartTable="sap.ui.comp.smarttable"
+    xmlns:sv="sap.ui.comp.smartvariants"
+    xmlns:layout="sap.ui.layout"
+    xmlns:uiT="sap.ui.table" xmlns:plugins="sap.ui.table.plugins" xmlns:fb="sap.ui.comp.filterbar" 
+    xmlns:smartfilterbar="sap.ui.comp.smartfilterbar"
+	height="100%">
+      <Page id="pagePRCreate" title="Create Manual PR" showHeader="false" titleLevel="H3" showNavButton="true"  navButtonPress="onNavBack">
+        <content>
+          <VBox id="_IDGenVBox1" fitContainer="true" class="sidePadding vBoxDetail">
+            <core:Fragment fragmentName="zuipr.view.subviews.Header" type="XML"/>
+            <IconTabBar id="itbDetail"
+                expanded="{device>/isNoPhone}" 
+                stretchContentHeight="true" 
+                applyContentPadding="false"
+                expandable="false" 
+                class="tableDetail" 
+                select="onSelectTab"
+                headerBackgroundDesign="Solid" 
+                >
+                <items>
+                    <IconTabFilter id="vpoDetailsIconTab" text="Details">
+                        <uiT:Table id="prDetTable"
+                            class="sapUiTinyMarginBottom sapUiTinyMarginBegin sapUiTinyMarginEnd"
+                            visibleRowCountMode="Auto"
+                            showColumnVisibilityMenu="true"
+                            enableColumnFreeze="true"
+                            selectionMode="MultiToggle"
+                            cellClick=".onCellClick"
+                            sort="onSorted">           
+                            <uiT:extension>
+                                <OverflowToolbar>
+                                    <HBox>
+                                        <!-- <Title id="SalesDocDetCount"/> -->
+                                        <!-- <Title text="{i18n>salesDocDetail}" class="sapUiTinyMarginBegin"/> -->
+                                    </HBox>
+                                    <ToolbarSpacer/>
+                                        <Button id = "btnDetAdd" type="Ghost"  icon="sap-icon://add" tooltip="Add Detail" press="onPRDetAdd"/>
+                                        <Button id = "btnDetPurge" type="Ghost"  icon="sap-icon://delete" tooltip="Purge Detail" press="onPRDetPurge"/>
+                                        <Button id = "btnDetTabLayout" type="Ghost" icon="sap-icon://grid" tooltip="Save Table Layout" press="onSaveTableLayout"/>
+                                    
+                                </OverflowToolbar>
+                            </uiT:extension>
+                            <uiT:layoutData>
+                                <FlexItemData growFactor="1" baseSize="0%"/>
+                            </uiT:layoutData>        
+                        </uiT:Table> 
+                    </IconTabFilter>
+                </items>
+                <layoutData>
+                    <FlexItemData growFactor="1" baseSize="0%"/>
+                </layoutData>
+            </IconTabBar>
+          </VBox>
+        </content>
+     </Page>
+    
+</mvc:View>

@@ -34,6 +34,14 @@ server:
             url: http://159.138.39.203:8000
             client: '888'
             destination: LTD888
+          - path: /sap
+            url: http://159.138.39.203:8000
+            client: '888'
+            destination: LTD888
+          - path: /sap/opu/odata/sap/ZVB_3DERP_PRM_FILTERS_CDS/
+            url: http://159.138.39.203:8000
+            client: '888'
+            destination: LTD888
     - name: sap-fe-mockserver
       beforeMiddleware: csp
       configuration:
