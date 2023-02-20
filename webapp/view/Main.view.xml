@@ -31,7 +31,7 @@
         <header>
 			<DynamicPageHeader>
 				<content>
-                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" smartVariant="__SVM01" filterContainerWidth="15rem">
+                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" smartVariant="__SVM01" filterContainerWidth="10rem">
                         <!-- <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSearch" key="Search" groupId="_BASIC" label="{captionMsg>/SEARCH}" width="50px">
                                 <smartFilterBar:customControl>
@@ -45,7 +45,7 @@
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration> -->
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="{captionMsg>/SBU}" mandatory="mandatory" width="50px">
+                            <smartFilterBar:ControlConfiguration id="filterSBU" key="SBU" groupId="_BASIC" label="{captionMsg>/SBU}" mandatory="mandatory" width="30px">
                                 <smartFilterBar:customControl>
                                     <m:ComboBox id="cboxSBU"
                                         change="onSBUChange"

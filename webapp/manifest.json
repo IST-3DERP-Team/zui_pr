@@ -60,6 +60,33 @@
                     "annotations": [],
                     "localUri": "localService/ZGW_3DERP_COMMON_SRV/metadata.xml"
                 }
+            },
+            "ZGW_3DERP_SRV": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_SRV/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [],
+                    "localUri": "localService/ZGW_3DERP_SRV/metadata.xml"
+                }
+            },
+            "ZVB_3DERP_PRM_FILTERS_CDS_Annotation": {
+                "uri": "/destinations/LTD888/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PRM_FILTERS_CDS_VAN',Version='0001')/$value/",
+                "type": "ODataAnnotation",
+                "settings": {
+                    "localUri": "localService/ZVB_3DERP_PRM_FILTERS_CDS/ZVB_3DERP_PRM_FILTERS_CDS_Annotation.xml"
+                }
+            },
+            "ZVB_3DERP_PRM_FILTERS_CDS": {
+                "uri": "/sap/opu/odata/sap/ZVB_3DERP_PRM_FILTERS_CDS/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [
+                        "ZVB_3DERP_PRM_FILTERS_CDS_Annotation"
+                    ],
+                    "localUri": "localService/ZVB_3DERP_PRM_FILTERS_CDS/metadata.xml"
+                }
             }
         }
     },
@@ -151,6 +178,24 @@
                     "defaultCountMode": "Inline",
                     "refreshAfterChange": false
                 }
+            },
+            "ZGW_3DERP_SRV": {
+                "dataSource": "ZGW_3DERP_SRV",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            },
+            "ZVB_3DERP_PRM_FILTERS_CDS": {
+                "dataSource": "ZVB_3DERP_PRM_FILTERS_CDS",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
             }
         },
         "resources": {
@@ -185,6 +230,14 @@
                     "target": [
                         "TargetPRDetail"
                     ]
+                },
+                {
+                    "name": "ManualPR",
+                    "pattern": "ManualPR",
+                    "greedy": false,
+                    "target": [
+                        "TargetManualPR"
+                    ]
                 }
             ],
             "targets": {
@@ -200,6 +253,13 @@
                     "clearControlAggregation": false,
                     "viewId": "PRDetail",
                     "viewName": "PRDetail"
+                },
+                "TargetManualPR": {
+                    "viewType": "XML",
+                    "transition": "slide",
+                    "clearControlAggregation": false,
+                    "viewId": "ManualPR",
+                    "viewName": "ManualPR"
                 }
             }
         },

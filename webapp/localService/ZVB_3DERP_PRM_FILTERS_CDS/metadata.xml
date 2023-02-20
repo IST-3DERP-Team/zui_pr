@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMON',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_CAPABILITIES',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Capabilities.V1" Alias="Capabilities"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_COMMUNICATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.Communication.v1" Alias="Communication"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_AGGREGATION',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="Org.OData.Aggregation.V1" Alias="Aggregation"/>
+    </edmx:Reference>
+    <edmx:Reference Uri="./sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Vocabularies(TechnicalName='%2FIWBEP%2FVOC_PERSONALDATA',Version='0001',SAP__Origin='')/$value" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+        <edmx:Include Namespace="com.sap.vocabularies.PersonalData.v1" Alias="PersonalData"/>
+    </edmx:Reference>
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZVB_3DERP_PRM_FILTERS_CDS" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="ZVB_3DERP_PRDOCTYPE_SHType" sap:label="PR DocType Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="DocType"/>
+                </Key>
+                <Property Name="DocType" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="UpperCase" sap:text="Description" sap:label="Purchasing Doc. Type" sap:quickinfo="Purchasing Document Type"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Doc. Type Descript." sap:quickinfo="Short Description of Purchasing Document Type"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PRM_FILTERSType" sap:label="3DERP: Manual PR Filter" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SBU"/>
+                </Key>
+                <Property Name="SBU" Type="Edm.String" Nullable="false" MaxLength="1" sap:value-list="standard"/>
+                <Property Name="DOCTYP" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Document Type" sap:quickinfo="Purchase Requisition Document Type" sap:value-list="standard"/>
+                <Property Name="PURGRP" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Purchasing Group" sap:value-list="standard"/>
+                <Property Name="PLANTCD" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Plant" sap:value-list="standard"/>
+                <Property Name="CUSTGRP" Type="Edm.String" MaxLength="2" sap:display-format="UpperCase" sap:label="Customer Group" sap:value-list="standard"/>
+                <Property Name="SALESGRP" Type="Edm.String" MaxLength="3" sap:display-format="UpperCase" sap:label="Sales group" sap:value-list="standard"/>
+                <Property Name="MATNO" Type="Edm.String" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Material Number" sap:value-list="standard"/>
+                <Property Name="SEASONCD" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Season Code" sap:quickinfo="ERP Season Code" sap:value-list="standard"/>
+                <Property Name="VENDOR" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Desired Vendor" sap:value-list="standard"/>
+                <Property Name="BATCH" Type="Edm.String" MaxLength="10" sap:display-format="UpperCase" sap:label="Batch" sap:quickinfo="Batch Number" sap:value-list="standard"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_BATCH_SHType" sap:label="3DERP: Manual PR Batch Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="BATCH"/>
+                </Key>
+                <Property Name="BATCH" Type="Edm.String" Nullable="false" MaxLength="8" sap:display-format="UpperCase" sap:label="IO Number" sap:quickinfo="Data Element  for 3DERP IO Number field"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="50" sap:label="Short Description"/>
+                <Property Name="SBU" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_CUSTGRP_SHType" sap:label="3DERP: Manual PR Cust Grp Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="CUSTGRP"/>
+                </Key>
+                <Property Name="CUSTGRP" Type="Edm.String" Nullable="false" MaxLength="2" sap:display-format="UpperCase" sap:label="Customer Group"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Name"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_MATNO_SHType" sap:label="3DERP: Manual PR MatNo Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="MATNO"/>
+                </Key>
+                <Property Name="MATNO" Type="Edm.String" Nullable="false" MaxLength="40" sap:display-format="UpperCase" sap:label="Material" sap:quickinfo="Material Number"/>
+                <Property Name="GMCDescen" Type="Edm.String" MaxLength="500" sap:label="GMC Description (EN)"/>
+                <Property Name="MatGrp" Type="Edm.String" MaxLength="9" sap:display-format="UpperCase" sap:label="Material Group"/>
+                <Property Name="UOM" Type="Edm.String" MaxLength="3" sap:label="Base Unit of Measure" sap:semantics="unit-of-measure"/>
+                <Property Name="MatTyp" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Material type"/>
+                <Property Name="SBU" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_PURPLANT_SHType" sap:label="3DERP: Manual PR Purch Plant Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="PurchPlant"/>
+                </Key>
+                <Property Name="PurchPlant" Type="Edm.String" Nullable="false" MaxLength="4" sap:display-format="UpperCase" sap:label="Plant"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="30" sap:label="Name 1" sap:quickinfo="Name"/>
+                <Property Name="SBU" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_SALESGRP_SHType" sap:label="3DERP: Manual PR Sales Grp Search Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SALESGRP"/>
+                </Key>
+                <Property Name="SALESGRP" Type="Edm.String" Nullable="false" MaxLength="3" sap:display-format="UpperCase" sap:label="Sales group"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="20" sap:label="Description"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PR_VENDOR_SHType" sap:label="3DERP: Manual PR VendorSearch Help" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="VENDOR"/>
+                </Key>
+                <Property Name="VENDOR" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:label="Vendor" sap:quickinfo="Vendor's account number"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="35" sap:label="Name" sap:quickinfo="Name 1"/>
+                <Property Name="PURORG" Type="Edm.String" MaxLength="4" sap:display-format="UpperCase" sap:label="Purch. organization" sap:quickinfo="Purchasing organization"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_PURGRP_SHType" sap:label="3DERP: Purchasing Group" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="PurchGrp"/>
+                </Key>
+                <Property Name="PurchGrp" Type="Edm.String" Nullable="false" MaxLength="3" sap:display-format="UpperCase" sap:text="Description" sap:label="Purchasing Group"/>
+                <Property Name="Description" Type="Edm.String" MaxLength="18" sap:label="Description p. group" sap:quickinfo="Description of purchasing group"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_SBU_SHType" sap:label="3DERP: SBU" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SBU"/>
+                </Key>
+                <Property Name="SBU" Type="Edm.String" Nullable="false" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityType Name="ZVB_3DERP_SEASON_SHType" sap:label="3DERP: Season" sap:value-list="true" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="SEASONCD"/>
+                </Key>
+                <Property Name="SEASONCD" Type="Edm.String" Nullable="false" MaxLength="10" sap:display-format="UpperCase" sap:text="DESCRIPTION" sap:label="Season Code" sap:quickinfo="ERP Season Code"/>
+                <Property Name="DESCRIPTION" Type="Edm.String" MaxLength="50" sap:label="Description"/>
+                <Property Name="SBU" Type="Edm.String" MaxLength="5" sap:display-format="UpperCase" sap:label="SBU" sap:quickinfo="ERP SBU"/>
+            </EntityType>
+            <EntityContainer Name="ZVB_3DERP_PRM_FILTERS_CDS_Entities" m:IsDefaultEntityContainer="true" sap:message-scope-supported="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="ZVB_3DERP_PRDOCTYPE_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRDOCTYPE_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PRM_FILTERS" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_BATCH_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_BATCH_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_CUSTGRP_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_CUSTGRP_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_MATNO_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_MATNO_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_PURPLANT_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_PURPLANT_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_SALESGRP_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_SALESGRP_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PR_VENDOR_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PR_VENDOR_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_PURGRP_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PURGRP_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_SBU_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_SBU_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+                <EntitySet Name="ZVB_3DERP_SEASON_SH" EntityType="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_SEASON_SHType" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1"/>
+            </EntityContainer>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/SBU" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: SBU"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_SBU_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="SBU"/>
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/DOCTYP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="PR DocType Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PRDOCTYPE_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="DOCTYP"/>
+                                    <PropertyValue Property="ValueListProperty" String="DocType"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/PURGRP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Purchasing Group"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PURGRP_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="PURGRP"/>
+                                    <PropertyValue Property="ValueListProperty" String="PurchGrp"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/PLANTCD" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR Purch Plant Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_PURPLANT_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="PLANTCD"/>
+                                    <PropertyValue Property="ValueListProperty" String="PurchPlant"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/CUSTGRP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR Cust Grp Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_CUSTGRP_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="CUSTGRP"/>
+                                    <PropertyValue Property="ValueListProperty" String="CUSTGRP"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/SALESGRP" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR Sales Grp Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_SALESGRP_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="SALESGRP"/>
+                                    <PropertyValue Property="ValueListProperty" String="SALESGRP"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/MATNO" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR MatNo Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_MATNO_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="MATNO"/>
+                                    <PropertyValue Property="ValueListProperty" String="MATNO"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="GMCDescen"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="MatGrp"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="UOM"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="MatTyp"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/SEASONCD" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Season"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_SEASON_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="SEASONCD"/>
+                                    <PropertyValue Property="ValueListProperty" String="SEASONCD"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="DESCRIPTION"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/VENDOR" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR VendorSearch Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_VENDOR_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="VENDOR"/>
+                                    <PropertyValue Property="ValueListProperty" String="VENDOR"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="PURORG"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERSType/BATCH" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Common.ValueList">
+                    <Record>
+                        <PropertyValue Property="Label" String="3DERP: Manual PR Batch Search Help"/>
+                        <PropertyValue Property="CollectionPath" String="ZVB_3DERP_PR_BATCH_SH"/>
+                        <PropertyValue Property="SearchSupported" Bool="false"/>
+                        <PropertyValue Property="Parameters">
+                            <Collection>
+                                <Record Type="Common.ValueListParameterInOut">
+                                    <PropertyValue Property="LocalDataProperty" PropertyPath="BATCH"/>
+                                    <PropertyValue Property="ValueListProperty" String="BATCH"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="Description"/>
+                                </Record>
+                                <Record Type="Common.ValueListParameterDisplayOnly">
+                                    <PropertyValue Property="ValueListProperty" String="SBU"/>
+                                </Record>
+                            </Collection>
+                        </PropertyValue>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <Annotations Target="ZVB_3DERP_PRM_FILTERS_CDS.ZVB_3DERP_PRM_FILTERS_CDS_Entities" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+                <Annotation Term="Aggregation.ApplySupported">
+                    <Record>
+                        <PropertyValue Property="Transformations">
+                            <Collection>
+                                <String>aggregate</String>
+                                <String>groupby</String>
+                                <String>filter</String>
+                            </Collection>
+                        </PropertyValue>
+                        <PropertyValue Property="Rollup" EnumMember="None"/>
+                    </Record>
+                </Annotation>
+            </Annotations>
+            <atom:link rel="self" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZVB_3DERP_PRM_FILTERS_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZVB_3DERP_PRM_FILTERS_CDS/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>

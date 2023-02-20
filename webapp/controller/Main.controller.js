@@ -22,6 +22,7 @@ sap.ui.define(
       var sapDateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "yyyy-MM-dd" });
       var _PRNO;
       var _PRITM;
+      var _promiseResult;
   
       return BaseController.extend("zuipr.controller.Main", {
         onInit: function () {
@@ -51,6 +52,8 @@ sap.ui.define(
                 dataMode: 'NODATA',
                 sbu: ""
             }), "ui");
+
+            this._columnLoadError = false;
 
             var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
             oModel.read("/ZVB_3DERP_SBU_SH", {
@@ -92,171 +95,158 @@ sap.ui.define(
         },
         
         onSearch: async function(){
-            var promiseResult;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
                 this.onCancelEdit();
             }else{
                 this._oDataBeforeChange = {}
                 Common.openLoadingDialog(that);
-                promiseResult = new Promise((resolve, resject)=>{
-                    setTimeout(() => {
-                        resolve(this.getColumns("Search"));
-                    }, 500);
-                })
-                await promiseResult;
+                await this.getAllData();
+                await this.getTableColumns();
+                this.byId("btnNew").setEnabled(true);
+                this.byId("btnEdit").setEnabled(true);
+                this.byId("btnDelete").setEnabled(true);
+                this.byId("btnClose").setEnabled(true);
+                this.byId("btnSave").setEnabled(true);
+                this.byId("btnCancel").setEnabled(true);
+                this.byId("btnTabLayout").setEnabled(true);
+                this.byId("btnView").setEnabled(true);
+
+
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
                 Common.closeLoadingDialog(that);
             }
             
         },
 
-        getColumns: async function(type) {
+        getAllData: async function(){
             var me = this;
-            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
-            //get dynamic columns based on saved layout or ZERP_CHECK
-            var oJSONColumnsModel = new JSONModel();
-            // this.oJSONModel = new JSONModel();
 
-            //MessageBox Message
-            var noLayoutMsg = this.getView().getModel("captionMsg").getData()["INFO_NO_LAYOUT"];
+                return new Promise(async (resolve, reject)=>{
+                    me.getView().setModel(new JSONModel({
+                        results: []
+                    }), "TableData");
 
-            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
-            oModel.setHeaders({
-                sbu: vSBU,
-                type: 'PRHDR',
-                tabname: 'ZDV_3DERP_PR'
-            });
-
-            await new Promise((resolve, reject)=>{
-                oModel.read("/ColumnsSet", {
-                    success: async function (oData, oResponse) {
-                        if(oData.results.length > 0){
-                            oJSONColumnsModel.setData(oData);
-                            // me.oJSONModel.setData(oData);
-                            if(type === "Search"){
-                                me.getView().setModel(oJSONColumnsModel, "Columns"); //set the view model\
-                            }
-                            await me.getTableData(type);
-                            
-                            me.byId("btnNew").setEnabled(true);
-                            me.byId("btnEdit").setEnabled(true);
-                            me.byId("btnDelete").setEnabled(true);
-                            me.byId("btnClose").setEnabled(true);
-                            me.byId("btnSave").setEnabled(true);
-                            me.byId("btnCancel").setEnabled(true);
-                            me.byId("btnTabLayout").setEnabled(true);
-                            me.byId("btnView").setEnabled(true);
-                            resolve();
-    
-                        }else{
-                            me.getView().setModel(oJSONColumnsModel, "Columns");
-                            me.getView().setModel(oJSONColumnsModel, "TableData");
-                            me.getTableData("Error");
-                            me.setTableData();
-                            that.byId("btnNew").setEnabled(false);
-                            that.byId("btnEdit").setEnabled(false);
-                            that.byId("btnDelete").setEnabled(false);
-                            that.byId("btnClose").setEnabled(false);
-                            that.byId("btnSave").setEnabled(false);
-                            that.byId("btnCancel").setEnabled(false);
-                            that.byId("btnTabLayout").setEnabled(false);
-                            that.byId("btnView").setEnabled(false);
-                            MessageBox.error(noLayoutMsg);
-                            that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
-                            resolve();
-                        }
-                    },
-                    error: function (err) { 
-                        MessageBox.error(noLayoutMsg);
-                        that.getView().getModel("ui").setProperty("/dataMode", 'NODATA');
-                        resolve();
-                    }
+                    resolve(await me.getPRData());
                 });
-            }) 
-            
-            
         },
 
-        getTableData: async function (type) {
-            var me = this;
+        getPRData: async function(){
             var oModel = this.getOwnerComponent().getModel();
-
-            //get styles data for the table
-            var oJSONDataModel = new JSONModel();
+            var me = this;
+            var tblChange = this._tblChange;
+            var oJSONModel = new sap.ui.model.json.JSONModel();
+            var objectData = [];
             var aFilters = this.getView().byId("SmartFilterBar").getFilters();
-            var oJSONDataModel = new JSONModel();                 
-            // console.log(aFilters)
-            if (aFilters.length > 0) {
-                aFilters[0].aFilters.forEach(item => {
-                    if (item.sPath === 'PRNO') {
-                        if (!isNaN(item.oValue1)) {
-                            while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
-                        }
-                    }
-                    if (item.sPath === 'VENDOR') {
-                        if (!isNaN(item.oValue1)) {
-                            while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
-                        }
-                    }
-                })
-            }
+            var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
 
-            await new Promise((resolve,reject)=>{
+            return new Promise((resolve, reject)=>{
                 oModel.read("/PRSet", {
                     filters: aFilters,
-                    success: function (oData, oResponse) {
-                        
-                        oData.results.forEach((item, index) => {
-                            console.log(item)
-                            item.CREATEDDT = dateFormat.format(new Date(item.CREATEDDT));
-                            item.UPDATEDDT = dateFormat.format(new Date(item.UPDATEDDT));
-                            item.RELDT = dateFormat.format(new Date(item.RELDT));
-                            item.REQDT = dateFormat.format(new Date(item.REQDT));
-                            if (item.DELDT !== null)
+                    success: function (data, response) {
+                        if (data.results.length > 0) {
+                            data.results.forEach((item, index) => {
+                                item.CREATEDDT = dateFormat.format(new Date(item.CREATEDDT));
+                                item.UPDATEDDT = dateFormat.format(new Date(item.UPDATEDDT));
+                                item.RELDT = dateFormat.format(new Date(item.RELDT));
+                                item.REQDT = dateFormat.format(new Date(item.REQDT));
                                 item.DELDT = dateFormat.format(new Date(item.DELDT));
-                        })
-                        // oText.setText(oData.results.length + "");
-                        oJSONDataModel.setData(oData);
-                        me.getView().setModel(oJSONDataModel, "TableData");
-                        if(type == "Search"){
-                            me.setTableData("Search");
+                            })
+                            
+                            objectData.push(data.results);
+                            objectData[0].sort((a,b) => (a.ITEM2 > b.ITEM2) ? 1 : ((b.ITEM2 > a.ITEM2) ? -1 : 0));
+                            oJSONModel.setData(data);
                         }
+                        me.getView().setModel(oJSONModel, "TableData");
+                        if(tblChange)
+                            resolve(me.setTableColumnsData('PRHDR'));
                         resolve();
-                        // }
-                        // me.setChangeStatus(false);
                     },
-                    error: function (err) { }
+                    error: function (err) { 
+                        MessageBox.error(msgError);
+                        Common.closeLoadingDialog(that);
+                    }
                 });
-            }) 
+            });
         },
 
-        setTableData(type) {
+        getTableColumns: async function(){
+            _promiseResult = new Promise((resolve, reject)=>{
+                resolve(this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR'));
+            });
+            await _promiseResult
+        },
+        getDynamicColumns: async function(model, dataSource) {
             var me = this;
+                var modCode = model;
+                var tabName = dataSource;
+                //get dynamic columns based on saved layout or ZERP_CHECK
+                var oJSONColumnsModel = new JSONModel();
+                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();;
+                // var vSBU = this.getView().getModel("ui").getData().sbu;
 
-            //the selected dynamic columns
-            var oColumnsModel = this.getView().getModel("Columns");
-            var oDataModel = this.getView().getModel("TableData");
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
 
-            //the selected styles data
-            var oColumnsData = oColumnsModel.getProperty('/results');
-            var oData = oDataModel.getProperty('/results');
-            
-            // if(type == "Search"){
-            //     oColumnsData.unshift({
-            //         "ColumnName": "Manage",
-            //         "ColumnLabel": "Manage",
-            //         "ColumnType": "SEL",
-            //         "ColumnWidth": "80",
-            //         "Editable": false
-            //     });
-            // }
-            
+                oModel.setHeaders({
+                    sbu: vSBU,
+                    type: modCode,
+                    tabname: tabName
+                });
+                return new Promise((resolve, reject) => {
+                    oModel.read("/ColumnsSet", {
+                        success: async function (oData, oResponse) {
+                            me._columnLoadError = false;
+                            if (oData.results.length > 0) {
+                                if(modCode === "PRHDR"){
+                                    oJSONColumnsModel.setData(oData.results);
+                                    me.getView().setModel(oJSONColumnsModel, "Columns");
+                                    me.setTableColumnsData(modCode);
+                                    resolve();
+                                }
+                            }else{
+                                me._columnLoadError = true;
+                                if(modCode === "PRHDR"){
+                                    me.getView().setModel(oJSONColumnsModel, "Columns");
+                                    me.setTableColumnsData(modCode);
+                                    resolve();
+                                }
+                            }
+                        },
+                        error: function(){
+                            me._columnLoadError = true;
+                            if(modCode === "PRHDR"){
+                                me.getView().setModel(oJSONColumnsModel, "Columns");
+                                me.setTableColumnsData(modCode);
+                                resolve();
+                            }
+                        }
+                    });
+                })
+        },
+        setTableColumnsData(modCode){
+            var oColumnsModel;
+            var oDataModel;
 
-            //set the column and data model
+            var oColumnsData;
+            var oData;
+            if (modCode === 'PRHDR') {   
+                oColumnsModel = this.getView().getModel("Columns");  
+                oDataModel = this.getView().getModel("TableData"); 
+                
+                oColumnsData = oColumnsModel === undefined ? [] :oColumnsModel.getProperty('/');
+                oData = oDataModel === undefined ? [] :oDataModel.getProperty('/results');
+                
+                if(this._columnLoadError){
+                    oData = [];
+                }                
+                this.addColumns("styleDynTable", oColumnsData, oData, modCode);
+            }
+        },
+        addColumns: async function(table, columnsData, data, model) {
+            var me = this;
             var oModel = new JSONModel();
             oModel.setData({
-                columns: oColumnsData,
-                rows: oData
+                columns: columnsData,
+                rows: data
             });
             var oDelegateKeyUp = {
                 onkeyup: function(oEvent){
@@ -269,10 +259,11 @@ sap.ui.define(
                 }
             };
 
-            this.byId("styleDynTable").addEventDelegate(oDelegateKeyUp);
-
-            var oTable = this.getView().byId("styleDynTable");
+            
+            this.byId(table).addEventDelegate(oDelegateKeyUp);
+            var oTable = this.getView().byId(table);
             oTable.setModel(oModel);
+            
             //double click event
             oTable.attachBrowserEvent('dblclick',function(e){
                 e.preventDefault();
@@ -281,33 +272,84 @@ sap.ui.define(
                 }
              });
 
-            //bind the dynamic column to the table
             oTable.bindColumns("/columns", function (index, context) {
                 var sColumnId = context.getObject().ColumnName;
                 var sColumnLabel = context.getObject().ColumnLabel;
-                var sColumnType = context.getObject().ColumnType;
+                var sColumnType = context.getObject().DataType;
                 var sColumnVisible = context.getObject().Visible;
                 var sColumnSorted = context.getObject().Sorted;
                 var sColumnSortOrder = context.getObject().SortOrder;
                 var sColumnWidth = context.getObject().ColumnWidth;
-                // var sColumnToolTip = context.getObject().Tooltip;
-                return new sap.ui.table.Column({
-                    id: sColumnId,
-                    label: sColumnLabel,
-                    template: me.columnTemplate(sColumnId, sColumnType),
-                    width: sColumnWidth + "px",
-                    hAlign: me.columnAlign(sColumnId),
-                    sortProperty: sColumnId,
-                    filterProperty: sColumnId,
-                    autoResizable: true,
-                    visible: sColumnVisible,
-                    sorted: sColumnSorted,
-                    sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
-                });
+                if (sColumnType === "STRING" || sColumnType === "DATETIME"|| sColumnType === "BOOLEAN") {
+                    return new sap.ui.table.Column({
+                        id: sColumnId,
+                        label: sColumnLabel,
+                        template: me.columnTemplate(sColumnId), //default text
+                        width: sColumnWidth + "px",
+                        hAlign: me.columnSize(sColumnId),
+                        sortProperty: sColumnId,
+                        filterProperty: sColumnId,
+                        autoResizable: true,
+                        visible: sColumnVisible,
+                        sorted: sColumnSorted,
+                        sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+                    });
+                }else if (sColumnType === "NUMBER") {
+                    return new sap.ui.table.Column({
+                        id: sColumnId,
+                        label: sColumnLabel,
+                        template: new sap.m.Text({ text: "{" + sColumnId + "}", wrapping: false, tooltip: "{" + sColumnId + "}" }), //default text
+                        width: sColumnWidth + "px",
+                        hAlign: "End",
+                        sortProperty: sColumnId,
+                        filterProperty: sColumnId,
+                        autoResizable: true,
+                        visible: sColumnVisible,
+                        sorted: sColumnSorted,
+                        sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+                    });
+                }
+
             });
 
             //bind the data to the table
             oTable.bindRows("/rows");
+        },
+        columnTemplate: function(sColumnId){
+            var oColumnTemplate;
+            oColumnTemplate = new sap.m.Text({ 
+                text: "{" + sColumnId + "}", 
+                wrapping: false, 
+                tooltip: "{" + sColumnId + "}" 
+            }); //default text
+            if (sColumnId === "DELETED") { 
+                //Manage button
+                oColumnTemplate = new sap.m.CheckBox({
+                    selected: "{" + sColumnId + "}",
+                    editable: false
+                });
+            }
+            if (sColumnId === "CLOSED") { 
+                //Manage button
+                oColumnTemplate = new sap.m.CheckBox({
+                    selected: "{" + sColumnId + "}",
+                    editable: false
+                });
+            }
+
+            return oColumnTemplate;
+        },
+        columnSize: function(sColumnId){
+            var oColumnSize;
+            if (sColumnId === "DELETED") { 
+                //Manage button
+                oColumnSize = "Center";
+            }
+            if (sColumnId === "CLOSED") { 
+                //Manage button
+                oColumnSize = "Center";
+            }
+            return oColumnSize;
         },
 
         onSapEnter(oEvent) {
@@ -317,24 +359,17 @@ sap.ui.define(
         },
 
         onkeyup: async function(oEvent){
-            // if ((oEvent.key === "ArrowUp" || oEvent.key === "ArrowDown") && oEvent.srcControl.sParentAggregationName === "rows"){
-            //     var oTable = this.byId("styleDynTable");
-                
-            //     var sRowPath = this.byId(oEvent.srcControl.sId).oBindingContexts["undefined"].sPath;
-
-            //     var index = sRowPath.split("/");
-                
-            //     oTable.setSelectedIndex(parseInt(index[2]));
-            // }
             var promiseResult;
-            if ((oEvent.key === "ArrowUp" || oEvent.key === "ArrowDown") && oEvent.srcControl.sParentAggregationName === "rows"){
-                var sRowPath = this.byId(oEvent.srcControl.sId).oBindingContexts["undefined"].sPath;
+            if((oEvent.key === "ArrowUp" || oEvent.key === "ArrowDown") && oEvent.srcControl.sParentAggregationName === "rows"){
+                var sRowPath = this.byId(oEvent.srcControl.sId).oBindingContexts["undefined"].sPath;
                 sRowPath = "/results/"+ sRowPath.split("/")[2];
                 var index = sRowPath.split("/");
-                var oTable = this.byId("styleDynTable");
+
                 var oRow = this.getView().getModel("TableData").getProperty(sRowPath);
+                var oTable = this.byId("styleDynTable");
 
                 promiseResult = new Promise((resolve, reject)=>{
+                    me._tblChange = true;
                     oTable.getRows().forEach(row => {
                         if(row.getBindingContext().sPath.replace("/rows/", "") === index[2]){
                             resolve(row.addStyleClass("activeRow"));
@@ -346,6 +381,8 @@ sap.ui.define(
                 await promiseResult;
                 _PRNO = oRow['PRNO'];
                 _PRITM = oRow['PRITM'];
+
+                this._tblChange = false;
             }
         },
 
@@ -376,6 +413,7 @@ sap.ui.define(
             var oTable = this.byId("styleDynTable");
 
             promiseResult = new Promise((resolve, reject)=>{
+                this._tblChange = true;
                 oTable.getRows().forEach(row => {
                     if(row.getBindingContext().sPath.replace("/rows/", "") === sRowPath.split("/")[2]){
                         resolve(row.addStyleClass("activeRow"));
@@ -387,56 +425,8 @@ sap.ui.define(
             await promiseResult;
             _PRNO = oRow['PRNO'];
             _PRITM = oRow['PRITM'];
-        },
 
-        columnTemplate: function (sColumnId, sColumnType) {
-            var oColumnTemplate;
-            // console.log(sColumnId);
-            oColumnTemplate = new sap.m.Text({ text: "{" + sColumnId + "}", wrapping: false, tooltip: "{" + sColumnId + "}" }); //default text
-            
-            // if (sColumnType === "SEL") { 
-            //     //Manage button
-            //     oColumnTemplate = new sap.m.Button({
-            //         text: "",
-            //         icon: "sap-icon://detail-view",
-            //         type: "Ghost",
-            //         press: this.goToDetail,
-            //         tooltip: "Manage this style"
-            //     });
-            //     oColumnTemplate.data("PRNO", "{}");
-            // }
-
-            if (sColumnId === "DELETED") { 
-                //Manage button
-                oColumnTemplate = new sap.m.CheckBox({
-                    selected: "{" + sColumnId + "}",
-                    editable: false
-                });
-            }
-
-            if (sColumnId === "CLOSED") { 
-                //Manage button
-                oColumnTemplate = new sap.m.CheckBox({
-                    selected: "{" + sColumnId + "}",
-                    editable: false
-                });
-                oColumnTemplate.data("PRNO", "{}");
-            }
-
-            return oColumnTemplate;
-        },
-
-        columnAlign: function(sColumnId){
-            var ocolumnAlign;
-
-            if(sColumnId === "QUANTITY"){
-                ocolumnAlign = "End";
-            }else{
-                ocolumnAlign = "Left";
-            }
-
-            return ocolumnAlign;
-
+            this._tblChange = false;
         },
 
         goToDetail: function (oEvent) {
@@ -578,8 +568,7 @@ sap.ui.define(
                                             me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
                                             
                                             me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
-                                            me.getColumns("Edit");
-                                            me.setTableData();
+                                            await me.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
                                             me.setRowEditMode();
                             
                                             me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
@@ -608,10 +597,7 @@ sap.ui.define(
             var oTable = this.byId("styleDynTable");
 
             var oColumnsModel = this.getView().getModel("Columns");
-            var oColumnsData = oColumnsModel.getProperty('/results');
-
-            var oDataModel = this.getView().getModel("TableData");
-            var oData = oDataModel.getProperty('/results');
+            var oColumnsData = oColumnsModel.getProperty('/');
 
             var oParamData;
 
@@ -1462,7 +1448,7 @@ sap.ui.define(
             var aFilter = [];
             var oTable = this.byId("styleDynTable");
             var oColumnsModel = this.getView().getModel("Columns");
-            var oColumnsData = oColumnsModel.getProperty('/results');
+            var oColumnsData = oColumnsModel.getProperty('/');
             
             if (query) {
                 oTable.getColumns().forEach((col, idx) => {
@@ -1478,7 +1464,6 @@ sap.ui.define(
             this.byId("styleDynTable").getBinding("rows").filter(oFilter, "Application");
         },
         onCancelEdit: async function() {
-            var promiseResult;
             if (this._isEdited) {
 
                 if (!this._DiscardChangesDialog) {
@@ -1499,13 +1484,10 @@ sap.ui.define(
                 this.byId("btnTabLayout").setVisible(true);
                 this.byId("btnView").setVisible(true);
                 this.validationErrors = [];
-                this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                promiseResult = new Promise(async (resolve, reject)=>{
-                    await this.getColumns("Cancel");
-                    await this.getTableData("Search");
-                    resolve();
-                });
-                await promiseResult;
+
+                await this.getAllData();
+                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                
                 if (this.getView().getModel("ui").getData().dataMode === 'NEW') this.setFilterAfterCreate();
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
@@ -1513,7 +1495,6 @@ sap.ui.define(
             }
         },
         onCloseDiscardChangesDialog: async function() {
-            var promiseResult;
             if (this._isEdited) {
                 Common.openLoadingDialog(that);
                 this.byId("btnNew").setVisible(true);
@@ -1524,17 +1505,10 @@ sap.ui.define(
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
                 this.byId("btnView").setVisible(true);
-                // this.onTableResize("Hdr","Min");
-                // this.setRowReadMode("gmc");\
-                this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                promiseResult = new Promise((resolve, reject)=>{
-                    setTimeout(() => {
-                        this.getColumns("Discard");
-                        this.setTableData();
-                        resolve();
-                    }, 500);
-                });
-                await promiseResult;
+
+                await this.getAllData();
+                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+
                 Common.closeLoadingDialog(that);
             }
             this.validationErrors = [];
@@ -1635,89 +1609,40 @@ sap.ui.define(
                 oParam['N_ChangePRParam'] = oParamData;
                 oParam['N_ChangePRReturn'] = [];
                 promiseResult = new Promise((resolve, reject)=>{
-                    setTimeout(() => {
-                        resolve(
-                            oModel.create("/ChangePRSet", oParam, {
-                                method: "POST",
-                                success: function(oResultCPR, oResponse) {
-                                    oSelectedIndices.forEach((item, index) => {
-                                        var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-            
-                                        if (oRetMsg.length > 0) {
-                                            if (oRetMsg[0].Type === 'S') {
-                                                message = message + oRetMsg[0].Message + "\n"
-                                            }else{
-                                                message = message + oRetMsg[0].Message + "\n"
-                                            }
-                                        }
-                                        else{
-                                            message = message + "Error Occured in " + aData.at(item).PRNO + "\n"
-                                        }
-            
-                                    })
-                                    
-                                    MessageBox.information(message);
-                                    
-                                },
-                                error: function() {
-                                    message = msgError
-                                    MessageBox.error(message);
-                                    return;
-                                }
-                            })
-                        );
-                    }, 500);
-                });
-
-                await promiseResult;
-                var prModel = this.getOwnerComponent().getModel();
-                var prEntitySet = "/PRSet";  
-
-                // for (var i = 0; i < this._oDataBeforeChange.results.length; i++) {
-                //     for(var x = 0; x < aData.length; x++){
-                //         if (this._oDataBeforeChange.results[i].PRNO === aData.at(x).PRNO && this._oDataBeforeChange.results[i].PRITM === aData.at(x).PRITM) {
-                //             this._oDataBeforeChange.results[i] = aData.at(x);
-                //             break;
-                //         }
-                //     }
-                    
-                // }
-                for(var x = 0; x < aData.length; x++){
-                    promiseResult = new Promise((resolve, reject)=>{
-                        setTimeout(() => {
-                            if(aData.at(x).PRNO != "" || aData.at(x).PRNO != null){
-                                while(aData.at(x).PRNO.length < 10) aData.at(x).PRNO = "0" + aData.at(x).PRNO;
-                            }
-                            resolve(
-                                prModel.read(prEntitySet + "(PRNO='" + aData.at(x).PRNO + "',PRITM='"+ aData.at(x).PRITM +"')", {
-                                    success: function (data, response) {
-                                        data.DELDT = dateFormat.format(new Date(data.DELDT));
-                                        for (var i = 0; i < me._oDataBeforeChange.results.length; i++) {
-                                            if (me._oDataBeforeChange.results[i].PRNO === data.PRNO && me._oDataBeforeChange.results[i].PRITM === data.PRITM) {
-                                                
-                                                me._oDataBeforeChange.results[i] = data;
-                                                me.getView().getModel("TableData").setProperty("/", me._oDataBeforeChange);  
-                                            }
-                                        }              
-                                    },
-                                    error: function (err) {
+                    oModel.create("/ChangePRSet", oParam, {
+                        method: "POST",
+                        success: function(oResultCPR, oResponse) {
+                            oSelectedIndices.forEach((item, index) => {
+                                var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+    
+                                if (oRetMsg.length > 0) {
+                                    if (oRetMsg[0].Type === 'S') {
+                                        message = message + oRetMsg[0].Message + "\n"
+                                    }else{
+                                        message = message + oRetMsg[0].Message + "\n"
                                     }
-                                })
-                            );
-                        }, 500);
-                        
-                    });
-                    
-                    await promiseResult;
-                }
-                promiseResult = new Promise((resolve, reject)=>{
-                    setTimeout(() => {
-                        this.getColumns("Save");
-                        this.setTableData(); 
-                        resolve()
-                    }, 500);
+                                }
+                                else{
+                                    message = message + "Error Occured in " + aData.at(item).PRNO + "\n"
+                                }
+                                resolve();
+    
+                            })
+                            
+                            MessageBox.information(message);
+                            
+                        },
+                        error: function() {
+                            message = msgError
+                            MessageBox.error(message);
+                            resolve();
+                        }
+                    })
                 });
+
                 await promiseResult;
+                await this.getAllData();
+                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
                 
                 Common.closeLoadingDialog(that);
                 
@@ -1775,12 +1700,12 @@ sap.ui.define(
 
                     await oSelectedIndices.forEach((item, index) => {
                         if(aData.at(item).DELETED === true){
-                            
                             iCounter++;
                             if (oSelectedIndices.length === iCounter) {
                                 MessageBox.information(msgAlreadyDeleted);
                             }
                         }else if(aData.at(item).CLOSED === true){
+                            
                             iCounter++;
 
                             if (oSelectedIndices.length === iCounter) {
@@ -1808,55 +1733,44 @@ sap.ui.define(
                         oParam['N_DelClosePRParam'] = oParamData;
                         oParam['N_DelClosePRReturn'] = [];
                         promiseResult = new Promise((resolve, reject)=>{
-                            setTimeout(() => {
-                                oModel.create("/DelClosePRSet", oParam, {
-                                    method: "POST",
-                                    success: function(oResultDCPR, oResponse){
-                                        oSelectedIndices.forEach((item, index) => {
-                                            
-                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                            if (oRetMsg.length > 0) {
-                                                if (oRetMsg[0].Type === 'I') {
-                                                    message = message + oRetMsg[0].Message + "\n"
-                                                }else{
-                                                    isError = true;
-                                                    message = message + oRetMsg[0].Message + "\n"
-                                                }
+                            oModel.create("/DelClosePRSet", oParam, {
+                                method: "POST",
+                                success: function(oResultDCPR, oResponse){
+                                    oSelectedIndices.forEach((item, index) => {
+                                        
+                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                        if (oRetMsg.length > 0) {
+                                            if (oRetMsg[0].Type === 'I') {
+                                                message = message + oRetMsg[0].Message + "\n"
                                             }else{
                                                 isError = true;
-                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                                message = message + oRetMsg[0].Message + "\n"
                                             }
-                                        });
-                                        
-                                        MessageBox.information(message);
-                                    }
-                                });
-                                resolve();
-                            }, 500);
+                                        }else{
+                                            isError = true;
+                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                        }
+                                        resolve();
+                                    });
+                                },error: function(err){
+                                    message = message + "Error Encountered! Please try agian! \n"
+                                    isError = true;
+                                    resolve();
+                                }
+                            });
                         });
                         await promiseResult;
                     }
                     if (!isError){
-                        await oSelectedIndices.forEach(item => {
-                            if(this._oDataBeforeChange.results[item].DELETED != true && this._oDataBeforeChange.results[item].CLOSED != true){        
-                                this._oDataBeforeChange.results[item].DELETED = true;
-                            }
-                        })
-                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                        promiseResult = new Promise((resolve, reject)=>{
-                            setTimeout(() => {
-                                this.getColumns("Delete");
-                                resolve();
-                            }, 500);
-                        })
-                        await promiseResult;
-                        Common.closeLoadingDialog(that);
-                        this.setTableData();
+                        await this.getAllData();
+                        await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
                     }
                 }else{
-                    MessageBox.information(msgNoDataToDelete);
+                    message = msgNoDataToDelete;
                 }
             }
+            
+            MessageBox.information(message);
             Common.closeLoadingDialog(that);
             
         },
@@ -1926,59 +1840,50 @@ sap.ui.define(
                         oParam['N_DelClosePRParam'] = oParamData;
                         oParam['N_DelClosePRReturn'] = [];
                         promiseResult = new Promise((resolve, reject)=>{
-                            setTimeout(() => {
-                                oModel.create("/DelClosePRSet", oParam, {
-                                    method: "POST",
-                                    success: function(oResultDCPR, oResponse){
-                                        oSelectedIndices.forEach((item, index) => {
-                                            
-                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                            if (oRetMsg.length > 0) {
-                                                if (oRetMsg[0].Type === 'I') {
-                                                    message = message + oRetMsg[0].Message + "\n"
-                                                }else{
-                                                    isError = true;
-                                                    message = message + oRetMsg[0].Message + "\n"
-                                                }
+                            oModel.create("/DelClosePRSet", oParam, {
+                                method: "POST",
+                                success: function(oResultDCPR, oResponse){
+                                    oSelectedIndices.forEach((item, index) => {
+                                        
+                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                        if (oRetMsg.length > 0) {
+                                            if (oRetMsg[0].Type === 'I') {
+                                                message = message + oRetMsg[0].Message + "\n"
                                             }else{
                                                 isError = true;
-                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                                message = message + oRetMsg[0].Message + "\n"
                                             }
-                                        });
-                                        
-                                        MessageBox.information(message);
-                                    }
-                                });
-                                resolve();
-                            }, 500);
+                                        }else{
+                                            isError = true;
+                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
+                                        }
+                                        resolve();
+                                    });
+                                },error: function(err){
+                                    message = message + "Error Encountered! Please try agian! \n"
+                                    isError = true;
+                                    resolve();
+                                }
+                            });
 
                         });
                         await promiseResult;
                     }
                     if (!isError){
-                        await oSelectedIndices.forEach(item => {
-                            if(this._oDataBeforeChange.results[item].DELETED != true){        
-                                this._oDataBeforeChange.results[item].CLOSED = true;
-                            }
-
-                        })
-                        this.getView().getModel("TableData").setProperty("/", this._oDataBeforeChange);
-                        promiseResult = new Promise((resolve, reject)=>{
-                            setTimeout(() => {
-                                this.getColumns("Close");
-                                resolve();
-                            }, 500);
-                        })
-                        await promiseResult;
-                        Common.closeLoadingDialog(that);
-                        this.setTableData();
+                        await this.getAllData();
+                        await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
                     }
                     
                 }else{
-                    MessageBox.information(msgNoDataToClose);
+                    message  = msgNoDataToClose;
                 }
             }
+            MessageBox.information(message);
             Common.closeLoadingDialog(that);
+        },
+
+        onCreateNewStyle: async function(){
+            that._router.navTo("ManualPR", {});
         },
 
         onSaveTableLayout: function () {
