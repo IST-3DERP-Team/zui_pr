@@ -1883,7 +1883,10 @@ sap.ui.define(
         },
 
         onCreateNewStyle: async function(){
-            that._router.navTo("ManualPR", {});
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            this._router.navTo("ManualPR", {
+                SBU: vSBU
+            });
         },
 
         onSaveTableLayout: function () {

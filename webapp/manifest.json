@@ -233,7 +233,7 @@
                 },
                 {
                     "name": "ManualPR",
-                    "pattern": "ManualPR",
+                    "pattern": "ManualPR/{SBU}",
                     "greedy": false,
                     "target": [
                         "TargetManualPR"
