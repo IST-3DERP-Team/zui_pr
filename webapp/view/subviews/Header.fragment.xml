@@ -7,10 +7,8 @@ xmlns:t="sap.ui.table">
                 <Toolbar id="TB1" height="2rem">
                     <Title text="{i18n>Header}" />
                     <ToolbarSpacer />
-                    <Button id="btnHdrEdit" type="Ghost" icon="sap-icon://edit" tooltip="{i18n>Editsaldocheader}" press="setHeaderEditMode" visible="true"/>
-                    <Button id="btnHdrDelete" type="Ghost" icon="sap-icon://delete" tooltip="{i18n>Deletesaldocheader}" press="onDeleteSalDoc" visible="true"/> 
-                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" tooltip="{i18n>Savesaldocheader}" press="onSaveHeader" visible="false"/> 
-                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" tooltip="{i18n>Canceledit}" press="cancelHeaderEdit" visible="false"/> 
+                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" tooltip="{i18n>Savesaldocheader}" press="onSaveHeader" visible="true"/> 
+                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" tooltip="{i18n>Canceledit}" press="cancelHeaderEdit" visible="true"/> 
                     
                 </Toolbar>
             </headerToolbar>
@@ -26,28 +24,28 @@ xmlns:t="sap.ui.table">
                         <f:formElements>
                             <f:FormElement label="Document Type" visible="{= ${VisibleFieldsData>/DOCTYP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="SALESORG" value="{headerData>/SALESORG}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                    <Input id="DOCTYP" value="{headerData>/DOCTYP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
                                          change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>   
                             <f:FormElement label="PR Number" visible="{= ${VisibleFieldsData>/PRNO} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PRNO}" valueStateText="Required"
+                                    <Input id="PRNO" value="{headerData>/PRNO}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PRNO}" valueStateText="Required"
                                          change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="Purch. Grp." visible="{= ${VisibleFieldsData>/PURGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="CUSTSOLDTO" value="{headerData>/CUSTSOLDTO}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
+                                    <Input id="PURGRP" value="{headerData>/PURGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
                                          change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="Purch. Plant" visible="{= ${VisibleFieldsData>/PLANTCD} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="CUSTBILLTO" value="{headerData>/CUSTBILLTO}" showSuggestion="true" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
+                                    <Input id="PLANTCD" value="{headerData>/PLANTCD}" showSuggestion="true" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
                                          change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
@@ -59,22 +57,22 @@ xmlns:t="sap.ui.table">
                         <f:formElements>
                             <f:FormElement label="Customer Group" visible="{= ${VisibleFieldsData>/CUSTGRP} === true ? true : false }">
                                 <f:fields>
-                                    <DatePicker id="DOCDT" displayFormat="short" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required" value="{headerData>/DOCDT}"
-                                        change="onHeaderChange">                                        
-                                    </DatePicker>
+                                    <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>    
                             <f:FormElement label="Sales Goup" visible="{= ${VisibleFieldsData>/SALESGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PAYMENTHODCD" value="{headerData>/PAYMENTHODCD}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
+                                    <Input id="SALESGRP" value="{headerData>/SALESGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
                                          change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="Requisitioner" visible="{= ${VisibleFieldsData>/REQSTNR} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PAYTERMTEXT" value="{headerData>/PAYTERMTEXT}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/REQSTNR}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="REQSTNR" value="{headerData>/REQSTNR}" showSuggestion="true" showValueHelp="false" editable="{EditableFieldsData>/REQSTNR}" valueStateText="Required"
+                                         change="onHeaderChange" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
