@@ -10,6 +10,9 @@ sap.ui.define([
     function (Controller, JSONModel, MessageBox, Common) {
         "use strict";
 
+        var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
+        var sapDateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "yyyy-MM-dd" });
+
         return Controller.extend("zuipr.controller.ManualPR", {
             onInit: function () {
                 var that = this;
@@ -164,29 +167,18 @@ sap.ui.define([
                 this.onRowEdit('prDetTable', 'PRDetColModel');
             },
             onPRDetPurge: async function(){
-                var me = this;
                 var oTable;
                 var aSelIndices;
-                var indicesCol;
-                var diffIndeces;
 
                 var oTmpSelectedIndices = [];
                 var aDataRes = [];
 
                 var aData;
-                var iCounter = 0;
 
                 oTable = this.byId("prDetTable");
                 aSelIndices = oTable.getSelectedIndices();
                 oTmpSelectedIndices = [];
                 aData = this.getView().getModel("PRDetDataModel").getData().results;
-                iCounter = 0;
-
-                console.log(aData)
-                console.log(aSelIndices)
-                
-                        
-                indicesCol = oTable.getBinding("rows").aIndices;
 
                 if(aSelIndices.length > 0) {
                     aSelIndices.forEach(item => {
@@ -206,16 +198,6 @@ sap.ui.define([
                     this.getView().getModel("PRDetDataModel").setProperty("/results", aDataRes);
                     await this.setTableData('prDetTable');
                     this.onRowEdit('prDetTable', 'PRDetColModel');
-
-
-
-                    // diffIndeces = indicesCol.filter(function(obj) { return aSelIndices.indexOf(obj) == 0; });
-                    // diffIndeces.forEach((item, index) => {
-                    //     aDataToNotDelete.push(aData.at(item))
-                    //     aData.slice(item)
-                    // });
-                    // console.log(aData)
-                    // console.log(aDataToNotDelete);
                 }
             },
             setTableData: async function(table){
@@ -746,6 +728,189 @@ sap.ui.define([
 
                 oEvent.getSource().getBinding("items").filter([oFilter]);
             },
+
+            onSaveHeader: async function(){
+                var me = this;
+                var oTable = this.byId("prDetTable");
+                var oSelectedIndices = oTable.getBinding("rows").aIndices;
+                var oTmpSelectedIndices = [];
+                var aData = oTable.getModel().getData().rows;
+
+                var oModel = this.getOwnerComponent().getModel();
+                oModel.setUseBatch(true);
+                oModel.setDeferredGroups(["insert"]);
+                var modelParameter = {
+                    "groupId": "insert"
+                };
+                var rFcModel = this.getOwnerComponent().getModel('ZGW_3DERP_RFC_SRV');
+                var iCounter = 0;
+
+                var matNo = "";
+                var batch = "";
+                var hasError = false;
+                var hasZERPMatBatch = false;
+                var ZERPMatBatchParam = {}
+
+                var matTyp = ""
+                var noRangeCd = "";
+                var ZERPNorangeKeyParam = {};
+
+                var prCreateSetParamSet = {}
+                var prCreateSetParamMain = {}
+                var prCreateSetParam = []
+
+                var prItem = 0;
+
+                var prCreationMessage = "";
+
+                oSelectedIndices.forEach(item => {
+                    oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                })
+                oSelectedIndices = oTmpSelectedIndices;
+
+                oSelectedIndices.forEach(async (item, index) => {
+                    matNo = aData.at(item).MATNO;
+                    batch = aData.at(item).BATCH;
+                    matTyp = aData.at(item).MATTYP;
+                    await new Promise((resolve, reject) => { 
+                        oModel.read('/ZERP_MATBATCHSet',{
+                            urlParameters: {
+                                "$filter": "MATNO eq '" + matNo + "' and BATCH eq '" + batch + "'"
+                            },
+                            success: function (data, response) {
+                                if(data.results.length){
+                                    hasZERPMatBatch = true;
+                                }
+                                resolve();
+                            },
+                            error: function (err) {
+                                hasError = true;
+                                resolve();
+                            }
+                        });
+                    });
+
+                    if(!hasError){
+                        if(!hasZERPMatBatch){
+                            ZERPMatBatchParam = {
+                                MATNO: matNo,
+                                BATCH: batch,
+                                IONO: batch
+                            }
+                            // console.log(ZERPMatBatchParam);
+                            oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
+                            await new Promise((resolve, reject) => { 
+                                oModel.submitChanges({
+                                    groupId: "insert",
+                                    success: function(oData, oResponse){
+                                        console.log(oData)
+                                        //Success
+                                        resolve();
+                                    },error: function(error){
+                                        MessageBox.error(error);
+                                        resolve();
+                                    }
+                                })
+                            });
+                        }
+
+                        await new Promise((resolve, reject) => {
+                            oModel.read('/ZERP_MATTYPSet',{
+                                urlParameters: {
+                                    "$filter": "MATTYP eq '" + matTyp + "'"
+                                },
+                                success: function (data, response) {
+                                    noRangeCd = data.results[0].BATCHSEQKY;
+                                    resolve();
+                                },
+                                error: function (err) {
+                                    hasError = true;
+                                    resolve();
+                                }
+                            });
+                        });
+
+                        if(noRangeCd !== ""){
+                            var prItemInsert;
+                            prItem = prItem + 10
+                            ZERPNorangeKeyParam = {
+                                NORANGECD: noRangeCd,
+                                KEYCD: matNo + batch,
+                                CURRENTNO: "000"
+                            }
+                            oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
+                            await new Promise((resolve, reject) => { 
+                                oModel.submitChanges({
+                                    groupId: "insert",
+                                    success: function(oData, oResponse){
+                                        console.log(oData)
+                                        //Success
+                                        resolve();
+                                    },error: function(error){
+                                        MessageBox.error(error);
+                                        resolve();
+                                    }
+                                })
+                            });
+                            prItemInsert = prItem;
+                            prItemInsert = String(parseInt(prItemInsert));
+                            while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
+                            prCreateSetParam.push({
+                                Tblhdr:     "0000000001",
+                                PreqItem:   prItemInsert, 
+                                DocType:    aData.at(item).DOCTYP, 
+                                PurGroup:   aData.at(item).PURGRP, 
+                                PurchOrg:   aData.at(item).PURORG,
+                                Plant:      aData.at(item).PLANTCD, 
+                                Material:   matNo, 
+                                MatGrp:     aData.at(item).MATGRP, 
+                                Quantity:   aData.at(item).QUANTITY, 
+                                Unit:       aData.at(item).UOM, 
+                                DelivDate:  sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
+                                Batch:      batch
+                                // FixedVend:  aData.at(item).VENDOR
+                            })
+                        }
+                        await new Promise(async (resolve, reject) => { 
+                            iCounter++;
+                            if(oSelectedIndices.length === iCounter){
+                                Common.openLoadingDialog(this);
+                                prCreateSetParamSet = {
+                                    iv_userid: "",
+                                }
+                                prCreateSetParamMain = prCreateSetParamSet;
+                                prCreateSetParamMain["N_PRHEADER"] = [{
+                                    Tblhdr: "0000000001"
+                                }];
+                                prCreateSetParamMain["N_PRITEMS"] = prCreateSetParam;
+                                prCreateSetParamMain["N_PRITEMTEXT"] = [];
+                                prCreateSetParamMain["N_PRRETURN"] = [];
+                                
+                                await new Promise((resolve, reject)=>{
+                                    rFcModel.create("/PRCreateSet", prCreateSetParamMain, {
+                                        method: "POST",
+                                        success: function(oData, oResponse){
+                                            prCreationMessage = oData.N_PRRETURN.results[0].Message;
+                                            resolve();
+                                        },error: function(error){
+                                            MessageBox.error("Error Occured while Creation of PR");
+                                            resolve()
+                                        }
+                                    })
+                                })
+                                Common.closeLoadingDialog(this);
+                                if(prCreationMessage !== ""){
+                                    MessageBox.information(prCreationMessage);
+                                }
+                                resolve();
+                            }
+                            resolve();
+                        });
+                    }
+                    
+
+                })
+            }
 
         });
     });
