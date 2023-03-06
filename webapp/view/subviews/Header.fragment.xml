@@ -17,7 +17,7 @@ xmlns:t="sap.ui.table">
             
             <f:Form id="SalesDocHeaderForm1" editable="false" class="sapUiNoContentPadding">
                 <f:layout>
-                    <f:ResponsiveGridLayout columnsXL="4" columnsL="2" columnsM="1" singleContainerFullSize="false" />
+                    <f:ResponsiveGridLayout columnsXL="3" columnsL="2" columnsM="1" singleContainerFullSize="false" />
                 </f:layout>
                 <f:formContainers>
                     <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >

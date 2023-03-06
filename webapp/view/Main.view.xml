@@ -16,7 +16,7 @@
             <core:CommandExecution id="CE_EDIT" command="Edit" enabled="true" execute="onEditTbl" />
             <core:CommandExecution id="CE_DELETE" command="Delete" enabled="true" execute="onDeletePR" />
         </dependents>
-        <title>
+        <!-- <title>
             <DynamicPageTitle>
                 <heading>
                     <sv:SmartVariantManagement id="__SVM01"
@@ -27,11 +27,11 @@
                 </snappedContent>
 
             </DynamicPageTitle>
-		</title>
+		</title> -->
         <header>
 			<DynamicPageHeader>
 				<content>
-                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" smartVariant="__SVM01" filterContainerWidth="10rem">
+                    <smartFilterBar:SmartFilterBar id="SmartFilterBar" entitySet="ZVB_3DERP_PR_FILTERS" search="onSearch" persistencyKey="3DERP_PRKey" filterContainerWidth="10rem">
                         <!-- <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSearch" key="Search" groupId="_BASIC" label="{captionMsg>/SEARCH}" width="50px">
                                 <smartFilterBar:customControl>
@@ -59,47 +59,67 @@
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterDocTyp" key="DOCTYP" groupId="_BASIC" label="{captionMsg>/DOCTYP}" tooltip="{captionMsg>/DOCTYP}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterDocTyp" key="DOCTYP" groupId="_BASIC" label="{captionMsg>/DOCTYP}" tooltip="{captionMsg>/DOCTYP}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterPurPlant" key="PLANTCD" groupId="_BASIC" label="{captionMsg>/PLANTCD}" tooltip="{captionMsg>/PLANTCD}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterPurPlant" key="PLANTCD" groupId="_BASIC" label="{captionMsg>/PLANTCD}" tooltip="{captionMsg>/PLANTCD}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterShipToPlant" key="SHIPTOPLANT" groupId="_BASIC" label="{captionMsg>/SHIPTOPLANT}" tooltip="{captionMsg>/SHIPTOPLANT}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterShipToPlant" key="SHIPTOPLANT" groupId="_BASIC" label="{captionMsg>/SHIPTOPLANT}" tooltip="{captionMsg>/SHIPTOPLANT}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterPurGrp" key="PURGRP" groupId="_BASIC" label="{captionMsg>/PURGRP}" tooltip="{captionMsg>/PURGRP}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterPurGrp" key="PURGRP" groupId="_BASIC" label="{captionMsg>/PURGRP}" tooltip="{captionMsg>/PURGRP}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="{captionMsg>/VENDOR}" tooltip="{captionMsg>/VENDOR}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterVendor" key="VENDOR" groupId="_BASIC" label="{captionMsg>/VENDOR}" tooltip="{captionMsg>/VENDOR}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterFtyStyle" key="FTYSTYLE" groupId="_BASIC" label="{captionMsg>/FTYSTYLE}" tooltip="{captionMsg>/FTYSTYLE}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterFtyStyle" key="FTYSTYLE" groupId="_BASIC" label="{captionMsg>/FTYSTYLE}" tooltip="{captionMsg>/FTYSTYLE}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="{captionMsg>/MATGRP}" tooltip="{captionMsg>/MATGRP}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterMatGrp" key="MATGRP" groupId="_BASIC" label="{captionMsg>/MATGRP}" tooltip="{captionMsg>/MATGRP}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="{captionMsg>/MATTYP}" tooltip="{captionMsg>/MATTYP}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="{captionMsg>/MATTYP}" tooltip="{captionMsg>/MATTYP}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
+                                <smartFilterBar:customControl>
+                                    <m:ComboBox id="cboxMATTYP"
+                                        change="onSBUChange"
+                                        items="{
+                                            path: 'matTypSource>/'
+                                        }"
+                                        >
+                                        <core:Item key="{matTypSource>MaterialType}" text="{matTypSource>MaterialType} - {matTypSource>Description}" />
+                                    </m:ComboBox>       
+                                 </smartFilterBar:customControl>
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/SEASON}" tooltip="{captionMsg>/SEASON}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/SEASON}" tooltip="{captionMsg>/SEASON}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
+                                <smartFilterBar:customControl>
+                                    <m:ComboBox id="cboxSEASON"
+                                        change="onSBUChange"
+                                        items="{
+                                            path: 'seasonSource>/'
+                                        }"
+                                        >
+                                        <core:Item key="{seasonSource>SEASONCD}" text="{seasonSource>SEASONCD} - {seasonSource>DESCRIPTION}" />
+                                    </m:ComboBox>       
+                                 </smartFilterBar:customControl>
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterIO" key="IONO" groupId="_BASIC" label="{captionMsg>/IONO}" tooltip="{captionMsg>/IONO}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterIO" key="IONO" groupId="_BASIC" label="{captionMsg>/IONO}" tooltip="{captionMsg>/IONO}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
-                            <smartFilterBar:ControlConfiguration id="filterPRNO" key="PRNO" groupId="_BASIC" label="{captionMsg>/PRNO}" tooltip="{captionMsg>/PRNO}" preventInitialDataFetchInValueHelpDialog="false">
+                            <smartFilterBar:ControlConfiguration id="filterPRNO" key="PRNO" groupId="_BASIC" label="{captionMsg>/PRNO}" tooltip="{captionMsg>/PRNO}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:layoutData>
@@ -138,6 +158,9 @@
                 >
                     <uiT:extension>
                         <m:Toolbar id="tableToolbar" class="sapUiTinyMarginBottom">
+                            <m:GenericTag text="Total" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
+                                <m:ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
+                            </m:GenericTag>
                             <m:ToolbarSpacer/>
                             <m:ToolbarSeparator />
                             <m:SearchField

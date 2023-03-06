@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0" xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx" xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" xmlns:sap="http://www.sap.com/Protocols/SAPData">
+    <edmx:DataServices m:DataServiceVersion="2.0">
+        <Schema Namespace="ZGW_3DERP_LOCK_SRV" xml:lang="en" sap:schema-version="1" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+            <EntityType Name="Enq" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Gname"/>
+                    <PropertyRef Name="Garg"/>
+                </Key>
+                <Property Name="Gname" Type="Edm.String" Nullable="false" MaxLength="30" sap:unicode="false" sap:label="Table name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Garg" Type="Edm.String" Nullable="false" MaxLength="150" sap:unicode="false" sap:label="Lock Argument" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gmode" Type="Edm.String" Nullable="false" MaxLength="1" sap:unicode="false" sap:label="Lock Mode" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gusr" Type="Edm.String" Nullable="false" MaxLength="58" sap:unicode="false" sap:label="Lock Owner 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gusrvb" Type="Edm.String" Nullable="false" MaxLength="58" sap:unicode="false" sap:label="Lock Owner 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Guse" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Counter 1" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gusevb" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Counter 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gobj" Type="Edm.String" Nullable="false" MaxLength="16" sap:unicode="false" sap:label="Lock Object" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gclient" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Client" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Guname" Type="Edm.String" Nullable="false" MaxLength="12" sap:unicode="false" sap:label="User name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtarg" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Lock argument" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtcode" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="Transact. code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gbcktype" Type="Edm.String" Nullable="false" MaxLength="1" sap:unicode="false" sap:label="Backup flag" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gthost" Type="Edm.String" Nullable="false" MaxLength="32" sap:unicode="false" sap:label="Host name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtwp" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="Work Process" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtsysnr" Type="Edm.String" Nullable="false" MaxLength="2" sap:unicode="false" sap:label="SAP System Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtdate" Type="Edm.DateTime" Nullable="false" Precision="7" sap:unicode="false" sap:label="Date" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gttime" Type="Edm.Time" Nullable="false" Precision="0" sap:unicode="false" sap:label="Time" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtusec" Type="Edm.String" Nullable="false" MaxLength="6" sap:unicode="false" sap:label="Microseconds" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gtmark" Type="Edm.String" Nullable="false" MaxLength="1" sap:unicode="false" sap:label="Selected" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gusetxt" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Counter" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gusevbt" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Counter 2" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZERP_PR_LOCK" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Prno"/>
+                    <PropertyRef Name="Prln"/>
+                </Key>
+                <Property Name="Prno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Preq No." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Prln" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Line Item No." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_ZERP_PR_LOCK_RETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_ZERP_PR_LOCK" FromRole="FromRole_A_ZERP_PR_LOCK" ToRole="ToRole_A_ZERP_PR_LOCK"/>
+            </EntityType>
+            <EntityType Name="Check" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Garg"/>
+                    <PropertyRef Name="Gname"/>
+                </Key>
+                <Property Name="Garg" Type="Edm.String" Nullable="false" MaxLength="150" sap:unicode="false" sap:label="Lock Argument" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Gname" Type="Edm.String" Nullable="false" MaxLength="30" sap:unicode="false" sap:label="Table name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Number" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Table Row" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Subrc" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="ZERP_PR_UNLOCK" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Prno"/>
+                    <PropertyRef Name="Prln"/>
+                </Key>
+                <Property Name="Prno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Preq No.
+                " sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Prln" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Line Item No." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_ZERP_PR_UNLOCK_RETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_ZERP_PR_UNLOCK" FromRole="FromRole_A_ZERP_PR_UNLOCK" ToRole="ToRole_A_ZERP_PR_UNLOCK"/>
+            </EntityType>
+            <EntityType Name="Lock_PR" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="iv_count"/>
+                </Key>
+                <Property Name="iv_count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Timeout" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Number" Type="Edm.Int16" sap:unicode="false" sap:label="Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Subrc" Type="Edm.Int16" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_IMPRTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_ITPRTab" FromRole="FromRole_A_ITPRTab" ToRole="ToRole_A_ITPRTab"/>
+                <NavigationProperty Name="N_PRLOCK_RETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_LOCK_PR" FromRole="FromRole_A_LOCK_PR" ToRole="ToRole_A_LOCK_PR"/>
+                <NavigationProperty Name="N_LOCK_MESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_LOCK_Messages" FromRole="FromRole_A_LOCK_Messages" ToRole="ToRole_A_LOCK_Messages"/>
+            </EntityType>
+            <EntityType Name="ITPRTab" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Prno"/>
+                    <PropertyRef Name="Prln"/>
+                </Key>
+                <Property Name="Prno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Purchase Req." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Prln" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Requisn. item" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="Unlock_PR" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Subrc"/>
+                </Key>
+                <Property Name="Number" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Subrc" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_IMPRTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_PRTab" FromRole="FromRole_A_PRTab" ToRole="ToRole_A_PRTab"/>
+                <NavigationProperty Name="N_PRUNLOCK_RETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PR" FromRole="FromRole_A_UNLOCK_PR" ToRole="ToRole_A_UNLOCK_PR"/>
+                <NavigationProperty Name="N_UNLOCK_MESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_UNLOCK_Messages" FromRole="FromRole_A_UNLOCK_Messages" ToRole="ToRole_A_UNLOCK_Messages"/>
+            </EntityType>
+            <EntityType Name="PRTab" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Prno"/>
+                    <PropertyRef Name="Prln"/>
+                </Key>
+                <Property Name="Prno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Purchase Req." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Prln" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Requisn. item" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="OutMessages" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Type"/>
+                    <PropertyRef Name="Id"/>
+                </Key>
+                <Property Name="Type" Type="Edm.String" Nullable="false" MaxLength="1" sap:unicode="false" sap:label="Message type" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Id" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="Message Class" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Number" Type="Edm.String" Nullable="false" MaxLength="3" sap:unicode="false" sap:label="Message Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Message" Type="Edm.String" Nullable="false" MaxLength="220" sap:unicode="false" sap:label="Message Text" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="LogNo" Type="Edm.String" Nullable="false" MaxLength="20" sap:unicode="false" sap:label="Log number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="LogMsgNo" Type="Edm.String" Nullable="false" MaxLength="6" sap:unicode="false" sap:label="Message no." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="MessageV1" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Message Variable" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="MessageV2" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Message Variable" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="MessageV3" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Message Variable" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="MessageV4" Type="Edm.String" Nullable="false" MaxLength="50" sap:unicode="false" sap:label="Message Variable" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Parameter" Type="Edm.String" Nullable="false" MaxLength="32" sap:unicode="false" sap:label="Parameter Name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Row" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Parameter line" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Field" Type="Edm.String" Nullable="false" MaxLength="30" sap:unicode="false" sap:label="Field name" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="System" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Logical system" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="Lock_POHdr" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="iv_count"/>
+                </Key>
+                <Property Name="iv_count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Timeout" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="number" Type="Edm.Int16" sap:unicode="false" sap:label="Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_LOCK_PO_ITEMTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_ItemTab" FromRole="FromRole_A_LOCK_PO_ItemTab" ToRole="ToRole_A_LOCK_PO_ItemTab"/>
+                <NavigationProperty Name="N_LOCK_PO_OUTMESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_Messages" FromRole="FromRole_A_LOCK_PO_Messages" ToRole="ToRole_A_LOCK_PO_Messages"/>
+                <NavigationProperty Name="N_LOCK_PO_ENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_Enq" FromRole="FromRole_A_LOCK_PO_Enq" ToRole="ToRole_A_LOCK_PO_Enq"/>
+            </EntityType>
+            <EntityType Name="Lock_PO_Itemtab" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Pono"/>
+                    <PropertyRef Name="Poitem"/>
+                </Key>
+                <Property Name="Pono" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Purchasing Doc." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Poitem" Type="Edm.String" Nullable="false" MaxLength="5" sap:unicode="false" sap:label="Item" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="Unlock_POHdr" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="subrc"/>
+                </Key>
+                <Property Name="number" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Number" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_UNLOCK_PO_ENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_Enq" FromRole="FromRole_A_UNLOCK_PO_Enq" ToRole="ToRole_A_UNLOCK_PO_Enq"/>
+                <NavigationProperty Name="N_UNLOCK_PO_ITEMTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_ItemTab" FromRole="FromRole_A_UNLOCK_PO_ItemTab" ToRole="ToRole_A_UNLOCK_PO_ItemTab"/>
+                <NavigationProperty Name="N_UNLOCK_PO_MESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_Messages" FromRole="FromRole_A_UNLOCK_PO_Messages" ToRole="ToRole_A_UNLOCK_PO_Messages"/>
+            </EntityType>
+            <EntityType Name="Lock_Rsvno" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="iv_count"/>
+                </Key>
+                <Property Name="iv_count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Timeout" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="number" Type="Edm.Int16" sap:unicode="false" sap:label="Number of Locks" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_LOCK_RSVNO_ENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Enq" FromRole="FromRole_A_Lock_Rsvno_Enq" ToRole="ToRole_A_Lock_Rsvno_Enq"/>
+                <NavigationProperty Name="N_LOCK_RSVNO_ITEMS" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Items" FromRole="FromRole_A_Lock_Rsvno_Items" ToRole="ToRole_A_Lock_Rsvno_Items"/>
+                <NavigationProperty Name="N_LOCK_RSVNO_MESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Messages" FromRole="FromRole_A_Lock_Rsvno_Messages" ToRole="ToRole_A_Lock_Rsvno_Messages"/>
+            </EntityType>
+            <EntityType Name="Lock_Rsvno_Items" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Rsvno"/>
+                    <PropertyRef Name="Rspos"/>
+                </Key>
+                <Property Name="Rsvno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Reservation" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Rspos" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Item no." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="Unlock_Rsvno" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="subrc"/>
+                </Key>
+                <Property Name="number" Type="Edm.Int16" sap:unicode="false" sap:label="Number of Locks" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_UNLOCK_RSVNO_ENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Enq" FromRole="FromRole_A_Unlock_Rsvno_Enq" ToRole="ToRole_A_Unlock_Rsvno_Enq"/>
+                <NavigationProperty Name="N_UNLOCK_RSVNO_ITEMS" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Items" FromRole="FromRole_A_Unlock_Rsvno_Items" ToRole="ToRole_A_Unlock_Rsvno_Items"/>
+                <NavigationProperty Name="N_UNLOCK_RSVNO_MESSAGES" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Messages" FromRole="FromRole_A_Unlock_Rsvno_Messages" ToRole="ToRole_A_Unlock_Rsvno_Messages"/>
+            </EntityType>
+            <EntityType Name="MRTab" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Rsvno"/>
+                    <PropertyRef Name="Rsvyr"/>
+                    <PropertyRef Name="Rspos"/>
+                </Key>
+                <Property Name="Rsvno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Reservation" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Rsvyr" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Reservation Year" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Rspos" Type="Edm.String" Nullable="false" MaxLength="4" sap:unicode="false" sap:label="Item no." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+            </EntityType>
+            <EntityType Name="Lock_MR" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="iv_count"/>
+                </Key>
+                <Property Name="iv_count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Timeout
+                " sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="number" Type="Edm.Int16" sap:unicode="false" sap:label="Number of Locks" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_LOCK_MRENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_MREnq" FromRole="FromRole_A_Lock_MREnq" ToRole="ToRole_A_Lock_MREnq"/>
+                <NavigationProperty Name="N_LOCK_MRTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_MRTab" FromRole="FromRole_A_Lock_MRTab" ToRole="ToRole_A_Lock_MRTab"/>
+                <NavigationProperty Name="N_LOCK_MRRETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_MRReturn" FromRole="FromRole_A_Lock_MRReturn" ToRole="ToRole_A_Lock_MRReturn"/>
+            </EntityType>
+            <EntityType Name="Unlock_MR" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="subrc"/>
+                </Key>
+                <Property Name="number" Type="Edm.Int16" sap:unicode="false" sap:label="Number of Locks" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="subrc" Type="Edm.Int16" Nullable="false" sap:unicode="false" sap:label="Return Code" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_UNLOCK_MRTAB" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_MRTab" FromRole="FromRole_A_Unlock_MRTab" ToRole="ToRole_A_Unlock_MRTab"/>
+                <NavigationProperty Name="N_UNLOCK_MRENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_MREnq" FromRole="FromRole_A_Unlock_MREnq" ToRole="ToRole_A_Unlock_MREnq"/>
+                <NavigationProperty Name="N_UNLOCK_MRRETURN" Relationship="ZGW_3DERP_LOCK_SRV.A_Unlock_MRReturn" FromRole="FromRole_A_Unlock_MRReturn" ToRole="ToRole_A_Unlock_MRReturn"/>
+            </EntityType>
+            <EntityType Name="Lock_Unlock_DlvHdr" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Dlvno"/>
+                </Key>
+                <Property Name="Dlvno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Dlv No" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Lock_Unlock_Ind" Type="Edm.String" Nullable="false" MaxLength="1" sap:unicode="false" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="IV_Count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="INT4" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_LOCK_UNLOCK_DLVHDR_RET" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_Unlock_DlvHdr" FromRole="FromRole_A_Lock_Unlock_DlvHdr" ToRole="ToRole_A_Lock_Unlock_DlvHdr"/>
+                <NavigationProperty Name="N_LOCK_UNLOCK_DLVHDR_MSG" Relationship="ZGW_3DERP_LOCK_SRV.A_Lock_Unlock_DlvHdr_Msg" FromRole="FromRole_A_Lock_Unlock_DlvHdr_Msg" ToRole="ToRole_A_Lock_Unlock_DlvHdr_Msg"/>
+            </EntityType>
+            <EntityType Name="ZERP_DLVHDR" sap:content-version="1">
+                <Key>
+                    <PropertyRef Name="Dlvno"/>
+                </Key>
+                <Property Name="Dlvno" Type="Edm.String" Nullable="false" MaxLength="10" sap:unicode="false" sap:label="Delivery No." sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Lock" Type="Edm.String" MaxLength="1" sap:unicode="false" sap:label="X-Lock,  ''-Unlock" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <Property Name="Iv_Count" Type="Edm.Int32" Nullable="false" sap:unicode="false" sap:label="Lock Time/Period" sap:creatable="false" sap:updatable="false" sap:sortable="false" sap:filterable="false"/>
+                <NavigationProperty Name="N_ENQ" Relationship="ZGW_3DERP_LOCK_SRV.A_ZERP_DLVHDR_ENQ" FromRole="FromRole_A_ZERP_DLVHDR_ENQ" ToRole="ToRole_A_ZERP_DLVHDR_ENQ" sap:label="Enq Set"/>
+            </EntityType>
+            <Association Name="A_Unlock_Rsvno_Enq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_Rsvno" Multiplicity="*" Role="FromRole_A_Unlock_Rsvno_Enq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Unlock_Rsvno_Enq"/>
+            </Association>
+            <Association Name="A_Unlock_Rsvno_Items" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_Rsvno" Multiplicity="*" Role="FromRole_A_Unlock_Rsvno_Items"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Rsvno_Items" Multiplicity="*" Role="ToRole_A_Unlock_Rsvno_Items"/>
+            </Association>
+            <Association Name="A_Unlock_Rsvno_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_Rsvno" Multiplicity="*" Role="FromRole_A_Unlock_Rsvno_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_Unlock_Rsvno_Messages"/>
+            </Association>
+            <Association Name="A_Lock_MRTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_MR" Multiplicity="*" Role="FromRole_A_Lock_MRTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.MRTab" Multiplicity="*" Role="ToRole_A_Lock_MRTab"/>
+            </Association>
+            <Association Name="A_Lock_MRReturn" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_MR" Multiplicity="*" Role="FromRole_A_Lock_MRReturn"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_Lock_MRReturn"/>
+            </Association>
+            <Association Name="A_Lock_MREnq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_MR" Multiplicity="*" Role="FromRole_A_Lock_MREnq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Lock_MREnq"/>
+            </Association>
+            <Association Name="A_Lock_Rsvno_Items" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Rsvno" Multiplicity="*" Role="FromRole_A_Lock_Rsvno_Items"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Rsvno_Items" Multiplicity="*" Role="ToRole_A_Lock_Rsvno_Items"/>
+            </Association>
+            <Association Name="A_Lock_Rsvno_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Rsvno" Multiplicity="*" Role="FromRole_A_Lock_Rsvno_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_Lock_Rsvno_Messages"/>
+            </Association>
+            <Association Name="A_Lock_Rsvno_Enq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Rsvno" Multiplicity="*" Role="FromRole_A_Lock_Rsvno_Enq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Lock_Rsvno_Enq"/>
+            </Association>
+            <Association Name="A_Lock_Unlock_DlvHdr" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Unlock_DlvHdr" Multiplicity="*" Role="FromRole_A_Lock_Unlock_DlvHdr"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Lock_Unlock_DlvHdr"/>
+                <ReferentialConstraint>
+                    <Principal Role="FromRole_A_Lock_Unlock_DlvHdr">
+                        <PropertyRef Name="Dlvno"/>
+                    </Principal>
+                    <Dependent Role="ToRole_A_Lock_Unlock_DlvHdr">
+                        <PropertyRef Name="Garg"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="A_Lock_Unlock_DlvHdr_Msg" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_Unlock_DlvHdr" Multiplicity="*" Role="FromRole_A_Lock_Unlock_DlvHdr_Msg"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_Lock_Unlock_DlvHdr_Msg"/>
+                <ReferentialConstraint>
+                    <Principal Role="FromRole_A_Lock_Unlock_DlvHdr_Msg">
+                        <PropertyRef Name="Dlvno"/>
+                    </Principal>
+                    <Dependent Role="ToRole_A_Lock_Unlock_DlvHdr_Msg">
+                        <PropertyRef Name="Field"/>
+                    </Dependent>
+                </ReferentialConstraint>
+            </Association>
+            <Association Name="A_ZERP_DLVHDR_ENQ" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.ZERP_DLVHDR" Multiplicity="*" Role="FromRole_A_ZERP_DLVHDR_ENQ"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_ZERP_DLVHDR_ENQ"/>
+            </Association>
+            <Association Name="A_ZERP_PR_LOCK" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.ZERP_PR_LOCK" Multiplicity="*" Role="FromRole_A_ZERP_PR_LOCK"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_ZERP_PR_LOCK"/>
+            </Association>
+            <Association Name="A_UNLOCK_PO_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_POHdr" Multiplicity="*" Role="FromRole_A_UNLOCK_PO_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_UNLOCK_PO_Messages"/>
+            </Association>
+            <Association Name="A_UNLOCK_PO_Enq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_POHdr" Multiplicity="*" Role="FromRole_A_UNLOCK_PO_Enq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_UNLOCK_PO_Enq"/>
+            </Association>
+            <Association Name="A_UNLOCK_PO_ItemTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_POHdr" Multiplicity="*" Role="FromRole_A_UNLOCK_PO_ItemTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_PO_Itemtab" Multiplicity="*" Role="ToRole_A_UNLOCK_PO_ItemTab"/>
+            </Association>
+            <Association Name="A_UNLOCK_PR" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_PR" Multiplicity="*" Role="FromRole_A_UNLOCK_PR"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_UNLOCK_PR"/>
+            </Association>
+            <Association Name="A_PRTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_PR" Multiplicity="*" Role="FromRole_A_PRTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.PRTab" Multiplicity="*" Role="ToRole_A_PRTab"/>
+            </Association>
+            <Association Name="A_UNLOCK_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_PR" Multiplicity="*" Role="FromRole_A_UNLOCK_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_UNLOCK_Messages"/>
+            </Association>
+            <Association Name="A_Enq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="FromRole_A_Enq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Enq"/>
+            </Association>
+            <Association Name="A_LOCK_PO_ItemTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_POHdr" Multiplicity="*" Role="FromRole_A_LOCK_PO_ItemTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_PO_Itemtab" Multiplicity="*" Role="ToRole_A_LOCK_PO_ItemTab"/>
+            </Association>
+            <Association Name="A_LOCK_PO_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_POHdr" Multiplicity="*" Role="FromRole_A_LOCK_PO_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_LOCK_PO_Messages"/>
+            </Association>
+            <Association Name="A_LOCK_PO_Enq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_POHdr" Multiplicity="*" Role="FromRole_A_LOCK_PO_Enq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_LOCK_PO_Enq"/>
+            </Association>
+            <Association Name="A_Check" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Check" Multiplicity="*" Role="FromRole_A_Check"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Check"/>
+            </Association>
+            <Association Name="A_LOCK_PR" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_PR" Multiplicity="*" Role="FromRole_A_LOCK_PR"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_LOCK_PR"/>
+            </Association>
+            <Association Name="A_ITPRTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_PR" Multiplicity="*" Role="FromRole_A_ITPRTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.ITPRTab" Multiplicity="*" Role="ToRole_A_ITPRTab"/>
+            </Association>
+            <Association Name="A_LOCK_Messages" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Lock_PR" Multiplicity="*" Role="FromRole_A_LOCK_Messages"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_LOCK_Messages"/>
+            </Association>
+            <Association Name="A_Unlock_MRTab" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_MR" Multiplicity="*" Role="FromRole_A_Unlock_MRTab"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.MRTab" Multiplicity="*" Role="ToRole_A_Unlock_MRTab"/>
+            </Association>
+            <Association Name="A_Unlock_MRReturn" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_MR" Multiplicity="*" Role="FromRole_A_Unlock_MRReturn"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.OutMessages" Multiplicity="*" Role="ToRole_A_Unlock_MRReturn"/>
+            </Association>
+            <Association Name="A_Unlock_MREnq" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.Unlock_MR" Multiplicity="*" Role="FromRole_A_Unlock_MREnq"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_Unlock_MREnq"/>
+            </Association>
+            <Association Name="A_ZERP_PR_UNLOCK" sap:content-version="1">
+                <End Type="ZGW_3DERP_LOCK_SRV.ZERP_PR_UNLOCK" Multiplicity="*" Role="FromRole_A_ZERP_PR_UNLOCK"/>
+                <End Type="ZGW_3DERP_LOCK_SRV.Enq" Multiplicity="*" Role="ToRole_A_ZERP_PR_UNLOCK"/>
+            </Association>
+            <EntityContainer Name="ZGW_3DERP_LOCK_SRV_Entities" m:IsDefaultEntityContainer="true" sap:supported-formats="atom json xlsx">
+                <EntitySet Name="EnqSet" EntityType="ZGW_3DERP_LOCK_SRV.Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZERP_PR_LOCKSet" EntityType="ZGW_3DERP_LOCK_SRV.ZERP_PR_LOCK" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="CheckSet" EntityType="ZGW_3DERP_LOCK_SRV.Check" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZERP_PR_UNLOCKSet" EntityType="ZGW_3DERP_LOCK_SRV.ZERP_PR_UNLOCK" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_PRSet" EntityType="ZGW_3DERP_LOCK_SRV.Lock_PR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="ITPRTabSet" EntityType="ZGW_3DERP_LOCK_SRV.ITPRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Unlock_PRSet" EntityType="ZGW_3DERP_LOCK_SRV.Unlock_PR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="PRTabSet" EntityType="ZGW_3DERP_LOCK_SRV.PRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="OutMessagesSet" EntityType="ZGW_3DERP_LOCK_SRV.OutMessages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_POHdr_Set" EntityType="ZGW_3DERP_LOCK_SRV.Lock_POHdr" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_PO_ItemtabSet" EntityType="ZGW_3DERP_LOCK_SRV.Lock_PO_Itemtab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Unlock_POHdr_Set" EntityType="ZGW_3DERP_LOCK_SRV.Unlock_POHdr" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_Rsvno_Set" EntityType="ZGW_3DERP_LOCK_SRV.Lock_Rsvno" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_Rsvno_ItemsSet" EntityType="ZGW_3DERP_LOCK_SRV.Lock_Rsvno_Items" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Unlock_Rsvno_Set" EntityType="ZGW_3DERP_LOCK_SRV.Unlock_Rsvno" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="MRTabSet" EntityType="ZGW_3DERP_LOCK_SRV.MRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_MRSet" EntityType="ZGW_3DERP_LOCK_SRV.Lock_MR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Unlock_MRSet" EntityType="ZGW_3DERP_LOCK_SRV.Unlock_MR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <EntitySet Name="Lock_Unlock_DlvHdrSet" EntityType="ZGW_3DERP_LOCK_SRV.Lock_Unlock_DlvHdr" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:content-version="1"/>
+                <EntitySet Name="ZERP_DLVHDR" EntityType="ZGW_3DERP_LOCK_SRV.ZERP_DLVHDR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:pageable="false" sap:addressable="false" sap:content-version="1"/>
+                <AssociationSet Name="A_Lock_MREnq" Association="ZGW_3DERP_LOCK_SRV.A_Lock_MREnq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_MRSet" Role="FromRole_A_Lock_MREnq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Lock_MREnq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_UNLOCK_PR" Association="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_PRSet" Role="FromRole_A_UNLOCK_PR"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_UNLOCK_PR"/>
+                </AssociationSet>
+                <AssociationSet Name="A_EnqSet" Association="ZGW_3DERP_LOCK_SRV.A_Check" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="CheckSet" Role="FromRole_A_Check"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Check"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_MRReturn" Association="ZGW_3DERP_LOCK_SRV.A_Lock_MRReturn" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_MRSet" Role="FromRole_A_Lock_MRReturn"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_Lock_MRReturn"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_Unlock_DlvHdrSet" Association="ZGW_3DERP_LOCK_SRV.A_Lock_Unlock_DlvHdr" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_Unlock_DlvHdrSet" Role="FromRole_A_Lock_Unlock_DlvHdr"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Lock_Unlock_DlvHdr"/>
+                </AssociationSet>
+                <AssociationSet Name="A_LOCK_PO_OutMessages" Association="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_POHdr_Set" Role="FromRole_A_LOCK_PO_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_LOCK_PO_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_LOCK_OutMessages" Association="ZGW_3DERP_LOCK_SRV.A_LOCK_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_PRSet" Role="FromRole_A_LOCK_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_LOCK_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_ZERP_PR_UNLOCKSET" Association="ZGW_3DERP_LOCK_SRV.A_ZERP_PR_UNLOCK" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZERP_PR_UNLOCKSet" Role="FromRole_A_ZERP_PR_UNLOCK"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_ZERP_PR_UNLOCK"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Enq_AssocSet" Association="ZGW_3DERP_LOCK_SRV.A_Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="EnqSet" Role="FromRole_A_Enq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Enq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_MRReturn" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_MRReturn" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_MRSet" Role="FromRole_A_Unlock_MRReturn"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_Unlock_MRReturn"/>
+                </AssociationSet>
+                <AssociationSet Name="A_ZERP_DLVHDR_ENQ" Association="ZGW_3DERP_LOCK_SRV.A_ZERP_DLVHDR_ENQ" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZERP_DLVHDR" Role="FromRole_A_ZERP_DLVHDR_ENQ"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_ZERP_DLVHDR_ENQ"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_MRTab" Association="ZGW_3DERP_LOCK_SRV.A_Lock_MRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_MRSet" Role="FromRole_A_Lock_MRTab"/>
+                    <End EntitySet="MRTabSet" Role="ToRole_A_Lock_MRTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_LOCK_PR" Association="ZGW_3DERP_LOCK_SRV.A_LOCK_PR" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_PRSet" Role="FromRole_A_LOCK_PR"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_LOCK_PR"/>
+                </AssociationSet>
+                <AssociationSet Name="A_UNLOCK_OutMessages" Association="ZGW_3DERP_LOCK_SRV.A_UNLOCK_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_PRSet" Role="FromRole_A_UNLOCK_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_UNLOCK_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_Rsvno_Items" Association="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Items" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_Rsvno_Set" Role="FromRole_A_Lock_Rsvno_Items"/>
+                    <End EntitySet="Lock_Rsvno_ItemsSet" Role="ToRole_A_Lock_Rsvno_Items"/>
+                </AssociationSet>
+                <AssociationSet Name="A_UNLOCK_PO_Enq" Association="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_POHdr_Set" Role="FromRole_A_UNLOCK_PO_Enq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_UNLOCK_PO_Enq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_MREnq" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_MREnq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_MRSet" Role="FromRole_A_Unlock_MREnq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Unlock_MREnq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_PRTab_AssocSet" Association="ZGW_3DERP_LOCK_SRV.A_PRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_PRSet" Role="FromRole_A_PRTab"/>
+                    <End EntitySet="PRTabSet" Role="ToRole_A_PRTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_Rsvno_Messages" Association="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_Rsvno_Set" Role="FromRole_A_Lock_Rsvno_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_Lock_Rsvno_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_Rsvno_Enq" Association="ZGW_3DERP_LOCK_SRV.A_Lock_Rsvno_Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_Rsvno_Set" Role="FromRole_A_Lock_Rsvno_Enq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Lock_Rsvno_Enq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_LOCK_PO_ItemTab" Association="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_ItemTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_POHdr_Set" Role="FromRole_A_LOCK_PO_ItemTab"/>
+                    <End EntitySet="Lock_PO_ItemtabSet" Role="ToRole_A_LOCK_PO_ItemTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_LOCK_PO_Enq" Association="ZGW_3DERP_LOCK_SRV.A_LOCK_PO_Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_POHdr_Set" Role="FromRole_A_LOCK_PO_Enq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_LOCK_PO_Enq"/>
+                </AssociationSet>
+                <AssociationSet Name="A_ITPRTab" Association="ZGW_3DERP_LOCK_SRV.A_ITPRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_PRSet" Role="FromRole_A_ITPRTab"/>
+                    <End EntitySet="ITPRTabSet" Role="ToRole_A_ITPRTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_ZERP_PR_LOCKSET" Association="ZGW_3DERP_LOCK_SRV.A_ZERP_PR_LOCK" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="ZERP_PR_LOCKSet" Role="FromRole_A_ZERP_PR_LOCK"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_ZERP_PR_LOCK"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_Rsvno_Items" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Items" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_Rsvno_Set" Role="FromRole_A_Unlock_Rsvno_Items"/>
+                    <End EntitySet="Lock_Rsvno_ItemsSet" Role="ToRole_A_Unlock_Rsvno_Items"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_MRTab" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_MRTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_MRSet" Role="FromRole_A_Unlock_MRTab"/>
+                    <End EntitySet="MRTabSet" Role="ToRole_A_Unlock_MRTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_Rsvno_Messages" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_Rsvno_Set" Role="FromRole_A_Unlock_Rsvno_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_Unlock_Rsvno_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_UNLOCK_PO_ItemTab" Association="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_ItemTab" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_POHdr_Set" Role="FromRole_A_UNLOCK_PO_ItemTab"/>
+                    <End EntitySet="Lock_PO_ItemtabSet" Role="ToRole_A_UNLOCK_PO_ItemTab"/>
+                </AssociationSet>
+                <AssociationSet Name="A_UNLOCK_PO_Messages" Association="ZGW_3DERP_LOCK_SRV.A_UNLOCK_PO_Messages" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_POHdr_Set" Role="FromRole_A_UNLOCK_PO_Messages"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_UNLOCK_PO_Messages"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Lock_Unlock_DlvHdr_MsgSet" Association="ZGW_3DERP_LOCK_SRV.A_Lock_Unlock_DlvHdr_Msg" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Lock_Unlock_DlvHdrSet" Role="FromRole_A_Lock_Unlock_DlvHdr_Msg"/>
+                    <End EntitySet="OutMessagesSet" Role="ToRole_A_Lock_Unlock_DlvHdr_Msg"/>
+                </AssociationSet>
+                <AssociationSet Name="A_Unlock_Rsvno_Enq" Association="ZGW_3DERP_LOCK_SRV.A_Unlock_Rsvno_Enq" sap:creatable="false" sap:updatable="false" sap:deletable="false" sap:content-version="1">
+                    <End EntitySet="Unlock_Rsvno_Set" Role="FromRole_A_Unlock_Rsvno_Enq"/>
+                    <End EntitySet="EnqSet" Role="ToRole_A_Unlock_Rsvno_Enq"/>
+                </AssociationSet>
+            </EntityContainer>
+            <atom:link rel="self" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZGW_3DERP_LOCK_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+            <atom:link rel="latest-version" href="http://159.138.39.203:8000/sap/opu/odata/sap/ZGW_3DERP_LOCK_SRV/$metadata" xmlns:atom="http://www.w3.org/2005/Atom"/>
+        </Schema>
+    </edmx:DataServices>
+</edmx:Edmx>
