@@ -3,11 +3,12 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     'sap/m/MessageBox',
     "../js/Common",
+    "sap/ui/core/ValueState"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, JSONModel, MessageBox, Common) {
+    function (Controller, JSONModel, MessageBox, Common, ValueState) {
         "use strict";
 
         var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
@@ -17,7 +18,7 @@ sap.ui.define([
             onInit: function () {
                 var that = this;
                 var oModel = new sap.ui.model.json.JSONModel();
-                this._onBeforeDetailData = []
+                this._validationErrors = []
                 oModel.loadData("/sap/bc/ui2/start_up").then(() => {
                     this._userid = oModel.oData.id;
                 })
@@ -66,7 +67,6 @@ sap.ui.define([
                 await new Promise((resolve, reject)=>{
                     oModel.read("/MANPRDYNAMICCOLSet", {
                         success: function (oData, oResponse) {
-                            console.log(oData)
                             var visibleFields = {};
                             var editableFields ={};
                             //get only visible fields
@@ -109,7 +109,6 @@ sap.ui.define([
                 await new Promise((resolve, reject)=>{
                     oModel.read("/ColumnsSet", {
                         success: function (oData, oResponse) {
-                            console.log(oData)
                             oJSONColumnsModel.setData(oData);
                             me.oJSONModel.setData(oData);
                             me.getView().setModel(oJSONColumnsModel, "PRDetColModel");  //set the view model
@@ -128,14 +127,41 @@ sap.ui.define([
                 var custGrpVal = this.getView().byId("CUSTGRP").getValue();
                 var salesGrpVal = this.getView().byId("SALESGRP").getValue();
                 
-                // if(docTypVal === "" && purGrpVal === "" && purPlantVal === "" && custGrpVal === "" && salesGrpVal === ""){
-                //     MessageBox.error("Above Field is Required!");
-                //     return
-                // }
+                if(docTypVal === "" || purGrpVal === "" || purPlantVal === "" || custGrpVal === "" || salesGrpVal === ""){
+                    
+                    if(docTypVal === ""){
+                        this.getView().byId("DOCTYP").setValueState("Error");
+                        this.getView().byId("DOCTYP").setValueStateText("Required Field");
+                    }
+                    if(purGrpVal === ""){
+                        this.getView().byId("PURGRP").setValueState("Error");
+                        this.getView().byId("PURGRP").setValueStateText("Required Field");
+                    }
+                    if(purPlantVal === ""){
+                        this.getView().byId("PLANTCD").setValueState("Error");
+                        this.getView().byId("PLANTCD").setValueStateText("Required Field");
+                    }
+                    if(custGrpVal === ""){
+                        this.getView().byId("CUSTGRP").setValueState("Error");
+                        this.getView().byId("CUSTGRP").setValueStateText("Required Field");
+                    }
+                    if(salesGrpVal === ""){
+                        this.getView().byId("SALESGRP").setValueState("Error");
+                        this.getView().byId("SALESGRP").setValueStateText("Required Field");
+                    }
+                    MessageBox.error("Above Field is Required!");
+                    return;
+                }
+
+                this.byId("DOCTYP").setEnabled(false);
+                this.byId("PURGRP").setEnabled(false);
+                this.byId("PLANTCD").setEnabled(false);
+                this.byId("CUSTGRP").setEnabled(false);
+                this.byId("SALESGRP").setEnabled(false);
 
                 var detailsItemArr = [];
                 var detailsItemLastCnt = 0;
-                var detailsItemObj = this._onBeforeDetailData;
+                var detailsItemObj = this.getView().getModel("PRDetDataModel").getData().results;
                 var newInsertField = [];
 
                 detailsItemObj = detailsItemObj.length === undefined ? [] : detailsItemObj;
@@ -175,6 +201,8 @@ sap.ui.define([
 
                 var aData;
 
+                var chkData = this.getView().getModel("PRDetDataModel").getProperty("/results");
+
                 oTable = this.byId("prDetTable");
                 aSelIndices = oTable.getSelectedIndices();
                 oTmpSelectedIndices = [];
@@ -193,10 +221,17 @@ sap.ui.define([
                     aData.forEach(item => {
                         aDataRes.push(item)
                     })
-                    console.log(aDataRes)
 
                     this.getView().getModel("PRDetDataModel").setProperty("/results", aDataRes);
                     await this.setTableData('prDetTable');
+
+                    if(chkData.length >= 0){
+                        this.byId("DOCTYP").setEnabled(true);
+                        this.byId("PURGRP").setEnabled(true);
+                        this.byId("PLANTCD").setEnabled(true);
+                        this.byId("CUSTGRP").setEnabled(true);
+                        this.byId("SALESGRP").setEnabled(true);
+                    }
                     this.onRowEdit('prDetTable', 'PRDetColModel');
                 }
             },
@@ -230,7 +265,7 @@ sap.ui.define([
                     var sColumnSorted = context.getObject().Sorted;
                     var sColumnSortOrder = context.getObject().SortOrder;
                     return new sap.ui.table.Column({
-                         id: sColumnId,
+                         id: 'prDetTable-' + sColumnId,
                          label: sColumnLabel, //"{i18n>" + sColumnId + "}",
                          template: me.columnTemplate(sColumnId),
                          width: sColumnWidth + 'px',
@@ -270,7 +305,7 @@ sap.ui.define([
                 var oColumnsData = oColumnsModel.getProperty('/results');
                 
                 oTable.getColumns().forEach((col, idx) => {
-                    oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[0])
+                    oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])
                         .forEach(ci => {
                             var sColumnName = ci.ColumnName;
                             var sColumnType = ci.DataType;
@@ -282,27 +317,15 @@ sap.ui.define([
                                         // liveChange: this.onInputLiveChange.bind(this)
                                     }));
                                 }else if (sColumnType === "STRING") {
-                                    if(sColumnName === "CUSTSTYLE" || sColumnName === "CUSTSTYLEDESC" || sColumnName === "CPONO" || sColumnName === "CUSTCOLOR"
-                                     || sColumnName === "CUSTSIZE" || sColumnName === "PRODUCTCD" || sColumnName === "PRODUCTGRP"){
-                                        col.setTemplate(new sap.m.Input({
-                                            id: "col-" + sColumnName,
-                                            type: "Text",
-                                            value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
-                                            maxLength: +ci.Length,
-                                            showValueHelp: false,
-                                            liveChange: this.onInputLiveChange.bind(this)
-                                        }));
-                                    }else{
-                                        col.setTemplate(new sap.m.Input({
-                                            id: "col-" + sColumnName,
-                                            type: "Text",
-                                            value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
-                                            maxLength: +ci.Length,
-                                            showValueHelp: true,
-                                            valueHelpRequest: this.handleValueHelp.bind(this),
-                                            liveChange: this.onInputLiveChange.bind(this)
-                                        }));
-                                    }
+                                    col.setTemplate(new sap.m.Input({
+                                        id: "col-" + sColumnName,
+                                        type: "Text",
+                                        value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
+                                        maxLength: +ci.Length,
+                                        showValueHelp: true,
+                                        valueHelpRequest: this.handleValueHelp.bind(this),
+                                        liveChange: this.onInputLiveChange.bind(this)
+                                    }));
                                 }else if (sColumnType === "DATETIME"){
                                     col.setTemplate(new sap.m.DatePicker({
                                         id: "col-" + sColumnName,
@@ -341,14 +364,28 @@ sap.ui.define([
                 var tblIndex = this._tblIndex;
                 var sRowPath = this._tblIndex == undefined ? null :"/results/"+ tblIndex.split("/")[2];
                 var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
-                console.log(oEvent.getSource().getId())
+
+                if(oEvent.getSource().getBindingInfo("value").mandatory){
+                    if(oEvent.getParameters().value === ""){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Required Field");
+                        this._validationErrors.push(oEvent.getSource().getId());
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        this._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                this._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                }
+
                 if(oEvent.getSource().getId().includes("MATNO")){
                     var matNo = oEvent.getParameters().value;
                     var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PR_MATNO_SH',{
                             success: async function (data, response) {
-                                console.log(data)
                                 data.results.forEach(item=>{
                                     if(item.MATNO === matNo){
                                         oRow.MATNO = item.MATNO
@@ -362,6 +399,7 @@ sap.ui.define([
                                 })
                                 await me.setTableData('prDetTable');
                                 resolve(me.onRowEdit('prDetTable', 'PRDetColModel'));
+                                resolve();
                             },
                             error: function (err) {
                                 resolve();
@@ -378,6 +416,20 @@ sap.ui.define([
             },
             onNumberLiveChange: async function(oEvent){
 
+                if(oEvent.getSource().getBindingInfo("value").mandatory){
+                    if(oEvent.getParameters().value === ""){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Required Field");
+                        this._validationErrors.push(oEvent.getSource().getId());
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        this._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                this._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                }
             },
             handleValueHelp: async function(oEvent){
                 var that = this;
@@ -412,13 +464,10 @@ sap.ui.define([
                 var valueHelpObjects = [];
                 var title = "";
 
-                console.log(fieldName)
-
                 if(fieldName === 'DOCTYP'){
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PRDOCTYPE_SH',{
                             success: function (data, response) {
-                                console.log(data)
                                 data.results.forEach(item=>{
                                     item.Item = item.DocType;
                                     item.Desc = item.Description;
@@ -438,7 +487,6 @@ sap.ui.define([
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PURGRP_SH',{
                             success: function (data, response) {
-                                console.log(data)
                                 data.results.forEach(item=>{
                                     item.Item = item.PurchGrp;
                                     item.Desc = item.Description;
@@ -458,7 +506,6 @@ sap.ui.define([
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PR_PURPLANT_SH',{
                             success: function (data, response) {
-                                console.log(data)
                                 var dataResult = [];
                                 data.results.forEach(item=>{
                                     if(item.SBU === vSBU){
@@ -481,7 +528,6 @@ sap.ui.define([
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PR_CUSTGRP_SH',{
                             success: function (data, response) {
-                                console.log(data)
                                 data.results.forEach(item=>{
                                     item.Item = item.CUSTGRP;
                                     item.Desc = item.Description;
@@ -501,7 +547,6 @@ sap.ui.define([
                     await new Promise((resolve, reject) => { 
                         oModelFilter.read('/ZVB_3DERP_PR_SALESGRP_SH',{
                             success: function (data, response) {
-                                console.log(data)
                                 data.results.forEach(item=>{
                                     item.Item = item.SALESGRP;
                                     item.Desc = item.Description;
@@ -595,7 +640,6 @@ sap.ui.define([
                                     }
                                     // item.Desc = item.DESCRIPTION;
                                 })
-                                console.log(dataResult)
                                 valueHelpObjects = dataResult;
                                 title = "Purchasing Org."
                                 resolve();
@@ -615,7 +659,6 @@ sap.ui.define([
                         await new Promise((resolve, reject) => { 
                             oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
                                 success: function (data, response) {
-                                    console.log(data)
                                     var dataResult = [];
                                     data.results.forEach(item=>{
                                         while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
@@ -691,6 +734,7 @@ sap.ui.define([
                                         })
                                         await me.setTableData('prDetTable');
                                         resolve(me.onRowEdit('prDetTable', 'PRDetColModel'));
+                                        resolve();
                                     },
                                     error: function (err) {
                                         resolve();
@@ -736,180 +780,304 @@ sap.ui.define([
                 var oTmpSelectedIndices = [];
                 var aData = oTable.getModel().getData().rows;
 
-                var oModel = this.getOwnerComponent().getModel();
-                oModel.setUseBatch(true);
-                oModel.setDeferredGroups(["insert"]);
-                var modelParameter = {
-                    "groupId": "insert"
-                };
-                var rFcModel = this.getOwnerComponent().getModel('ZGW_3DERP_RFC_SRV');
-                var iCounter = 0;
+                //Boolean to check if there is Validation Errors
+                var boolProceed = true;
 
-                var matNo = "";
-                var batch = "";
-                var hasError = false;
-                var hasZERPMatBatch = false;
-                var ZERPMatBatchParam = {}
+                //Init Validation Errors Object
+                this._validationErrors = [];
 
-                var matTyp = ""
-                var noRangeCd = "";
-                var ZERPNorangeKeyParam = {};
-
-                var prCreateSetParamSet = {}
-                var prCreateSetParamMain = {}
-                var prCreateSetParam = []
-
-                var prItem = 0;
-
-                var prCreationMessage = "";
+                //PR Creation Error Type Variable
+                var errTyp = "";
 
                 oSelectedIndices.forEach(item => {
                     oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
-                })
+                });
                 oSelectedIndices = oTmpSelectedIndices;
 
-                oSelectedIndices.forEach(async (item, index) => {
-                    matNo = aData.at(item).MATNO;
-                    batch = aData.at(item).BATCH;
-                    matTyp = aData.at(item).MATTYP;
-                    await new Promise((resolve, reject) => { 
-                        oModel.read('/ZERP_MATBATCHSet',{
-                            urlParameters: {
-                                "$filter": "MATNO eq '" + matNo + "' and BATCH eq '" + batch + "'"
-                            },
-                            success: function (data, response) {
-                                if(data.results.length){
-                                    hasZERPMatBatch = true;
-                                }
-                                resolve();
-                            },
-                            error: function (err) {
-                                hasError = true;
-                                resolve();
-                            }
-                        });
-                    });
 
-                    if(!hasError){
-                        if(!hasZERPMatBatch){
-                            ZERPMatBatchParam = {
-                                MATNO: matNo,
-                                BATCH: batch,
-                                IONO: batch
-                            }
-                            // console.log(ZERPMatBatchParam);
-                            oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
-                            await new Promise((resolve, reject) => { 
-                                oModel.submitChanges({
-                                    groupId: "insert",
-                                    success: function(oData, oResponse){
-                                        console.log(oData)
-                                        //Success
-                                        resolve();
-                                    },error: function(error){
-                                        MessageBox.error(error);
-                                        resolve();
+                var aItems = oTable.getRows();
+                aItems.forEach(function(oItem) {
+                    oSelectedIndices.forEach((item, index) => {
+                        if(oItem.getIndex() === item){
+                            var aCells = oItem.getCells();
+                            aCells.forEach(function(oCell) {
+                                if (oCell.isA("sap.m.Input")) {
+                                    if(oCell.getBindingInfo("value").mandatory){
+                                        if(oCell.getValue() === ""){
+                                            oCell.setValueState(sap.ui.core.ValueState.Error);
+                                            me._validationErrors.push(oCell.getId());
+                                        }else{
+                                            oCell.setValueState(sap.ui.core.ValueState.None);
+                                            me._validationErrors.forEach((item, index) => {
+                                                if (item === oCell.getId()) {
+                                                    me._validationErrors.splice(index, 1)
+                                                }
+                                            })
+                                        }   
                                     }
-                                })
+                                }
                             });
                         }
+                    })
+                });
 
-                        await new Promise((resolve, reject) => {
-                            oModel.read('/ZERP_MATTYPSet',{
-                                urlParameters: {
-                                    "$filter": "MATTYP eq '" + matTyp + "'"
-                                },
-                                success: function (data, response) {
-                                    noRangeCd = data.results[0].BATCHSEQKY;
-                                    resolve();
-                                },
-                                error: function (err) {
-                                    hasError = true;
-                                    resolve();
-                                }
-                            });
-                        });
 
-                        if(noRangeCd !== ""){
-                            var prItemInsert;
-                            prItem = prItem + 10
-                            ZERPNorangeKeyParam = {
-                                NORANGECD: noRangeCd,
-                                KEYCD: matNo + batch,
-                                CURRENTNO: "000"
-                            }
-                            oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
+                if(this._validationErrors.length > 0){
+                    MessageBox.error("Required Fields not supplied!");
+                    boolProceed = false;
+                }
+
+
+                // this.getView().byId("DOCTYP").setValue("");
+                // this.getView().byId("PRNO").setValue("");
+                // this.getView().byId("PURGRP").setValue("");
+                // this.getView().byId("PLANTCD").setValue("");
+                // this.getView().byId("CUSTGRP").setValue("");
+                // this.getView().byId("SALESGRP").setValue("");
+                // this.getView().byId("REQSTNR").setValue("");
+
+                // this.getView().getModel("PRDetDataModel").setProperty("/results", []);
+                // await this.setTableData('prDetTable')
+
+                // this.byId("DOCTYP").setEnabled(true);
+                // this.byId("PURGRP").setEnabled(true);
+                // this.byId("PLANTCD").setEnabled(true);
+                // this.byId("CUSTGRP").setEnabled(true);
+                // this.byId("SALESGRP").setEnabled(true);
+
+                if(boolProceed){
+                    var oModel = this.getOwnerComponent().getModel();
+                    oModel.setUseBatch(true);
+                    oModel.setDeferredGroups(["insert"]);
+                    var modelParameter = {
+                        "groupId": "insert"
+                    };
+                    var rFcModel = this.getOwnerComponent().getModel('ZGW_3DERP_RFC_SRV');
+                    var iCounter = 0;
+
+                    var matNo = "";
+                    var batch = "";
+                    var hasError = false;
+                    var hasZERPMatBatch = false;
+                    var ZERPMatBatchParam = {}
+
+                    var matTyp = ""
+                    var noRangeCd = "";
+                    var ZERPNorangeKeyParam = {};
+
+                    var prCreateSetParamSet = {}
+                    var prCreateSetParamMain = {}
+                    var prCreateSetParam = []
+
+                    var prItem = 0;
+
+                    var prCreationMessage = "";
+
+                    // oSelectedIndices.forEach(item => {
+                    //     oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
+                    // })
+                    // oSelectedIndices = oTmpSelectedIndices;
+
+                    if(oSelectedIndices.length > 0){
+                        oSelectedIndices.forEach(async (item, index) => {
+                            matNo = aData.at(item).MATNO;
+                            batch = aData.at(item).BATCH;
+                            matTyp = aData.at(item).MATTYP;
                             await new Promise((resolve, reject) => { 
-                                oModel.submitChanges({
-                                    groupId: "insert",
-                                    success: function(oData, oResponse){
-                                        console.log(oData)
-                                        //Success
-                                        resolve();
-                                    },error: function(error){
-                                        MessageBox.error(error);
-                                        resolve();
-                                    }
-                                })
-                            });
-                            prItemInsert = prItem;
-                            prItemInsert = String(parseInt(prItemInsert));
-                            while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
-                            prCreateSetParam.push({
-                                Tblhdr:     "0000000001",
-                                PreqItem:   prItemInsert, 
-                                DocType:    aData.at(item).DOCTYP, 
-                                PurGroup:   aData.at(item).PURGRP, 
-                                PurchOrg:   aData.at(item).PURORG,
-                                Plant:      aData.at(item).PLANTCD, 
-                                Material:   matNo, 
-                                MatGrp:     aData.at(item).MATGRP, 
-                                Quantity:   aData.at(item).QUANTITY, 
-                                Unit:       aData.at(item).UOM, 
-                                DelivDate:  sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
-                                Batch:      batch
-                                // FixedVend:  aData.at(item).VENDOR
-                            })
-                        }
-                        await new Promise(async (resolve, reject) => { 
-                            iCounter++;
-                            if(oSelectedIndices.length === iCounter){
-                                Common.openLoadingDialog(this);
-                                prCreateSetParamSet = {
-                                    iv_userid: "",
-                                }
-                                prCreateSetParamMain = prCreateSetParamSet;
-                                prCreateSetParamMain["N_PRHEADER"] = [{
-                                    Tblhdr: "0000000001"
-                                }];
-                                prCreateSetParamMain["N_PRITEMS"] = prCreateSetParam;
-                                prCreateSetParamMain["N_PRITEMTEXT"] = [];
-                                prCreateSetParamMain["N_PRRETURN"] = [];
-                                
-                                await new Promise((resolve, reject)=>{
-                                    rFcModel.create("/PRCreateSet", prCreateSetParamMain, {
-                                        method: "POST",
-                                        success: function(oData, oResponse){
-                                            prCreationMessage = oData.N_PRRETURN.results[0].Message;
-                                            resolve();
-                                        },error: function(error){
-                                            MessageBox.error("Error Occured while Creation of PR");
-                                            resolve()
+                                oModel.read('/ZERP_MATBATCHSet',{
+                                    urlParameters: {
+                                        "$filter": "MATNO eq '" + matNo + "' and BATCH eq '" + batch + "'"
+                                    },
+                                    success: function (data, response) {
+                                        if(data.results.length){
+                                            hasZERPMatBatch = true;
                                         }
-                                    })
-                                })
-                                Common.closeLoadingDialog(this);
-                                if(prCreationMessage !== ""){
-                                    MessageBox.information(prCreationMessage);
-                                }
-                                resolve();
-                            }
-                            resolve();
-                        });
-                    }
-                    
+                                        resolve();
+                                    },
+                                    error: function (err) {
+                                        hasError = true;
+                                        resolve();
+                                    }
+                                });
+                            });
 
-                })
+                            if(!hasError){
+                                if(!hasZERPMatBatch){
+                                    ZERPMatBatchParam = {
+                                        MATNO: matNo,
+                                        BATCH: batch,
+                                        IONO: batch
+                                    }
+                                    oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
+                                    await new Promise((resolve, reject) => { 
+                                        oModel.submitChanges({
+                                            groupId: "insert",
+                                            success: function(oData, oResponse){
+                                                //Success
+                                                resolve();
+                                            },error: function(error){
+                                                MessageBox.error(error);
+                                                resolve();
+                                            }
+                                        })
+                                    });
+                                }
+
+                                await new Promise((resolve, reject) => {
+                                    oModel.read('/ZERP_MATTYPSet',{
+                                        urlParameters: {
+                                            "$filter": "MATTYP eq '" + matTyp + "'"
+                                        },
+                                        success: function (data, response) {
+                                            noRangeCd = data.results[0].BATCHSEQKY;
+                                            resolve();
+                                        },
+                                        error: function (err) {
+                                            hasError = true;
+                                            resolve();
+                                        }
+                                    });
+                                });
+
+                                if(noRangeCd !== ""){
+                                    var prItemInsert;
+                                    prItem = prItem + 10
+                                    ZERPNorangeKeyParam = {
+                                        NORANGECD: noRangeCd,
+                                        KEYCD: matNo + batch,
+                                        CURRENTNO: "000"
+                                    }
+                                    oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
+                                    await new Promise((resolve, reject) => { 
+                                        oModel.submitChanges({
+                                            groupId: "insert",
+                                            success: function(oData, oResponse){
+                                                //Success
+                                                resolve();
+                                            },error: function(error){
+                                                MessageBox.error(error);
+                                                resolve();
+                                            }
+                                        })
+                                    });
+                                    prItemInsert = prItem;
+                                    prItemInsert = String(parseInt(prItemInsert));
+                                    while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
+                                    prCreateSetParam.push({
+                                        Tblhdr:     "0000000001",
+                                        PreqItem:   prItemInsert, 
+                                        DocType:    aData.at(item).DOCTYP, 
+                                        PurGroup:   aData.at(item).PURGRP, 
+                                        PurchOrg:   aData.at(item).PURORG,
+                                        Plant:      aData.at(item).PLANTCD, 
+                                        Material:   matNo, 
+                                        MatGrp:     aData.at(item).MATGRP, 
+                                        Quantity:   aData.at(item).QUANTITY, 
+                                        Unit:       aData.at(item).UOM, 
+                                        DelivDate:  sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
+                                        Batch:      batch
+                                        // FixedVend:  aData.at(item).VENDOR
+                                    })
+                                }
+                                await new Promise(async (resolve, reject) => { 
+                                    iCounter++;
+                                    if(oSelectedIndices.length === iCounter){
+                                        Common.openLoadingDialog(this);
+                                        prCreateSetParamSet = {
+                                            iv_userid: "",
+                                        }
+                                        prCreateSetParamMain = prCreateSetParamSet;
+                                        prCreateSetParamMain["N_PRHEADER"] = [{
+                                            Tblhdr: "0000000001"
+                                        }];
+                                        prCreateSetParamMain["N_PRITEMS"] = prCreateSetParam;
+                                        prCreateSetParamMain["N_PRITEMTEXT"] = [];
+                                        prCreateSetParamMain["N_PRRETURN"] = [];
+                                        
+                                        await new Promise((resolve, reject)=>{
+                                            rFcModel.create("/PRCreateSet", prCreateSetParamMain, {
+                                                method: "POST",
+                                                success: function(oData, oResponse){
+                                                    prCreationMessage = oData.N_PRRETURN.results[0].Message;
+                                                    errTyp = oData.N_PRRETURN.results[0].Type;
+                                                    resolve();
+                                                },error: function(error){
+                                                    MessageBox.error("Error Occured while Creation of PR");
+                                                    resolve()
+                                                }
+                                            })
+                                        })
+                                        Common.closeLoadingDialog(this);
+                                        if(prCreationMessage !== ""){
+                                            MessageBox.information(prCreationMessage);
+                                        }
+
+                                        if(errTyp === "I"){
+                                            me.getView().byId("DOCTYP").setValue("");
+                                            me.getView().byId("PRNO").setValue("");
+                                            me.getView().byId("PURGRP").setValue("");
+                                            me.getView().byId("PLANTCD").setValue("");
+                                            me.getView().byId("CUSTGRP").setValue("");
+                                            me.getView().byId("SALESGRP").setValue("");
+                                            me.getView().byId("REQSTNR").setValue("");
+
+                                            me.getView().getModel("PRDetDataModel").setProperty("/results", []);
+                                            await me.setTableData('prDetTable')
+
+                                            me.byId("DOCTYP").setEnabled(true);
+                                            me.byId("PURGRP").setEnabled(true);
+                                            me.byId("PLANTCD").setEnabled(true);
+                                            me.byId("CUSTGRP").setEnabled(true);
+                                            me.byId("SALESGRP").setEnabled(true);
+                                        }
+                                        resolve();
+                                    }
+                                    resolve();
+                                });
+                            }
+                        })
+                    }else{
+                        MessageBox.error("No Data to Save.");
+                    }
+                }
+            },
+
+            cancelHeaderEdit: async function(){
+                var actionSel;
+                var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
+                await new Promise((resolve, reject) => {
+                    MessageBox.warning(
+                        "Discard Changes?",
+                        {
+                            actions: ["Yes", "Cancel"],
+                            styleClass: bCompact ? "sapUiSizeCompact" : "",
+                            onClose: function(sAction) {
+                                actionSel = sAction;
+                                resolve(actionSel);
+                            }
+                        }
+                    );
+                });
+                if(actionSel === "Yes"){
+                    this.getView().byId("DOCTYP").setValue("");
+                    this.getView().byId("PRNO").setValue("");
+                    this.getView().byId("PURGRP").setValue("");
+                    this.getView().byId("PLANTCD").setValue("");
+                    this.getView().byId("CUSTGRP").setValue("");
+                    this.getView().byId("SALESGRP").setValue("");
+                    this.getView().byId("REQSTNR").setValue("");
+
+                    this.getView().getModel("PRDetDataModel").setProperty("/results", []);
+                    await this.setTableData('prDetTable')
+
+                    this.byId("DOCTYP").setEnabled(true);
+                    this.byId("PURGRP").setEnabled(true);
+                    this.byId("PLANTCD").setEnabled(true);
+                    this.byId("CUSTGRP").setEnabled(true);
+                    this.byId("SALESGRP").setEnabled(true);
+                }else{
+                    MessageBox.Action.CLOSE
+                }
             }
 
         });

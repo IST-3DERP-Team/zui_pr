@@ -87,6 +87,15 @@
                     ],
                     "localUri": "localService/ZVB_3DERP_PRM_FILTERS_CDS/metadata.xml"
                 }
+            },
+            "ZGW_3DERP_LOCK_SRV": {
+                "uri": "/sap/opu/odata/sap/ZGW_3DERP_LOCK_SRV/",
+                "type": "OData",
+                "settings": {
+                    "odataVersion": "2.0",
+                    "annotations": [],
+                    "localUri": "localService/ZGW_3DERP_LOCK_SRV/metadata.xml"
+                }
             }
         }
     },
@@ -190,6 +199,15 @@
             },
             "ZVB_3DERP_PRM_FILTERS_CDS": {
                 "dataSource": "ZVB_3DERP_PRM_FILTERS_CDS",
+                "preload": true,
+                "settings": {
+                    "defaultBindingMode": "TwoWay",
+                    "defaultCountMode": "Inline",
+                    "refreshAfterChange": false
+                }
+            },
+            "ZGW_3DERP_LOCK_SRV": {
+                "dataSource": "ZGW_3DERP_LOCK_SRV",
                 "preload": true,
                 "settings": {
                     "defaultBindingMode": "TwoWay",

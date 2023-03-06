@@ -46,12 +46,17 @@ sap.ui.define(
             this._smartFilterBar = this.getView().byId("SmartFilterBar");
 
             this._oDataOnEditValidate = [];
+            this._oLockData = [];
             
             this.validationErrors = [];
             this.getView().setModel(new JSONModel({
                 dataMode: 'NODATA',
-                sbu: ""
+                sbu: "",
             }), "ui");
+
+            this.getView().setModel(new JSONModel({
+                total: 0
+            }), "counts");
 
             this._columnLoadError = false;
 
@@ -86,6 +91,8 @@ sap.ui.define(
         },
         onSBUChange: function(oEvent) {
             this._sbuChange = true;
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            this.getView().getModel("ui").setProperty("/sbu", vSBU);
         },
         setSmartFilterModel: function () {
             //Model StyleHeaderFilters is for the smartfilterbar
@@ -95,6 +102,7 @@ sap.ui.define(
         },
         
         onSearch: async function(){
+            var me = this;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
                 this.onCancelEdit();
             }else{
@@ -114,6 +122,54 @@ sap.ui.define(
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
                 Common.closeLoadingDialog(that);
+
+                var oJSONModel = new JSONModel();
+                var iCounter = 0;
+                var itemResult = [];
+                var vSBU = this.getView().getModel("ui").getData().sbu;
+                var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
+
+                await new Promise((resolve, reject) => {
+                    oModel.read("/ZVB_3DERP_MATTYPE_SH", {
+                        success: function (oData, oResponse) {
+                            for(var item in oData.results){
+                                iCounter++;
+                                if(oData.results[item].SBU === vSBU){
+                                    itemResult.push(oData.results[item])
+                                }
+                                if(iCounter === oData.results.length){
+                                    oJSONModel.setData(itemResult)
+                                    me.getView().setModel(oJSONModel, "matTypSource");
+                                    resolve();
+                                }
+                            }
+                        },
+                        error: function (err) { }
+                    });
+                })
+
+                itemResult = [];
+                oJSONModel = new JSONModel();
+                iCounter = 0;
+                await new Promise((resolve, reject) => {
+                    oModel.read("/ZVB_3DERP_SEASON_SH", {
+                        success: function (oData, oResponse) {
+                            for(var item in oData.results){
+                                iCounter++;
+                                if(oData.results[item].SBU === vSBU){
+                                    itemResult.push(oData.results[item])
+                                }
+                                if(iCounter === oData.results.length){
+                                    oJSONModel.setData(itemResult)
+                                    me.getView().setModel(oJSONModel, "seasonSource");
+                                    resolve();
+                                }
+                            }
+                        },
+                        error: function (err) { }
+                    });
+                })
+                
             }
             
         },
@@ -137,11 +193,82 @@ sap.ui.define(
             var oJSONModel = new sap.ui.model.json.JSONModel();
             var objectData = [];
             var aFilters = this.getView().byId("SmartFilterBar").getFilters();
+            var aFiltersObj = [];
+                
+
             var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
+
+            aFiltersObj.push(aFilters);
+            aFiltersObj = aFiltersObj[0];
+
+            if (this.getView().byId("SmartFilterBar")) {
+
+                var oCtrlMatTyp = this.getView().byId("SmartFilterBar").determineControlByName("MATTYP");
+                var oCtrlSeasonCd = this.getView().byId("SmartFilterBar").determineControlByName("SEASONCD");
+                if (oCtrlMatTyp) {
+                    console.log(oCtrlMatTyp.getSelectedKey() === "");
+                    if(oCtrlMatTyp.getSelectedKey() !== ""){
+                        if(aFilters.length === 0){
+                            aFiltersObj.push({
+                                aFilters: [{
+                                    sPath: "MATTYP",
+                                    sOperator: "EQ",
+                                    oValue1: oCtrlMatTyp.getSelectedKey(),
+                                    _bMultiFilter: false
+                                }]
+                            })
+                        }else{
+                            aFiltersObj[0].aFilters[parseInt(Object.keys(aFiltersObj[0].aFilters).pop())+1] = ({
+                                sPath: "MATTYP",
+                                sOperator: "EQ",
+                                oValue1: oCtrlMatTyp.getSelectedKey(),
+                                _bMultiFilter: false
+                            })
+                        }
+                    }
+                }
+                if (oCtrlSeasonCd) {
+                    console.log(oCtrlSeasonCd.getSelectedKey() === "");
+                    if(oCtrlSeasonCd.getSelectedKey() !== ""){
+                        if(aFilters.length === 0){
+                            aFiltersObj.push({
+                                aFilters: [{
+                                    sPath: "SEASONCD",
+                                    sOperator: "EQ",
+                                    oValue1: oCtrlSeasonCd.getSelectedKey(),
+                                    _bMultiFilter: false
+                                }]
+                            })
+                        }else{
+                            aFiltersObj[0].aFilters[parseInt(Object.keys(aFiltersObj[0].aFilters).pop())+1] = ({
+                                sPath: "SEASONCD",
+                                sOperator: "EQ",
+                                oValue1: oCtrlSeasonCd.getSelectedKey(),
+                                _bMultiFilter: false
+                            })
+                        }
+                    }
+                }
+            }
+            
+            if (aFilters.length > 0) {
+                aFilters[0].aFilters.forEach(item => {
+                    if (item.sPath === 'PRNO') {
+                        if (!isNaN(item.oValue1)) {
+                            while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
+                        }
+                    }
+                    if (item.sPath === 'VENDOR') {
+                        if (!isNaN(item.oValue1)) {
+                            while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
+                        }
+                    }
+                })
+            }
 
             return new Promise((resolve, reject)=>{
                 oModel.read("/PRSet", {
-                    filters: aFilters,
+                    filters: aFiltersObj,
                     success: function (data, response) {
                         if (data.results.length > 0) {
                             data.results.forEach((item, index) => {
@@ -155,6 +282,8 @@ sap.ui.define(
                             objectData.push(data.results);
                             objectData[0].sort((a,b) => (a.ITEM2 > b.ITEM2) ? 1 : ((b.ITEM2 > a.ITEM2) ? -1 : 0));
                             oJSONModel.setData(data);
+
+                            me.getView().getModel("counts").setProperty("/total", data.results.length);
                         }
                         me.getView().setModel(oJSONModel, "TableData");
                         if(tblChange)
@@ -181,7 +310,7 @@ sap.ui.define(
                 var tabName = dataSource;
                 //get dynamic columns based on saved layout or ZERP_CHECK
                 var oJSONColumnsModel = new JSONModel();
-                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();;
+                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
                 // var vSBU = this.getView().getModel("ui").getData().sbu;
 
                 var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
@@ -475,7 +604,8 @@ sap.ui.define(
                 var bDeleted = false, bWithMaterial = false;
                 var iCounter = 0;
                 var promiseResult;
-                
+                this._oLockData = [];
+
                 //MessageBox Message
                 var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
                 var msgNoDataToEdit = this.getView().getModel("captionMsg").getData()["INFO_NO_DATA_EDIT"];
@@ -490,8 +620,7 @@ sap.ui.define(
                     })
 
                     aSelIndices = oTmpSelectedIndices;
-                    
-                    aSelIndices.forEach(async (item, index) => {
+                    for(var item of aSelIndices){
                         if (aData.at(item).DELETED === true) {
                             iCounter++;
                             bDeleted = true;
@@ -512,76 +641,85 @@ sap.ui.define(
                             if(PRNo != "" || PRNo != null){
                                 while(PRNo.length < 10) PRNo = "0" + PRNo;
                             }
-                            oModel.read(oEntitySet + "(PRNO='" + PRNo + "',PRITM='"+ PRItm +"')", {
-                                success: async function (data, response) {
-                                    iCounter++;
-                                    // await me.checkEditableFields(aData.at(item).DOCTYP, PRNo, PRItm);
-                                    aDataToEdit.push(aData.at(item));
-
-                                    promiseResult = new Promise((resolve, reject)=>{
-                                        oModel.read("/ZERP_CHECKSet", {
-                                            urlParameters: {
-                                                "$filter":"SBU eq '"+ vSBU +"' and FIELD1 eq '"+ aData.at(item).DOCTYP +"'"
-                                            },
-                                            success: async function (data, response) {
-                                                var count = 0;
-                                                var indx = 0;
-                                                var strDocTyp = "";
-                                                var strObj = {}
-                                                data.results.forEach(async dataItem => {
-                                                    count++
-                                                    strDocTyp = dataItem.FIELD1;
-                                                })
-                                                strObj["DOCTYP"] = (strDocTyp);
-                                                strObj["results"] = data.results
-                                                me._oDataOnEditValidate.push(strObj)
-                                                // indx = parseInt(Object.keys(me._oDataOnEditValidate).pop());
-                                                // me._oDataOnEditValidate[indx].DOCTYP = strDocTyp;
-                                                resolve();
-                                                // console.log((Object.keys(me._oDataOnEditValidate).pop()));
-                                                // me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results[parseInt(Object.keys(me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results).pop()) + 1] = {PRNO: PRNo};
-                                                // me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results[parseInt(Object.keys(me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results).pop()) + 2] = {PRITM: PRItm};
-                                                // me._oDataOnEditValidate.results[parseInt(Object.keys(me._oDataOnEditValidate.results).pop()) + 1].PRITM = PRItm
-                                            },
-                                            error: function(error){
-                                                console.log("erorr")
-                                                resolve();
-                                            }
-                                        });
-                                    });
-                                    await promiseResult;
-                                    if (aSelIndices.length === iCounter) {
-                                        if (aDataToEdit.length === 0) {
-                                            MessageBox.information(msgNoDataToEdit);
-                                        }
-                                        else {
-                                            me.byId("btnNew").setVisible(false);
-                                            me.byId("btnEdit").setVisible(false);
-                                            me.byId("btnDelete").setVisible(false);
-                                            me.byId("btnClose").setVisible(false);
-                                            me.byId("btnSave").setVisible(true);
-                                            me.byId("btnCancel").setVisible(true);
-                                            me.byId("btnTabLayout").setVisible(false);
-                                            me.byId("btnView").setVisible(false);
-    
-    
-                                            me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
-                                            
-                                            me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
-                                            await me.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
-                                            me.setRowEditMode();
-                            
-                                            me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
-                                            me._isGMCEdited = false;
-                                        }
-                                    }                    
-                                },
-                                error: function (err) {
-                                    iCounter++;
-                                }
+                            me._oLockData.push({
+                                Prno: PRNo,
+                                Prln: PRItm
                             });
+                            await new Promise((resolve, reject)=>{
+                                oModel.read(oEntitySet + "(PRNO='" + PRNo + "',PRITM='"+ PRItm +"')", {
+                                    success: async function (data, response) {
+                                        iCounter++;
+                                        // await me.checkEditableFields(aData.at(item).DOCTYP, PRNo, PRItm);
+                                        aDataToEdit.push(aData.at(item));
+    
+                                        promiseResult = new Promise((resolve, reject)=>{
+                                            oModel.read("/ZERP_CHECKSet", {
+                                                urlParameters: {
+                                                    "$filter":"SBU eq '"+ vSBU +"' and FIELD1 eq '"+ aData.at(item).DOCTYP +"'"
+                                                },
+                                                success: async function (data, response) {
+                                                    var count = 0;
+                                                    var indx = 0;
+                                                    var strDocTyp = "";
+                                                    var strObj = {}
+                                                    data.results.forEach(async dataItem => {
+                                                        count++
+                                                        strDocTyp = dataItem.FIELD1;
+                                                    })
+                                                    strObj["DOCTYP"] = (strDocTyp);
+                                                    strObj["results"] = data.results
+                                                    me._oDataOnEditValidate.push(strObj)
+                                                    // indx = parseInt(Object.keys(me._oDataOnEditValidate).pop());
+                                                    // me._oDataOnEditValidate[indx].DOCTYP = strDocTyp;
+                                                    resolve();
+                                                    // console.log((Object.keys(me._oDataOnEditValidate).pop()));
+                                                    // me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results[parseInt(Object.keys(me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results).pop()) + 1] = {PRNO: PRNo};
+                                                    // me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results[parseInt(Object.keys(me._oDataOnEditValidate[(Object.keys(me._oDataOnEditValidate).pop())].results).pop()) + 2] = {PRITM: PRItm};
+                                                    // me._oDataOnEditValidate.results[parseInt(Object.keys(me._oDataOnEditValidate.results).pop()) + 1].PRITM = PRItm
+                                                },
+                                                error: function(error){
+                                                    resolve();
+                                                }
+                                            });
+                                        });
+                                        await promiseResult;
+                                        resolve();
+                                        
+                                    },
+                                    error: function (err) {
+                                        iCounter++;
+                                    }
+                                });
+                            });
+                            if (aSelIndices.length === iCounter) {
+                                if (aDataToEdit.length === 0) {
+                                    MessageBox.information(msgNoDataToEdit);
+                                }
+                                else {
+                                    if(await me.prLock(me)){
+                                        me.byId("btnNew").setVisible(false);
+                                        me.byId("btnEdit").setVisible(false);
+                                        me.byId("btnDelete").setVisible(false);
+                                        me.byId("btnClose").setVisible(false);
+                                        me.byId("btnSave").setVisible(true);
+                                        me.byId("btnCancel").setVisible(true);
+                                        me.byId("btnTabLayout").setVisible(false);
+                                        me.byId("btnView").setVisible(false);
+
+                                        me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
+                                        
+                                        me.getView().getModel("TableData").setProperty("/results", aDataToEdit);
+                                        await me.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                                        me.setRowEditMode();
+                        
+                                        me.getView().getModel("ui").setProperty("/dataMode", 'EDIT');
+                                        me._isGMCEdited = false;
+                                    }
+                                }
+                            }
+                            
                         }
-                    });
+                    }
                 }
                 else {
                     // aDataToEdit = aData;
@@ -1484,9 +1622,10 @@ sap.ui.define(
                 this.byId("btnTabLayout").setVisible(true);
                 this.byId("btnView").setVisible(true);
                 this.validationErrors = [];
-
+                
+                await this.prUnLock();
                 await this.getAllData();
-                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR');
                 
                 if (this.getView().getModel("ui").getData().dataMode === 'NEW') this.setFilterAfterCreate();
 
@@ -1507,7 +1646,7 @@ sap.ui.define(
                 this.byId("btnView").setVisible(true);
 
                 await this.getAllData();
-                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR');
 
                 Common.closeLoadingDialog(that);
             }
@@ -1643,6 +1782,7 @@ sap.ui.define(
                 await promiseResult;
                 await this.getAllData();
                 await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                await this.prUnLock();
                 
                 Common.closeLoadingDialog(that);
                 
@@ -1662,6 +1802,7 @@ sap.ui.define(
             }
         },
         onDeletePR: async function(){
+            var me = this;
             var bProceed = true;
             Common.openLoadingDialog(that);
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
@@ -1684,6 +1825,7 @@ sap.ui.define(
                 var message = "";
                 var isError = false;
                 var promiseResult;
+                this._oLockData = [];
 
                 //MessageBox Message
                 var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
@@ -1698,7 +1840,7 @@ sap.ui.define(
         
                     oSelectedIndices = oTmpSelectedIndices;
 
-                    await oSelectedIndices.forEach((item, index) => {
+                    for(var item of oSelectedIndices){
                         if(aData.at(item).DELETED === true){
                             iCounter++;
                             if (oSelectedIndices.length === iCounter) {
@@ -1716,9 +1858,13 @@ sap.ui.define(
                             var PRNo = aData.at(item).PRNO
                             var PRItm = aData.at(item).PRITM
         
-                            // if(PRNo != "" || PRNo != null){
-                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                            // }
+                            if(PRNo != "" || PRNo != null){
+                                while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            }
+                            me._oLockData.push({
+                                Prno: PRNo,
+                                Prln: PRItm
+                            });
 
                             oParamData.push({
                                 PreqNo: PRNo,
@@ -1727,54 +1873,59 @@ sap.ui.define(
                                 CloseInd: ''
                             })
                         }
-                    })
+                    }
 
-                    if (oParamData.length > 0) {
-                        oParam['N_DelClosePRParam'] = oParamData;
-                        oParam['N_DelClosePRReturn'] = [];
-                        promiseResult = new Promise((resolve, reject)=>{
-                            oModel.create("/DelClosePRSet", oParam, {
-                                method: "POST",
-                                success: function(oResultDCPR, oResponse){
-                                    oSelectedIndices.forEach((item, index) => {
-                                        
-                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                        if (oRetMsg.length > 0) {
-                                            if (oRetMsg[0].Type === 'I') {
-                                                message = message + oRetMsg[0].Message + "\n"
+                    if(await me.prLock(me)){
+                        if (oParamData.length > 0) {
+                            oParam['N_DelClosePRParam'] = oParamData;
+                            oParam['N_DelClosePRReturn'] = [];
+                            promiseResult = new Promise((resolve, reject)=>{
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
                                             }else{
                                                 isError = true;
-                                                message = message + oRetMsg[0].Message + "\n"
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                             }
-                                        }else{
-                                            isError = true;
-                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                        }
+                                            resolve();
+                                        });
+                                    },error: function(err){
+                                        message = message + "Error Encountered! Please try agian! \n"
+                                        isError = true;
                                         resolve();
-                                    });
-                                },error: function(err){
-                                    message = message + "Error Encountered! Please try agian! \n"
-                                    isError = true;
-                                    resolve();
-                                }
+                                    }
+                                });
                             });
-                        });
-                        await promiseResult;
-                    }
-                    if (!isError){
-                        await this.getAllData();
-                        await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                            await promiseResult;
+                        }
+                        if (!isError){
+                            await this.getAllData();
+                            await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                            await this.prUnLock();
+                        }
                     }
                 }else{
                     message = msgNoDataToDelete;
                 }
             }
-            
-            MessageBox.information(message);
+            if(message !== "")
+                MessageBox.information(message);
+
             Common.closeLoadingDialog(that);
             
         },
         onClosePR: async function(){
+            var me = this;
             Common.openLoadingDialog(that);
             var bProceed = true;
             if(this.getView().getModel("ui").getData().dataMode === 'EDIT'){
@@ -1793,6 +1944,7 @@ sap.ui.define(
                 var message = "";
                 var isError = false;
                 var promiseResult;
+                this._oLockData = [];
 
                 //MessageBox Message
                 var msgAlreadyDeleted = this.getView().getModel("captionMsg").getData()["INFO_ALREADY_DELETED"];
@@ -1807,7 +1959,7 @@ sap.ui.define(
         
                     oSelectedIndices = oTmpSelectedIndices;
 
-                    await oSelectedIndices.forEach((item, index) => {
+                    for(var item of oSelectedIndices){
                         if(aData.at(item).DELETED === true){
                             
                             iCounter++;
@@ -1824,9 +1976,14 @@ sap.ui.define(
                             var PRNo = aData.at(item).PRNO
                             var PRItm = aData.at(item).PRITM
         
-                            // if(PRNo != "" || PRNo != null){
-                            //     while(PRNo.length < 10) PRNo = "0" + PRNo;
-                            // }
+                            if(PRNo != "" || PRNo != null){
+                                while(PRNo.length < 10) PRNo = "0" + PRNo;
+                            }
+
+                            me._oLockData.push({
+                                Prno: PRNo,
+                                Prln: PRItm
+                            });
 
                             oParamData.push({
                                 PreqNo: PRNo,
@@ -1835,50 +1992,55 @@ sap.ui.define(
                                 CloseInd: 'X'
                             })
                         }
-                    })
-                    if (oParamData.length > 0) {
-                        oParam['N_DelClosePRParam'] = oParamData;
-                        oParam['N_DelClosePRReturn'] = [];
-                        promiseResult = new Promise((resolve, reject)=>{
-                            oModel.create("/DelClosePRSet", oParam, {
-                                method: "POST",
-                                success: function(oResultDCPR, oResponse){
-                                    oSelectedIndices.forEach((item, index) => {
-                                        
-                                        var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
-                                        if (oRetMsg.length > 0) {
-                                            if (oRetMsg[0].Type === 'I') {
-                                                message = message + oRetMsg[0].Message + "\n"
+                    }
+                    if(await me.prLock(me)){
+                        if (oParamData.length > 0) {
+                            oParam['N_DelClosePRParam'] = oParamData;
+                            oParam['N_DelClosePRReturn'] = [];
+                            promiseResult = new Promise((resolve, reject)=>{
+                                oModel.create("/DelClosePRSet", oParam, {
+                                    method: "POST",
+                                    success: function(oResultDCPR, oResponse){
+                                        oSelectedIndices.forEach((item, index) => {
+                                            
+                                            var oRetMsg = oResultDCPR.N_DelClosePRReturn.results.filter(fItem => fItem.PreqNo === aData.at(item).PRNO )//&& fItem.PreqItem === aData.at(item).PRITM);
+                                            if (oRetMsg.length > 0) {
+                                                if (oRetMsg[0].Type === 'I') {
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }else{
+                                                    isError = true;
+                                                    message = message + oRetMsg[0].Message + "\n"
+                                                }
                                             }else{
                                                 isError = true;
-                                                message = message + oRetMsg[0].Message + "\n"
+                                                message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
                                             }
-                                        }else{
-                                            isError = true;
-                                            message = message + "PR: "+aData.at(item).PRNO + "/" + aData.at(item).PRITM + " "+ msgDeletedOrClosed + "\n"
-                                        }
+                                            resolve();
+                                        });
+                                    },error: function(err){
+                                        message = message + "Error Encountered! Please try agian! \n"
+                                        isError = true;
                                         resolve();
-                                    });
-                                },error: function(err){
-                                    message = message + "Error Encountered! Please try agian! \n"
-                                    isError = true;
-                                    resolve();
-                                }
-                            });
+                                    }
+                                });
 
-                        });
-                        await promiseResult;
-                    }
-                    if (!isError){
-                        await this.getAllData();
-                        await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                            });
+                            await promiseResult;
+                        }
+                        if (!isError){
+                            await this.getAllData();
+                            await this.getDynamicColumns('PRHDR', 'ZDV_3DERP_PR')
+                            await this.prUnLock();
+                        }
                     }
                     
                 }else{
                     message  = msgNoDataToClose;
                 }
             }
-            MessageBox.information(message);
+            if(message !== "")
+                MessageBox.information(message);
+
             Common.closeLoadingDialog(that);
         },
 
@@ -1991,8 +2153,64 @@ sap.ui.define(
                     sap.m.MessageBox.error(err);
                 }
             });
-        }
+        },
 
+        prLock: async (me) => {
+            var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+            var oParamLock = {};
+            var sError = "";
+            var boolResult = true;
+
+            await new Promise((resolve, reject) => {
+                oParamLock["N_IMPRTAB"] = me._oLockData;
+                oParamLock["iv_count"] = 300;
+                oParamLock["N_LOCK_MESSAGES"] = []; 
+
+                oModelLock.create("/Lock_PRSet", oParamLock, {
+                    method: "POST",
+                    success: function(oResultLock) {
+                        // console.log("Lock", oResultLock);
+                        for(var item of oResultLock.N_LOCK_MESSAGES.results) {
+                            if (item.Type === "E") {
+                                sError += item.Message + ". ";
+                            }
+                        }
+                        
+                        if (sError.length > 0) {
+                            boolResult = false;
+                            sap.m.MessageBox.information(sError);
+                            Common.closeLoadingDialog(me);
+                        }
+                        else boolResult = true;
+                        resolve();
+                    },
+                    error: function (err) {
+                        Common.closeLoadingDialog(me);
+                        resolve(false);
+                    }
+                });
+            });
+            return boolResult;
+        },
+
+        prUnLock() {
+            var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
+            var oParamUnLock = {};
+            var me = this;
+
+            oParamUnLock["N_IMPRTAB"] = this._oLockData;
+            oModelLock.create("/Unlock_PRSet", oParamUnLock, {
+                method: "POST",
+                success: function(oResultLock) {
+                    console.log("Unlock", oResultLock)
+                },
+                error: function (err) {
+                    Common.closeLoadingDialog(me);
+                }
+            })
+
+            this._oLockData = [];
+        },
       });
     }
   );

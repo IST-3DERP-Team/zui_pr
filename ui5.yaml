@@ -28,6 +28,10 @@ server:
             url: http://159.138.39.203:8000
             client: '888'
             destination: LTD888
+          - path: /sap/opu/odata/sap/ZGW_3DERP_LOCK_SRV/
+            url: http://159.138.39.203:8000
+            client: '888'
+            destination: LTD888
     - name: fiori-tools-appreload
       afterMiddleware: compression
       configuration:
