@@ -3,12 +3,15 @@ sap.ui.define([
     "sap/ui/model/json/JSONModel",
     'sap/m/MessageBox',
     "../js/Common",
-    "sap/ui/core/ValueState"
+    "sap/ui/core/ValueState",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
+    "sap/ui/core/routing/History"
 ],
     /**
      * @param {typeof sap.ui.core.mvc.Controller} Controller
      */
-    function (Controller, JSONModel, MessageBox, Common, ValueState) {
+    function (Controller, JSONModel, MessageBox, Common, ValueState, Filter, FilterOperator, History) {
         "use strict";
 
         var dateFormat = sap.ui.core.format.DateFormat.getDateInstance({pattern : "MM/dd/yyyy" });
@@ -50,6 +53,45 @@ sap.ui.define([
                 await new Promise((resolve, reject)=>{
                     resolve(this.getDynamicTableColumns())
                 });
+
+                await new Promise((resolve, reject)=>{
+                    resolve(this.handleSuggestions())
+                });
+                this.setReqField();
+            },
+
+            setReqField() {
+                // if (pType == "header") {
+                var fields = ["feDOCTYP", "fePURGRP", "fePLANTCD", "feCUSTGRP", "feSALESGRP"];
+                var label = "";
+                fields.forEach(id => {
+                    label = this.byId(id).getLabel().replace("*", "")
+                    this.byId(id).setLabel("*" + label);
+                    this.byId(id)._oLabel.addStyleClass("requiredField");
+                    // if (pEditable) {
+                    //     this.byId(id).setLabel("*" + this.byId(id).getLabel());
+                    //     this.byId(id)._oLabel.addStyleClass("requiredField");
+                    // } else {
+                    //     this.byId(id).setLabel(this.byId(id).getLabel().replaceAll("*", ""));
+                    //     this.byId(id)._oLabel.removeStyleClass("requiredField");
+                    // }
+                })
+                // } else {
+                //     var oTable = this.byId(pType + "Tab");
+
+                //     oTable.getColumns().forEach((col, idx) => {
+                //         if (col.getLabel().getText().includes("*")) {
+                //             col.getLabel().setText(col.getLabel().getText().replaceAll("*", ""));
+                //         }
+
+                //         this._aColumns[pType].filter(item => item.label === col.getLabel().getText())
+                //             .forEach(ci => {
+                //                 if (ci.required) {
+                //                     col.getLabel().removeStyleClass("requiredField");
+                //                 }
+                //             })
+                //     })
+                // }
             },
 
             getHeaderConfig: async function () {
@@ -331,9 +373,7 @@ sap.ui.define([
                                         id: "col-" + sColumnName,
                                         value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                         displayFormat:"short",
-                                        change:"handleChange",
-                                    
-                                        liveChange: this.onInputLiveChange.bind(this)
+                                        change: this.onInputLiveChange.bind(this)
                                     }));
                                 }else if (sColumnType === "NUMBER"){
                                     col.setTemplate(new sap.m.Input({
@@ -590,13 +630,21 @@ sap.ui.define([
                             success: function (data, response) {
                                 var dataResult = [];
                                 data.results.forEach(item=>{
-                                    if(item.SBU === vSBU){
-                                        item.Item = item.BATCH;
-                                        item.Desc = item.Description;
-                                        dataResult.push(item);
+                                    if(item.BATCH !== ""){
+                                        if(item.SBU === vSBU){
+                                            item.Item = item.BATCH;
+                                            item.Desc = item.Description;
+                                            dataResult.push(item);
+                                        }
+                                        if(item.SBU == ""){
+                                            item.SBU = vSBU
+                                            item.Item = item.BATCH;
+                                            item.Desc = item.Description;
+                                            dataResult.push(item);
+                                        }
                                     }
                                 })
-                                valueHelpObjects = data.results;
+                                valueHelpObjects = dataResult;
                                 title = "Batch"
                                 resolve();
                             },
@@ -772,8 +820,274 @@ sap.ui.define([
 
                 oEvent.getSource().getBinding("items").filter([oFilter]);
             },
+            handleSuggestions: async function(){
+                var me = this;
+                var vSBU = this._sbu;
+                var purPlantVal = this.getView().byId("PLANTCD").getValue();
+                var bProceed = true;
+
+                var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+
+                var oJSONModel = new JSONModel();
+
+                //'DOCTYP'
+                await new Promise((resolve, reject) => { 
+                    oModelFilter.read('/ZVB_3DERP_PRDOCTYPE_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.DocType;
+                                item.Desc = item.Description;
+                            })
+                            oJSONModel.setData(data.results)
+                            
+                            resolve(me.getView().setModel(oJSONModel, "docTypSource"));
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // 'PURGRP'
+                oJSONModel = new JSONModel();
+                await new Promise((resolve, reject) => { 
+                    oModelFilter.read('/ZVB_3DERP_PURGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.PurchGrp;
+                                item.Desc = item.Description;
+                            })
+                            oJSONModel.setData(data.results)
+                            me.getView().setModel(oJSONModel, "purchGrpSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // 'PLANTCD'
+                oJSONModel = new JSONModel();
+                await new Promise((resolve, reject) => { 
+                    oModelFilter.read('/ZVB_3DERP_PR_PURPLANT_SH',{
+                        success: function (data, response) {
+                            var dataResult = [];
+                            data.results.forEach(item=>{
+                                if(item.SBU === vSBU){
+                                    item.Item = item.PurchPlant;
+                                    item.Desc = item.Description;
+                                    dataResult.push(item);
+                                }
+                            })
+                            oJSONModel.setData(dataResult)
+                            me.getView().setModel(oJSONModel, "purchPlantSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // 'CUSTGRP'
+                oJSONModel = new JSONModel();
+                await new Promise((resolve, reject) => { 
+                    oModelFilter.read('/ZVB_3DERP_PR_CUSTGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.CUSTGRP;
+                                item.Desc = item.Description;
+                            })
+
+                            oJSONModel.setData(data.results)
+                            me.getView().setModel(oJSONModel, "custGrpSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // 'SALESGRP'
+                oJSONModel = new JSONModel();
+                await new Promise((resolve, reject) => { 
+                    oModelFilter.read('/ZVB_3DERP_PR_SALESGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.SALESGRP;
+                                item.Desc = item.Description;
+                            })
+
+                            oJSONModel.setData(data.results)
+                            me.getView().setModel(oJSONModel, "salesGrpSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // // 'MATNO'
+                // await new Promise((resolve, reject) => { 
+                //     oModelFilter.read('/ZVB_3DERP_PR_MATNO_SH',{
+                //         success: function (data, response) {
+                //             var dataResult = [];
+                //             data.results.forEach(item=>{
+                //                 if(item.SBU === vSBU){
+                //                     item.Item = item.MATNO;
+                //                     item.Desc = item.GMCDescen;
+                //                     dataResult.push(item);
+                //                 }
+                //             })
+                //             valueHelpObjects = dataResult;
+                //             title = "Material"
+                //             resolve();
+                //         },
+                //         error: function (err) {
+                //             resolve();
+                //         }
+                //     });
+                // });
+                // // 'BATCH'
+                // await new Promise((resolve, reject) => { 
+                //     oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                //         success: function (data, response) {
+                //             var dataResult = [];
+                //             data.results.forEach(item=>{
+                //                 if(item.SBU === vSBU){
+                //                     item.Item = item.BATCH;
+                //                     item.Desc = item.Description;
+                //                     dataResult.push(item);
+                //                 }
+                //             })
+                //             valueHelpObjects = data.results;
+                //             title = "Batch"
+                //             resolve();
+                //         },
+                //         error: function (err) {
+                //             resolve();
+                //         }
+                //     });
+                // });
+                // //'SEASONCD'
+                // await new Promise((resolve, reject) => { 
+                //     oModelFilter.read('/ZVB_3DERP_SEASON_SH',{
+                //         success: function (data, response) {
+                //             var dataResult = [];
+                //             data.results.forEach(item=>{
+                //                 if(item.SBU === vSBU){
+                //                     item.Item = item.SEASONCD;
+                //                     item.Desc = item.DESCRIPTION;
+                //                     dataResult.push(item);
+                //                 }
+                //             })
+                //             valueHelpObjects = dataResult;
+                //             title = "Season"
+                //             resolve();
+                //         },
+                //         error: function (err) {
+                //             resolve();
+                //         }
+                //     });
+                // });
+                // // 'PURORG'
+                // await new Promise((resolve, reject) => { 
+                //     oModelFilter.read('/ZVB_3DERP_PR_PURORG_SH',{
+                //         success: function (data, response) {
+                //             var dataResult = [];
+                //             data.results.forEach(item=>{
+                //                 if(item.PurchPlant === purPlantVal){
+                //                     item.Item = item.PURORG;
+                //                     dataResult.push(item);
+                //                 }
+                //                 // item.Desc = item.DESCRIPTION;
+                //             })
+                //             valueHelpObjects = dataResult;
+                //             title = "Purchasing Org."
+                //             resolve();
+                //         },
+                //         error: function (err) {
+                //             resolve();
+                //         }
+                //     });
+                // });
+                // if(fieldName === 'VENDOR'){
+                //     if(this._purOrg === null || this._purOrg === undefined || this._purOrg === ""){
+                //         bProceed = false;
+                //     }
+
+                //     if(bProceed){
+                //         await new Promise((resolve, reject) => { 
+                //             oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                //                 success: function (data, response) {
+                //                     var dataResult = [];
+                //                     data.results.forEach(item=>{
+                //                         while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                //                         item.Item = item.VENDOR;
+                //                         item.Desc = item.Description;
+                //                     })
+
+                //                     valueHelpObjects = data.results;
+                //                     title = "Vendor"
+                //                     resolve();
+                //                 },
+                //                 error: function (err) {
+                //                     resolve();
+                //                 }
+                //             });
+                //         });
+                //     }else{
+                //         MessageBox.error("Purchasing Org. is Required!");
+                //     }
+                // }
+            },
+            // handleSuggest: function(oEvent) {
+            //     var oSource = oEvent.getSource();
+            //     var fieldName = oSource.getBindingInfo("value").parts[0].path.replace("/", "");
+
+            //     console.log(fieldName);
+            //     var sTerm = oEvent.getParameter("suggestValue");
+            //     var aFilters = [];
+            //     if (sTerm) {
+            //         console.log(sTerm);
+            //         aFilters.push(new Filter("DocType", sap.ui.model.FilterOperator.Contains, sTerm));
+            //     }
+            //     console.log(aFilters);
+            //     console.log(oEvent.getSource().getBinding("suggestionItems"))
+            //     oEvent.getSource().getBinding("suggestionItems").filter(aFilters);
+            // },
 
             onSaveHeader: async function(){
+                var docTypVal = this.getView().byId("DOCTYP").getValue();
+                var purGrpVal = this.getView().byId("PURGRP").getValue();
+                var purPlantVal = this.getView().byId("PLANTCD").getValue();
+                var custGrpVal = this.getView().byId("CUSTGRP").getValue();
+                var salesGrpVal = this.getView().byId("SALESGRP").getValue();
+
+                if(docTypVal === "" || purGrpVal === "" || purPlantVal === "" || custGrpVal === "" || salesGrpVal === ""){
+                    
+                    if(docTypVal === ""){
+                        this.getView().byId("DOCTYP").setValueState("Error");
+                        this.getView().byId("DOCTYP").setValueStateText("Required Field");
+                    }
+                    if(purGrpVal === ""){
+                        this.getView().byId("PURGRP").setValueState("Error");
+                        this.getView().byId("PURGRP").setValueStateText("Required Field");
+                    }
+                    if(purPlantVal === ""){
+                        this.getView().byId("PLANTCD").setValueState("Error");
+                        this.getView().byId("PLANTCD").setValueStateText("Required Field");
+                    }
+                    if(custGrpVal === ""){
+                        this.getView().byId("CUSTGRP").setValueState("Error");
+                        this.getView().byId("CUSTGRP").setValueStateText("Required Field");
+                    }
+                    if(salesGrpVal === ""){
+                        this.getView().byId("SALESGRP").setValueState("Error");
+                        this.getView().byId("SALESGRP").setValueStateText("Required Field");
+                    }
+                    MessageBox.error("Below Field is Required!");
+                    return;
+                }
+
                 var me = this;
                 var oTable = this.byId("prDetTable");
                 var oSelectedIndices = oTable.getBinding("rows").aIndices;
@@ -796,54 +1110,68 @@ sap.ui.define([
 
 
                 var aItems = oTable.getRows();
-                aItems.forEach(function(oItem) {
-                    oSelectedIndices.forEach((item, index) => {
-                        if(oItem.getIndex() === item){
-                            var aCells = oItem.getCells();
-                            aCells.forEach(function(oCell) {
-                                if (oCell.isA("sap.m.Input")) {
-                                    if(oCell.getBindingInfo("value").mandatory){
-                                        if(oCell.getValue() === ""){
-                                            oCell.setValueState(sap.ui.core.ValueState.Error);
-                                            me._validationErrors.push(oCell.getId());
-                                        }else{
-                                            oCell.setValueState(sap.ui.core.ValueState.None);
-                                            me._validationErrors.forEach((item, index) => {
-                                                if (item === oCell.getId()) {
-                                                    me._validationErrors.splice(index, 1)
-                                                }
-                                            })
-                                        }   
-                                    }
-                                }
-                            });
-                        }
-                    })
-                });
+                var colCounter = 0;
 
+                if(oSelectedIndices.length > 0){
+                    await new Promise((resolve, reject)=>{
+                        for (var i = 0; i < aItems.length; i++) {
+                            var oItem = aItems[i];
+                            for (var index = 0; index < oSelectedIndices.length; index++) {
+                                var item = oSelectedIndices[index];
+                                colCounter++;
+                                if(oItem.getIndex() === item){
+                                    var aCells = oItem.getCells();
+                                    for (var i = 0; i < aCells.length; i++) {
+                                        colCounter++;
+                                        var oCell = aCells[i];
+                                        if (oCell.isA("sap.m.Input")) {
+                                            if(oCell.getBindingInfo("value").mandatory === "true"){
+                                                if(oCell.getValue() === ""){
+                                                    oCell.setValueState(sap.ui.core.ValueState.Error);
+                                                    me._validationErrors.push(oCell.getId());
+                                                }else{
+                                                    oCell.setValueState(sap.ui.core.ValueState.None);
+                                                    me._validationErrors.forEach((item, index) => {
+                                                        if (item === oCell.getId()) {
+                                                            me._validationErrors.splice(index, 1)
+                                                        }
+                                                    })
+                                                }   
+                                            }else{
+                                                oCell.setValueState(sap.ui.core.ValueState.None);
+                                            }
+                                        }else if (oCell.isA("sap.m.DatePicker")) {
+                                            if(oCell.getBindingInfo("value").mandatory === "true"){
+                                                if(oCell.getValue() === ""){
+                                                    oCell.setValueState(sap.ui.core.ValueState.Error);
+                                                    me._validationErrors.push(oCell.getId());
+                                                }else{
+                                                    oCell.setValueState(sap.ui.core.ValueState.None);
+                                                    me._validationErrors.forEach((item, index) => {
+                                                        if (item === oCell.getId()) {
+                                                            me._validationErrors.splice(index, 1)
+                                                        }
+                                                    })
+                                                }   
+                                            }else{
+                                                oCell.setValueState(sap.ui.core.ValueState.None);
+                                            }
+                                        }
+                                    };
+                                }
+                                
+                                if(oSelectedIndices.length === colCounter){
+                                    resolve();
+                                }
+                            }
+                        };
+                    });
+                }
 
                 if(this._validationErrors.length > 0){
                     MessageBox.error("Required Fields not supplied!");
                     boolProceed = false;
                 }
-
-
-                // this.getView().byId("DOCTYP").setValue("");
-                // this.getView().byId("PRNO").setValue("");
-                // this.getView().byId("PURGRP").setValue("");
-                // this.getView().byId("PLANTCD").setValue("");
-                // this.getView().byId("CUSTGRP").setValue("");
-                // this.getView().byId("SALESGRP").setValue("");
-                // this.getView().byId("REQSTNR").setValue("");
-
-                // this.getView().getModel("PRDetDataModel").setProperty("/results", []);
-                // await this.setTableData('prDetTable')
-
-                // this.byId("DOCTYP").setEnabled(true);
-                // this.byId("PURGRP").setEnabled(true);
-                // this.byId("PLANTCD").setEnabled(true);
-                // this.byId("CUSTGRP").setEnabled(true);
-                // this.byId("SALESGRP").setEnabled(true);
 
                 if(boolProceed){
                     var oModel = this.getOwnerComponent().getModel();
@@ -1037,7 +1365,7 @@ sap.ui.define([
                             }
                         })
                     }else{
-                        MessageBox.error("No Data to Save.");
+                        MessageBox.error("No PR Details to Save.");
                     }
                 }
             },
@@ -1075,6 +1403,16 @@ sap.ui.define([
                     this.byId("PLANTCD").setEnabled(true);
                     this.byId("CUSTGRP").setEnabled(true);
                     this.byId("SALESGRP").setEnabled(true);
+
+                    var oHistory = History.getInstance();
+                    var sPreviousHash = oHistory.getPreviousHash();
+
+                    if (sPreviousHash !== undefined) {
+                        window.history.go(-1);
+                    } else {
+                        var oRouter = this.getOwnerComponent().getRouter();
+                        oRouter.navTo("main", {}, true);
+                    }
                 }else{
                     MessageBox.Action.CLOSE
                 }

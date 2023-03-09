@@ -22,31 +22,49 @@ xmlns:t="sap.ui.table">
                 <f:formContainers>
                     <f:FormContainer ariaLabelledBy="Grp1" class="sapUiNoContentPadding" >
                         <f:formElements>
-                            <f:FormElement label="Document Type" visible="{= ${VisibleFieldsData>/DOCTYP} === true ? true : false }">
+                            <f:FormElement id="feDOCTYP" label="Document Type" visible="{= ${VisibleFieldsData>/DOCTYP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="DOCTYP" value="{headerData>/DOCTYP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="DOCTYP" value="{path: 'headerData>/DOCTYP', mandatory: 'true'}" showSuggestion="true" suggestionItems="{path: 'docTypSource>/'}" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
+                                        <suggestionItems>
+                                            <core:Item key="{docTypSource>Item}" text="{docTypSource>Item}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>   
                             <f:FormElement label="PR Number" visible="{= ${VisibleFieldsData>/PRNO} === true ? true : false }">
                                 <f:fields>
                                     <Input id="PRNO" value="{headerData>/PRNO}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PRNO}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
-                            <f:FormElement label="Purch. Grp." visible="{= ${VisibleFieldsData>/PURGRP} === true ? true : false }">
+                            <f:FormElement id="fePURGRP" label="Purch. Grp." visible="{= ${VisibleFieldsData>/PURGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PURGRP" value="{headerData>/PURGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="PURGRP" value="{path: 'headerData>/PURGRP', mandatory: 'true'}" showSuggestion="true" suggestionItems="{path: 'purchGrpSource>/'}" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
+                                        <suggestionItems>
+                                            <core:Item key="{purchGrpSource>Item}" text="{purchGrpSource>Item}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
-                            <f:FormElement label="Purch. Plant" visible="{= ${VisibleFieldsData>/PLANTCD} === true ? true : false }">
+                            <f:FormElement id="fePLANTCD" label="Purch. Plant" visible="{= ${VisibleFieldsData>/PLANTCD} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PLANTCD" value="{headerData>/PLANTCD}" showSuggestion="true" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="PLANTCD" value="{path: 'headerData>/PLANTCD', mandatory: 'true'}" showSuggestion="true" suggestionItems="{path: 'purchPlantSource>/'}" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
+                                        <suggestionItems>
+                                            <core:Item key="{purchPlantSource>Item}" text="{purchPlantSource>Item}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
@@ -55,24 +73,36 @@ xmlns:t="sap.ui.table">
                     </f:FormContainer> 
                     <f:FormContainer ariaLabelledBy="Grp2">
                         <f:formElements>
-                            <f:FormElement label="Customer Group" visible="{= ${VisibleFieldsData>/CUSTGRP} === true ? true : false }">
+                            <f:FormElement id="feCUSTGRP" label="Customer Group" visible="{= ${VisibleFieldsData>/CUSTGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="CUSTGRP" value="{path: 'headerData>/CUSTGRP', mandatory: 'true'}" showSuggestion="true" suggestionItems="{path: 'custGrpSource>/'}" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
+                                        <suggestionItems>
+                                            <core:Item key="{custGrpSource>Item}" text="{custGrpSource>Item}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>    
-                            <f:FormElement label="Sales Goup" visible="{= ${VisibleFieldsData>/SALESGRP} === true ? true : false }">
+                            <f:FormElement id="feSALESGRP" label="Sales Goup" visible="{= ${VisibleFieldsData>/SALESGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="SALESGRP" value="{headerData>/SALESGRP}" showSuggestion="true" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
-                                         change="onHeaderChange" valueHelpRequest="handleValueHelp" liveChange="onHeaderChange">
+                                    <Input id="SALESGRP" value="{path: 'headerData>/SALESGRP', mandatory: 'true'}" showSuggestion="true" suggestionItems="{path: 'salesGrpSource>/'}" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
+                                         change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
+                                        <suggestionItems>
+                                            <core:Item key="{salesGrpSource>Item}" text="{salesGrpSource>Item}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="Requisitioner" visible="{= ${VisibleFieldsData>/REQSTNR} === true ? true : false }">
                                 <f:fields>
                                     <Input id="REQSTNR" value="{headerData>/REQSTNR}" showSuggestion="true" showValueHelp="false" editable="{EditableFieldsData>/REQSTNR}" valueStateText="Required"
-                                         change="onHeaderChange" liveChange="onHeaderChange">
+                                         change="onInputLiveChange" liveChange="onInputLiveChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
