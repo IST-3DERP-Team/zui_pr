@@ -272,6 +272,7 @@ sap.ui.define(
                     success: function (data, response) {
                         if (data.results.length > 0) {
                             data.results.forEach((item, index) => {
+                                item.DELETED = item.DELETED === "" ? false : true;
                                 item.CREATEDDT = dateFormat.format(new Date(item.CREATEDDT));
                                 item.UPDATEDDT = dateFormat.format(new Date(item.UPDATEDDT));
                                 item.RELDT = dateFormat.format(new Date(item.RELDT));
