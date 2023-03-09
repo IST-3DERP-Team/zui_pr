@@ -1113,58 +1113,96 @@ sap.ui.define([
                 var colCounter = 0;
 
                 if(oSelectedIndices.length > 0){
-                    await new Promise((resolve, reject)=>{
-                        for (var i = 0; i < aItems.length; i++) {
-                            var oItem = aItems[i];
-                            for (var index = 0; index < oSelectedIndices.length; index++) {
-                                var item = oSelectedIndices[index];
-                                colCounter++;
-                                if(oItem.getIndex() === item){
-                                    var aCells = oItem.getCells();
-                                    for (var i = 0; i < aCells.length; i++) {
-                                        colCounter++;
-                                        var oCell = aCells[i];
-                                        if (oCell.isA("sap.m.Input")) {
-                                            if(oCell.getBindingInfo("value").mandatory === "true"){
-                                                if(oCell.getValue() === ""){
-                                                    oCell.setValueState(sap.ui.core.ValueState.Error);
-                                                    me._validationErrors.push(oCell.getId());
-                                                }else{
-                                                    oCell.setValueState(sap.ui.core.ValueState.None);
-                                                    me._validationErrors.forEach((item, index) => {
-                                                        if (item === oCell.getId()) {
-                                                            me._validationErrors.splice(index, 1)
-                                                        }
-                                                    })
-                                                }   
-                                            }else{
-                                                oCell.setValueState(sap.ui.core.ValueState.None);
-                                            }
-                                        }else if (oCell.isA("sap.m.DatePicker")) {
-                                            if(oCell.getBindingInfo("value").mandatory === "true"){
-                                                if(oCell.getValue() === ""){
-                                                    oCell.setValueState(sap.ui.core.ValueState.Error);
-                                                    me._validationErrors.push(oCell.getId());
-                                                }else{
-                                                    oCell.setValueState(sap.ui.core.ValueState.None);
-                                                    me._validationErrors.forEach((item, index) => {
-                                                        if (item === oCell.getId()) {
-                                                            me._validationErrors.splice(index, 1)
-                                                        }
-                                                    })
-                                                }   
-                                            }else{
-                                                oCell.setValueState(sap.ui.core.ValueState.None);
-                                            }
-                                        }
-                                    };
-                                }
+                    // await new Promise((resolve, reject)=>{
+                    //     for (var i = 0; i < aItems.length; i++) {
+                    //         var oItem = aItems[i];
+                    //         for (var index = 0; index < oSelectedIndices.length; index++) {
+                    //             var item = oSelectedIndices[index];
+                    //             colCounter++;
+                    //             if(oItem.getIndex() === item){
+                    //                 var aCells = oItem.getCells();
+                    //                 for (var i = 0; i < aCells.length; i++) {
+                    //                     colCounter++;
+                    //                     var oCell = aCells[i];
+                    //                     if (oCell.isA("sap.m.Input")) {
+                    //                         if(oCell.getBindingInfo("value").mandatory === "true"){
+                    //                             if(oCell.getValue() === ""){
+                    //                                 oCell.setValueState(sap.ui.core.ValueState.Error);
+                    //                                 me._validationErrors.push(oCell.getId());
+                    //                             }else{
+                    //                                 oCell.setValueState(sap.ui.core.ValueState.None);
+                    //                                 me._validationErrors.forEach((item, index) => {
+                    //                                     if (item === oCell.getId()) {
+                    //                                         me._validationErrors.splice(index, 1)
+                    //                                     }
+                    //                                 })
+                    //                             }   
+                    //                         }else{
+                    //                             oCell.setValueState(sap.ui.core.ValueState.None);
+                    //                         }
+                    //                     }else if (oCell.isA("sap.m.DatePicker")) {
+                    //                         if(oCell.getBindingInfo("value").mandatory === "true"){
+                    //                             if(oCell.getValue() === ""){
+                    //                                 oCell.setValueState(sap.ui.core.ValueState.Error);
+                    //                                 me._validationErrors.push(oCell.getId());
+                    //                             }else{
+                    //                                 oCell.setValueState(sap.ui.core.ValueState.None);
+                    //                                 me._validationErrors.forEach((item, index) => {
+                    //                                     if (item === oCell.getId()) {
+                    //                                         me._validationErrors.splice(index, 1)
+                    //                                     }
+                    //                                 })
+                    //                             }   
+                    //                         }else{
+                    //                             oCell.setValueState(sap.ui.core.ValueState.None);
+                    //                         }
+                    //                     }
+                    //                 };
+                    //             }
                                 
-                                if(oSelectedIndices.length === colCounter){
-                                    resolve();
-                                }
+                    //             if(oSelectedIndices.length === colCounter){
+                    //                 resolve();
+                    //             }
+                    //         }
+                    //     };
+                    // });
+                    aItems.forEach(function(oItem) {
+                        oSelectedIndices.forEach((item, index) => {
+                            if(oItem.getIndex() === item){
+                                var aCells = oItem.getCells();
+                                aCells.forEach(function(oCell) {
+                                    if (oCell.isA("sap.m.Input")) {
+                                        if(oCell.getBindingInfo("value").mandatory === "true"){
+                                            if(oCell.getValue() === ""){
+                                                oCell.setValueState(sap.ui.core.ValueState.Error);
+                                                me._validationErrors.push(oCell.getId());
+                                            }else{
+                                                oCell.setValueState(sap.ui.core.ValueState.None);
+                                                me._validationErrors.forEach((item, index) => {
+                                                    if (item === oCell.getId()) {
+                                                        me._validationErrors.splice(index, 1)
+                                                    }
+                                                })
+                                            }   
+                                        }
+                                    }else if (oCell.isA("sap.m.DatePicker")) {
+                                        if(oCell.getBindingInfo("value").mandatory === "true"){
+                                            if(oCell.getValue() === ""){
+                                                oCell.setValueState(sap.ui.core.ValueState.Error);
+                                                me._validationErrors.push(oCell.getId());
+                                            }else{
+                                                oCell.setValueState(sap.ui.core.ValueState.None);
+                                                me._validationErrors.forEach((item, index) => {
+                                                    if (item === oCell.getId()) {
+                                                        me._validationErrors.splice(index, 1)
+                                                    }
+                                                })
+                                            }   
+                                        }
+                                    }
+                                })
                             }
-                        };
+                        })
                     });
                 }
 
