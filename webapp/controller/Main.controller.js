@@ -32,11 +32,11 @@ sap.ui.define(
 
             
             that.callCaptionsAPI(); //call captions function
-            this.validationErrors = []; //store errors in field validations
+            this._validationErrors = []; //store errors in field validations
 
             //router component - navigate to details
-            var oComponent = this.getOwnerComponent();
-            this._router = oComponent.getRouter();
+            var _oComponent = this.getOwnerComponent();
+            this._router = _oComponent.getRouter();
 
             this.setSmartFilterModel();//set SmartFilter Model
 
@@ -933,12 +933,12 @@ sap.ui.define(
                 if(oEvent.getParameters().value === ""){
                     oEvent.getSource().setValueState("Error");
                     oEvent.getSource().setValueStateText("Required Field");
-                    this.validationErrors.push(oEvent.getSource().getId());
+                    this._validationErrors.push(oEvent.getSource().getId());
                 }else{
                     oEvent.getSource().setValueState("None");
-                    this.validationErrors.forEach((item, index) => {
+                    this._validationErrors.forEach((item, index) => {
                         if (item === oEvent.getSource().getId()) {
-                            this.validationErrors.splice(index, 1)
+                            this._validationErrors.splice(index, 1)
                         }
                     })
                 }
@@ -955,12 +955,12 @@ sap.ui.define(
                 if(oEvent.getParameters().value === ""){
                     oEvent.getSource().setValueState("Error");
                     oEvent.getSource().setValueStateText("Required Field");
-                    this.validationErrors.push(oEvent.getSource().getId());
+                    this._validationErrors.push(oEvent.getSource().getId());
                 }else{
                     oEvent.getSource().setValueState("None");
-                    this.validationErrors.forEach((item, index) => {
+                    this._validationErrors.forEach((item, index) => {
                         if (item === oEvent.getSource().getId()) {
-                            this.validationErrors.splice(index, 1)
+                            this._validationErrors.splice(index, 1)
                         }
                     })
                 }
@@ -971,21 +971,21 @@ sap.ui.define(
                     // console.log("invalid");
                     oEvent.getSource().setValueState("Error");
                     oEvent.getSource().setValueStateText("Enter a number with a maximum of 3 decimal places.");
-                    this.validationErrors.push(oEvent.getSource().getId());
+                    this._validationErrors.push(oEvent.getSource().getId());
 
                 }else{
                     oEvent.getSource().setValueState("None");
-                    this.validationErrors.forEach((item, index) => {
+                    this._validationErrors.forEach((item, index) => {
                         if (item === oEvent.getSource().getId()) {
-                            this.validationErrors.splice(index, 1)
+                            this._validationErrors.splice(index, 1)
                         }
                     })
                 }
             }else{
                 oEvent.getSource().setValueState("None");
-                this.validationErrors.forEach((item, index) => {
+                this._validationErrors.forEach((item, index) => {
                     if (item === oEvent.getSource().getId()) {
-                        this.validationErrors.splice(index, 1)
+                        this._validationErrors.splice(index, 1)
                     }
                 })
             }
@@ -1403,7 +1403,7 @@ sap.ui.define(
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
                 this.byId("btnView").setVisible(true);
-                this.validationErrors = [];
+                this._validationErrors = [];
                 
                 await this.prUnLock();
                 await this.getAllData();
@@ -1432,7 +1432,7 @@ sap.ui.define(
 
                 Common.closeLoadingDialog(that);
             }
-            this.validationErrors = [];
+            this._validationErrors = [];
             this._DiscardChangesDialog.close();
             this.getView().getModel("ui").setProperty("/dataMode", 'READ');
             this._isEdited = false;
@@ -1490,7 +1490,7 @@ sap.ui.define(
             //MessageBox Message
             var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
             
-            if (this.validationErrors.length != 0){
+            if (this._validationErrors.length != 0){
                 MessageBox.error(msgError);
                 return;
             }
@@ -1576,7 +1576,7 @@ sap.ui.define(
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
                 that.byId("btnView").setVisible(true);
-                this.validationErrors = [];
+                this._validationErrors = [];
                 this._isEdited = false;
                 
                 
@@ -1887,6 +1887,8 @@ sap.ui.define(
             var oDDTextResult = [];
             var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
 
+            //Total
+            oDDTextParam.push({CODE: "TOTAL"});
             //SmartFilter Search Label
             oDDTextParam.push({CODE: "SEARCH"});
             oDDTextParam.push({CODE: "SBU"});

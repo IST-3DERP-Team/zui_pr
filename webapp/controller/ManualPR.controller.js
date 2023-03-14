@@ -19,22 +19,23 @@ sap.ui.define([
 
         return Controller.extend("zuipr.controller.ManualPR", {
             onInit: function () {
-                var that = this;
-                var oModel = new sap.ui.model.json.JSONModel();
+                var _oModel = new sap.ui.model.json.JSONModel();
                 this._validationErrors = []
-                oModel.loadData("/sap/bc/ui2/start_up").then(() => {
-                    this._userid = oModel.oData.id;
+                _oModel.loadData("/sap/bc/ui2/start_up").then(() => {
+                    this._userid = _oModel.oData.id;
                 })
                 this.getView().setModel(new JSONModel({results: []}), "PRDetDataModel"); 
 
 
                 //Initialize router
-                var oComponent = this.getOwnerComponent();
-                this._router = oComponent.getRouter();
+                var _oComponent = this.getOwnerComponent();
+                this._router = _oComponent.getRouter();
                 this._router.getRoute("ManualPR").attachPatternMatched(this._routePatternMatched, this);  
 
                 this._tblIndex = null;
                 this._purOrg = null;
+
+                this.callCaptionsAPI();
                 
             },
 
@@ -128,7 +129,10 @@ sap.ui.define([
                             oView.setModel(oJSONModel2, "EditableFieldsData");
                             resolve();
                         },
-                        error: function (err) { }
+                        error: function (err) { 
+                            MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
+                            resolve();
+                        }
                     });
                 })
 
@@ -157,7 +161,10 @@ sap.ui.define([
                             me.setTableData('prDetTable')
                             resolve();
                         },
-                        error: function (err) { }
+                        error: function (err) { 
+                            MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
+                            resolve();
+                        }
                     });
                 })
             },
@@ -173,25 +180,25 @@ sap.ui.define([
                     
                     if(docTypVal === ""){
                         this.getView().byId("DOCTYP").setValueState("Error");
-                        this.getView().byId("DOCTYP").setValueStateText("Required Field");
+                        this.getView().byId("DOCTYP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(purGrpVal === ""){
                         this.getView().byId("PURGRP").setValueState("Error");
-                        this.getView().byId("PURGRP").setValueStateText("Required Field");
+                        this.getView().byId("PURGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(purPlantVal === ""){
                         this.getView().byId("PLANTCD").setValueState("Error");
-                        this.getView().byId("PLANTCD").setValueStateText("Required Field");
+                        this.getView().byId("PLANTCD").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(custGrpVal === ""){
                         this.getView().byId("CUSTGRP").setValueState("Error");
-                        this.getView().byId("CUSTGRP").setValueStateText("Required Field");
+                        this.getView().byId("CUSTGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(salesGrpVal === ""){
                         this.getView().byId("SALESGRP").setValueState("Error");
-                        this.getView().byId("SALESGRP").setValueStateText("Required Field");
+                        this.getView().byId("SALESGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
-                    MessageBox.error("Above Field is Required!");
+                    MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_ABOVE_FIELD_REQ"]);
                     return;
                 }
 
@@ -408,7 +415,7 @@ sap.ui.define([
                 if(oEvent.getSource().getBindingInfo("value").mandatory){
                     if(oEvent.getParameters().value === ""){
                         oEvent.getSource().setValueState("Error");
-                        oEvent.getSource().setValueStateText("Required Field");
+                        oEvent.getSource().setValueStateText(me.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                         this._validationErrors.push(oEvent.getSource().getId());
                     }else{
                         oEvent.getSource().setValueState("None");
@@ -455,11 +462,11 @@ sap.ui.define([
                 }
             },
             onNumberLiveChange: async function(oEvent){
-
+                var me = this
                 if(oEvent.getSource().getBindingInfo("value").mandatory){
                     if(oEvent.getParameters().value === ""){
                         oEvent.getSource().setValueState("Error");
-                        oEvent.getSource().setValueStateText("Required Field");
+                        oEvent.getSource().setValueStateText(me.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                         this._validationErrors.push(oEvent.getSource().getId());
                     }else{
                         oEvent.getSource().setValueState("None");
@@ -472,7 +479,7 @@ sap.ui.define([
                 }
             },
             handleValueHelp: async function(oEvent){
-                var that = this;
+                var me = this;
                 var vSBU = this._sbu;
                 var purPlantVal = this.getView().byId("PLANTCD").getValue();
                 var bProceed = true;
@@ -514,7 +521,7 @@ sap.ui.define([
                                 })
 
                                 valueHelpObjects = data.results;
-                                title = "Document Type"
+                                title = me.getView().getModel("captionMsg").getData()["DOCTYP"]
                                 resolve();
                             },
                             error: function (err) {
@@ -533,7 +540,7 @@ sap.ui.define([
                                 })
 
                                 valueHelpObjects = data.results;
-                                title = "Purchasing Group"
+                                title = me.getView().getModel("captionMsg").getData()["PURCHGRP"]
                                 resolve();
                             },
                             error: function (err) {
@@ -555,7 +562,7 @@ sap.ui.define([
                                     }
                                 })
                                 valueHelpObjects = dataResult;
-                                title = "Purchasing Plant"
+                                title = me.getView().getModel("captionMsg").getData()["PURCHPLANT"]
                                 resolve();
                             },
                             error: function (err) {
@@ -574,7 +581,7 @@ sap.ui.define([
                                 })
 
                                 valueHelpObjects = data.results;
-                                title = "Customer Group"
+                                title = me.getView().getModel("captionMsg").getData()["CUSTGRP"]
                                 resolve();
                             },
                             error: function (err) {
@@ -593,7 +600,7 @@ sap.ui.define([
                                 })
 
                                 valueHelpObjects = data.results;
-                                title = "Sales Group"
+                                title = me.getView().getModel("captionMsg").getData()["SALESGRP"]
                                 resolve();
                             },
                             error: function (err) {
@@ -615,7 +622,7 @@ sap.ui.define([
                                     }
                                 })
                                 valueHelpObjects = dataResult;
-                                title = "Material"
+                                title = me.getView().getModel("captionMsg").getData()["MATNO"]
                                 resolve();
                             },
                             error: function (err) {
@@ -645,7 +652,7 @@ sap.ui.define([
                                     }
                                 })
                                 valueHelpObjects = dataResult;
-                                title = "Batch"
+                                title = me.getView().getModel("captionMsg").getData()["BATCH"]
                                 resolve();
                             },
                             error: function (err) {
@@ -667,7 +674,7 @@ sap.ui.define([
                                     }
                                 })
                                 valueHelpObjects = dataResult;
-                                title = "Season"
+                                title = me.getView().getModel("captionMsg").getData()["SEASON"]
                                 resolve();
                             },
                             error: function (err) {
@@ -689,7 +696,7 @@ sap.ui.define([
                                     // item.Desc = item.DESCRIPTION;
                                 })
                                 valueHelpObjects = dataResult;
-                                title = "Purchasing Org."
+                                title = me.getView().getModel("captionMsg").getData()["PURORG"]
                                 resolve();
                             },
                             error: function (err) {
@@ -715,7 +722,7 @@ sap.ui.define([
                                     })
 
                                     valueHelpObjects = data.results;
-                                    title = "Vendor"
+                                    title = me.getView().getModel("captionMsg").getData()["VENDOR"]
                                     resolve();
                                 },
                                 error: function (err) {
@@ -724,7 +731,7 @@ sap.ui.define([
                             });
                         });
                     }else{
-                        MessageBox.error("Purchasing Org. is Required!");
+                        MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_PURORG_REQUIRED"]);
                     }
                 }
                 if(bProceed){
@@ -737,7 +744,7 @@ sap.ui.define([
                     if (!this._valueHelpDialog) {
                         this._valueHelpDialog = sap.ui.xmlfragment(
                             "zuipr.view.fragments.valuehelp.ValueHelpDialog",
-                            that
+                            me
                         );
                         
                         this._valueHelpDialog.setModel(oVHModel);
@@ -785,6 +792,7 @@ sap.ui.define([
                                         resolve();
                                     },
                                     error: function (err) {
+                                        MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
                                         resolve();
                                     }
                                 });
@@ -1066,25 +1074,25 @@ sap.ui.define([
                     
                     if(docTypVal === ""){
                         this.getView().byId("DOCTYP").setValueState("Error");
-                        this.getView().byId("DOCTYP").setValueStateText("Required Field");
+                        this.getView().byId("DOCTYP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(purGrpVal === ""){
                         this.getView().byId("PURGRP").setValueState("Error");
-                        this.getView().byId("PURGRP").setValueStateText("Required Field");
+                        this.getView().byId("PURGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(purPlantVal === ""){
                         this.getView().byId("PLANTCD").setValueState("Error");
-                        this.getView().byId("PLANTCD").setValueStateText("Required Field");
+                        this.getView().byId("PLANTCD").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(custGrpVal === ""){
                         this.getView().byId("CUSTGRP").setValueState("Error");
-                        this.getView().byId("CUSTGRP").setValueStateText("Required Field");
+                        this.getView().byId("CUSTGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
                     if(salesGrpVal === ""){
                         this.getView().byId("SALESGRP").setValueState("Error");
-                        this.getView().byId("SALESGRP").setValueStateText("Required Field");
+                        this.getView().byId("SALESGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
                     }
-                    MessageBox.error("Below Field is Required!");
+                    MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_BELOW_FIELD_REQ"]);
                     return;
                 }
 
@@ -1207,7 +1215,7 @@ sap.ui.define([
                 }
 
                 if(this._validationErrors.length > 0){
-                    MessageBox.error("Required Fields not supplied!");
+                    MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_FILL_REQUIRED_FIELDS"]);
                     boolProceed = false;
                 }
 
@@ -1368,7 +1376,7 @@ sap.ui.define([
                                                     errTyp = oData.N_PRRETURN.results[0].Type;
                                                     resolve();
                                                 },error: function(error){
-                                                    MessageBox.error("Error Occured while Creation of PR");
+                                                    MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_CREATE_PR_ERROR"]);
                                                     resolve()
                                                 }
                                             })
@@ -1403,19 +1411,20 @@ sap.ui.define([
                             }
                         })
                     }else{
-                        MessageBox.error("No PR Details to Save.");
+                        MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_NO_PR_TO_SAVE"]);
                     }
                 }
             },
 
             cancelHeaderEdit: async function(){
+                var me = this;
                 var actionSel;
                 var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
                 await new Promise((resolve, reject) => {
                     MessageBox.warning(
-                        "Discard Changes?",
+                        me.getView().getModel("captionMsg").getData()["INFO_DISCARD_CHANGES"],
                         {
-                            actions: ["Yes", "Cancel"],
+                            actions: [me.getView().getModel("captionMsg").getData()["YES"], me.getView().getModel("captionMsg").getData()["CANCEL"]],
                             styleClass: bCompact ? "sapUiSizeCompact" : "",
                             onClose: function(sAction) {
                                 actionSel = sAction;
@@ -1424,7 +1433,7 @@ sap.ui.define([
                         }
                     );
                 });
-                if(actionSel === "Yes"){
+                if(actionSel === this.getView().getModel("captionMsg").getData()["YES"]){
                     this.getView().byId("DOCTYP").setValue("");
                     this.getView().byId("PRNO").setValue("");
                     this.getView().byId("PURGRP").setValue("");
@@ -1454,7 +1463,116 @@ sap.ui.define([
                 }else{
                     MessageBox.Action.CLOSE
                 }
-            }
+            },
+
+            callCaptionsAPI: async function(){
+                var me = this;
+                var oJSONModel = new JSONModel();
+                var oDDTextParam = [];
+                var oDDTextResult = [];
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+    
+                oDDTextParam.push({CODE: "CREATEPR"});
+                oDDTextParam.push({CODE: "DETAILS"});
+                oDDTextParam.push({CODE: "ADD"});
+                oDDTextParam.push({CODE: "DELETE"});
+                oDDTextParam.push({CODE: "SAVELAYOUT"});
+                oDDTextParam.push({CODE: "INFO_LAYOUT_SAVE"});
+
+                oDDTextParam.push({CODE: "HEADER"});
+                oDDTextParam.push({CODE: "SAVE"});
+                oDDTextParam.push({CODE: "CANCEL"});
+
+                oDDTextParam.push({CODE: "PRNO"});
+                oDDTextParam.push({CODE: "PURCHGRP"});
+                oDDTextParam.push({CODE: "PURCHPLANT"});
+                oDDTextParam.push({CODE: "CUSTGRP"});
+                oDDTextParam.push({CODE: "SALESGRP"});
+                oDDTextParam.push({CODE: "REQUISITIONER"});
+
+                
+                oDDTextParam.push({CODE: "INFO_ERROR"});
+                oDDTextParam.push({CODE: "INFO_CREATE_PR_ERROR"});
+                oDDTextParam.push({CODE: "INFO_NO_PR_TO_SAVE"});
+                oDDTextParam.push({CODE: "INFO_DISCARD_CHANGES"});   
+                oDDTextParam.push({CODE: "YES"});   
+                oDDTextParam.push({CODE: "NO"});   
+
+                oDDTextParam.push({CODE: "INFO_REQUIRED_FIELD"});
+                oDDTextParam.push({CODE: "INFO_ABOVE_FIELD_REQ"});
+                oDDTextParam.push({CODE: "INFO_BELOW_FIELD_REQ"});
+                oDDTextParam.push({CODE: "INFO_FILL_REQUIRED_FIELDS"});
+                oDDTextParam.push({CODE: "NO"});  
+                
+                oDDTextParam.push({CODE: "DOCTYP"});
+                oDDTextParam.push({CODE: "MATNO"});
+                oDDTextParam.push({CODE: "BATCH"});
+                oDDTextParam.push({CODE: "SEASON"});
+                oDDTextParam.push({CODE: "PURORG"});
+                oDDTextParam.push({CODE: "VENDOR"});
+
+                oDDTextParam.push({CODE: "INFO_PURORG_REQUIRED"});
+    
+                await oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
+                    method: "POST",
+                    success: function(oData, oResponse) {
+                        oData.CaptionMsgItems.results.forEach(item=>{
+                            oDDTextResult[item.CODE] = item.TEXT;
+                        })
+                        
+                        // console.log(oDDTextResult)
+                        oJSONModel.setData(oDDTextResult);
+                        me.getView().setModel(oJSONModel, "captionMsg");
+                    },
+                    error: function(err) {
+                        sap.m.MessageBox.error(err);
+                    }
+                });
+            },
+
+            onSaveTableLayout: function () {
+                //saving of the layout of table
+                var me = this;
+                var ctr = 1;
+                var oTable = this.getView().byId("prDetTable");
+                var oColumns = oTable.getColumns();
+                var vSBU = this._sbu;
+    
+                var oParam = {
+                    "SBU": vSBU,
+                    "TYPE": "MANUALPRDET",
+                    "TABNAME": "ZDV_3DERP_PR",
+                    "TableLayoutToItems": []
+                };
+                
+                //get information of columns, add to payload
+                oColumns.forEach((column) => {
+                    oParam.TableLayoutToItems.push({
+                        COLUMNNAME: column.sId.split("-")[1],
+                        ORDER: ctr.toString(),
+                        SORTED: column.mProperties.sorted,
+                        SORTORDER: column.mProperties.sortOrder,
+                        SORTSEQ: "1",
+                        VISIBLE: column.mProperties.visible,
+                        WIDTH: column.mProperties.width.replace('rem','')
+                    });
+    
+                    ctr++;
+                });
+    
+                //call the layout save
+                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+                oModel.create("/TableLayoutSet", oParam, {
+                    method: "POST",
+                    success: function(data, oResponse) {
+                        sap.m.MessageBox.information(me.getView().getModel("captionMsg").getData()["INFO_LAYOUT_SAVE"]);
+                        //Common.showMessage(me._i18n.getText('t6'));
+                    },
+                    error: function(err) {
+                        sap.m.MessageBox.error(err);
+                    }
+                });                
+            },
 
         });
     });
