@@ -129,6 +129,7 @@ sap.ui.define([
                     success: function (oData, oResponse) {
                         // var oldData = oData;
                         // me._headerData = JSON.parse(JSON.stringify(oData));
+                        oData.DELETED = oData.DELETED === "" ? false : true;
                         if (oData.CHANGEDT !== null)
                             oData.CHANGEDT = dateFormat.format(oData.CHANGEDT);
 
