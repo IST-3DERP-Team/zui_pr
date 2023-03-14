@@ -154,11 +154,10 @@
                     enableColumnFreeze="true"
                     selectionMode="MultiToggle"
                     cellClick="onCellClick"
-                    sort="onSorted"
                 >
                     <uiT:extension>
                         <m:Toolbar id="tableToolbar" class="sapUiTinyMarginBottom">
-                            <m:GenericTag text="Total" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
+                            <m:GenericTag text="{captionMsg>/TOTAL}" design="StatusIconHidden" status="Information" class="sapUiTinyMarginEnd">
                                 <m:ObjectNumber emphasized="true" number="{counts>/total}" state="Information" id="forecastNumber"/>
                             </m:GenericTag>
                             <m:ToolbarSpacer/>
