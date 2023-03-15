@@ -1872,11 +1872,11 @@ sap.ui.define(
             oModel.create("/TableLayoutSet", oParam, {
                 method: "POST",
                 success: function(data, oResponse) {
-                    sap.m.MessageBox.information("Layout saved.");
+                    sap.m.MessageBox.information(me.getView().getModel("captionMsg").getData()["INFO_LAYOUT_SAVE"]);
                     //Common.showMessage(me._i18n.getText('t6'));
                 },
                 error: function(err) {
-                    sap.m.MessageBox.error(err);
+                    sap.m.MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
                 }
             });                
         },
@@ -1918,6 +1918,7 @@ sap.ui.define(
             oDDTextParam.push({CODE: "INFO_NO_LAYOUT"});
             oDDTextParam.push({CODE: "INFO_ALREADY_DELETED"});
             oDDTextParam.push({CODE: "INFO_ERROR"});
+            oDDTextParam.push({CODE: "INFO_LAYOUT_SAVE"});
             oDDTextParam.push({CODE: "INFO_ALREADY_CLOSED"});
             oDDTextParam.push({CODE: "INFO_NO_RECORD_SELECT"});
             oDDTextParam.push({CODE: "INFO_NO_DATA_EDIT"});
