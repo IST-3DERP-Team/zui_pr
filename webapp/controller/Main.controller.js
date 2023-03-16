@@ -442,7 +442,7 @@ sap.ui.define(
                     return new sap.ui.table.Column({
                         id: sColumnId,
                         label: sColumnLabel,
-                        template: me.columnTemplate(sColumnId), //default text
+                        template: me.columnTemplate(sColumnId, sColumnType), //default text
                         width: sColumnWidth + "px",
                         hAlign: me.columnSize(sColumnId),
                         sortProperty: sColumnId,
@@ -456,7 +456,14 @@ sap.ui.define(
                     return new sap.ui.table.Column({
                         id: sColumnId,
                         label: sColumnLabel,
-                        template: new sap.m.Text({ text: "{" + sColumnId + "}", wrapping: false, tooltip: "{" + sColumnId + "}" }), //default text
+                        template: new sap.m.Text({ 
+                            text: {
+                                path: sColumnId,
+                                columnType: sColumnType
+                            },
+                            wrapping: false, 
+                            tooltip: "{" + sColumnId + "}" 
+                        }), //default text
                         width: sColumnWidth + "px",
                         hAlign: "End",
                         sortProperty: sColumnId,
@@ -470,13 +477,62 @@ sap.ui.define(
 
             });
 
+            //sorting with Date Sort
+            oTable.attachSort(function(oEvent) {
+         
+                var sPath = oEvent.getParameter("column").getSortProperty();
+                var bDescending = false;
+                
+                oEvent.getParameter("column").setSorted(true); //sort icon initiator
+                if (oEvent.getParameter("sortOrder") == "Descending") {
+                    bDescending = true;
+                    oEvent.getParameter("column").setSortOrder("Descending") //sort icon Descending
+                }else{
+                    oEvent.getParameter("column").setSortOrder("Ascending") //sort icon Ascending
+                }
+
+                var oSorter = new sap.ui.model.Sorter(sPath, bDescending ); //sorter(columnData, If Ascending(false) or Descending(True))
+                
+                var columnType = oEvent.getParameter("column").getTemplate().getBindingInfo("text") === undefined ? "" : oEvent.getParameter("column").getTemplate().getBindingInfo("text").columnType;
+                if (columnType === "DATETIME") {
+                    oSorter.fnCompare = function(a, b) {
+                    
+                        // parse to Date object
+                        var aDate = new Date(a);
+                        var bDate = new Date(b);
+                        
+                        if (bDate == null) {
+                            return -1;
+                        }
+                        if (aDate == null) {
+                            return 1;
+                        }
+                        if (aDate < bDate) {
+                            return -1;
+                        }
+                        if (aDate > bDate) {
+                            return 1;
+                        }
+                        return 0;
+                    };
+                } 
+                
+                oTable.getBinding('rows').sort(oSorter);
+                 // prevent internal sorting by table
+                oEvent.preventDefault();
+     
+     
+            });
             //bind the data to the table
             oTable.bindRows("/rows");
         },
-        columnTemplate: function(sColumnId){
+        columnTemplate: function(sColumnId, sColumnType){
             var oColumnTemplate;
             oColumnTemplate = new sap.m.Text({ 
-                text: "{" + sColumnId + "}", 
+                text: {
+                    path: sColumnId,
+                    columnType: sColumnType
+                }, 
                 wrapping: false, 
                 tooltip: "{" + sColumnId + "}" 
             }); //default text
@@ -1829,11 +1885,14 @@ sap.ui.define(
 
         },
 
-        onCreateNewStyle: async function(){
+        onCreateNewPR: async function(){
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
-            this._router.navTo("ManualPR", {
-                SBU: vSBU
-            });
+
+            if(this.getView().getModel("ui").getData().dataMode === 'READ'){
+                this._router.navTo("ManualPR", {
+                    SBU: vSBU
+                });
+            }
         },
 
         onSaveTableLayout: function () {
