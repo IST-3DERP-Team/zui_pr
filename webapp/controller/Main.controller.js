@@ -41,14 +41,16 @@ sap.ui.define(
             this.setSmartFilterModel();//set SmartFilter Model
 
             this._Model = this.getOwnerComponent().getModel();
-            this._i18n = this.getOwnerComponent().getModel("i18n").getResourceBundle();
+            // this._i18n = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
             this._isEdited = false
             this._DiscardChangesDialog = null;
             this._oDataBeforeChange = {}
-            this._sbuChange = false;
-            this._initLoadTbl = true;
             this._smartFilterBar = this.getView().byId("SmartFilterBar");
+
+            //for word Searching Function
+            this._isSearchGlobalHasValue = false;
+            this._searchQuery = "";
 
             this._oDataOnEditValidate = [];
             this._oLockData = [];
@@ -86,6 +88,7 @@ sap.ui.define(
                     }
                     else {
                         Common.closeLoadingDialog(that);
+                        that.byId("btnRefresh").setEnabled(false);
                         that.byId("btnNew").setEnabled(false);
                         that.byId("btnEdit").setEnabled(false);
                         that.byId("btnDelete").setEnabled(false);
@@ -118,7 +121,6 @@ sap.ui.define(
 			}
         },
         onSBUChange: function(oEvent) {
-            this._sbuChange = true;
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
             this.getView().getModel("ui").setProperty("/sbu", vSBU);
         },
@@ -127,6 +129,17 @@ sap.ui.define(
             var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
             var oSmartFilter = this.getView().byId("SmartFilterBar");
             oSmartFilter.setModel(oModel);
+        },
+
+        onRefreshMain: async function(){
+            Common.openLoadingDialog(this);
+            await this.getAllData();
+            await this.getTableColumns();
+            if(this._isSearchGlobalHasValue){
+                if(this._searchQuery.length > 0)
+                    this.exeGlobalSearch();
+            }
+            Common.closeLoadingDialog(this);
         },
         
         onSearch: async function(){
@@ -138,6 +151,7 @@ sap.ui.define(
                 Common.openLoadingDialog(that);
                 await this.getAllData();
                 await this.getTableColumns();
+                this.byId("btnRefresh").setEnabled(true);
                 this.byId("btnNew").setEnabled(true);
                 this.byId("btnEdit").setEnabled(true);
                 this.byId("btnDelete").setEnabled(true);
@@ -234,7 +248,6 @@ sap.ui.define(
                 var oCtrlMatTyp = this.getView().byId("SmartFilterBar").determineControlByName("MATTYP");
                 var oCtrlSeasonCd = this.getView().byId("SmartFilterBar").determineControlByName("SEASONCD");
                 if (oCtrlMatTyp) {
-                    console.log(oCtrlMatTyp.getSelectedKey() === "");
                     if(oCtrlMatTyp.getSelectedKey() !== ""){
                         if(aFilters.length === 0){
                             aFiltersObj.push({
@@ -256,7 +269,6 @@ sap.ui.define(
                     }
                 }
                 if (oCtrlSeasonCd) {
-                    console.log(oCtrlSeasonCd.getSelectedKey() === "");
                     if(oCtrlSeasonCd.getSelectedKey() !== ""){
                         if(aFilters.length === 0){
                             aFiltersObj.push({
@@ -785,6 +797,7 @@ sap.ui.define(
                                 }
                                 else {
                                     if(await me.prLock(me)){
+                                        me.byId("btnRefresh").setVisible(false);
                                         me.byId("btnNew").setVisible(false);
                                         me.byId("btnEdit").setVisible(false);
                                         me.byId("btnDelete").setVisible(false);
@@ -1411,21 +1424,22 @@ sap.ui.define(
             }
             var oTable = oEvent.getSource().oParent.oParent;
             var sTable = oTable.getBindingInfo("rows");
-            var sQuery = oEvent.getParameter("query");
+            this._searchQuery = oEvent.getParameter("query");
             if (sTable === "gmc") {
                 this.byId("searchFieldAttr").setProperty("value", "");
                 this.byId("searchFieldMatl").setProperty("value", "");
             }
 
-            this.exeGlobalSearch(sQuery);
+            this.exeGlobalSearch();
         },
-        exeGlobalSearch(query) {
+        exeGlobalSearch() {
             var oFilter = null;
             var aFilter = [];
             var oTable = this.byId("styleDynTable");
             var oColumnsModel = this.getView().getModel("Columns");
             var oColumnsData = oColumnsModel.getProperty('/');
-            
+            var query = this._searchQuery;
+
             if (query) {
                 oTable.getColumns().forEach((col, idx) => {
                     var sDataType = oColumnsData.filter(item => item.ColumnName === col.sId)[0].ColumnName
@@ -1436,6 +1450,9 @@ sap.ui.define(
                         aFilter.push(new Filter(sDataType, FilterOperator.EQ, query));
                 })
                 oFilter = new Filter(aFilter, false);
+                this._isSearchGlobalHasValue = true;
+            }else{
+                this._isSearchGlobalHasValue = false;
             }
             this.byId("styleDynTable").getBinding("rows").filter(oFilter, "Application");
         },
@@ -1451,6 +1468,7 @@ sap.ui.define(
             }
             else {
                 Common.openLoadingDialog(that);
+                this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
@@ -1474,6 +1492,7 @@ sap.ui.define(
         onCloseDiscardChangesDialog: async function() {
             if (this._isEdited) {
                 Common.openLoadingDialog(that);
+                this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
@@ -1624,6 +1643,7 @@ sap.ui.define(
                 
                 Common.closeLoadingDialog(that);
                 
+                this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
                 this.byId("btnDelete").setVisible(true);
@@ -1932,7 +1952,6 @@ sap.ui.define(
                 method: "POST",
                 success: function(data, oResponse) {
                     sap.m.MessageBox.information(me.getView().getModel("captionMsg").getData()["INFO_LAYOUT_SAVE"]);
-                    //Common.showMessage(me._i18n.getText('t6'));
                 },
                 error: function(err) {
                     sap.m.MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
@@ -1964,6 +1983,7 @@ sap.ui.define(
             oDDTextParam.push({CODE: "SEASON"});
 
             //Button Label
+            oDDTextParam.push({CODE: "REFRESH"});
             oDDTextParam.push({CODE: "NEW"});
             oDDTextParam.push({CODE: "EDIT"});
             oDDTextParam.push({CODE: "DELETE"});

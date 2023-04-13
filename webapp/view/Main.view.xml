@@ -169,6 +169,7 @@
                                 value=""
                                 search=".searchGlobal"
                                 width="15rem"/>
+                            <m:Button id="btnRefresh" text="{captionMsg>/REFRESH}" icon="sap-icon://refresh" tooltip="{captionMsg>/REFRESH}" press="onRefreshMain" />
                             <m:Button id="btnSave" text="{captionMsg>/SAVE}" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveEdit" visible="false" />
                             <m:Button id="btnCancel" text="{captionMsg>/CANCEL}" icon="sap-icon://sys-cancel" tooltip="{captionMsg>/CANCEL}" press="onCancelEdit" visible="false" />
                             <m:Button id="btnNew" text="{captionMsg>/NEW}" icon="sap-icon://add-document" tooltip="{captionMsg>/NEW}" press="onCreateNewPR"/>
