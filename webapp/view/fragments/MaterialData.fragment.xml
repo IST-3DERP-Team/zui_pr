@@ -1,12 +1,8 @@
 <core:FragmentDefinition 
-    xmlns="sap.m" 
-    xmlns:l="sap.ui.layout" 
+    xmlns="sap.m"
     xmlns:f="sap.ui.layout.form" 
     xmlns:core="sap.ui.core" 
-    class="sapUiSizeCompact" 
-    xmlns:tnt="sap.tnt"
-    xmlns:c="zuipr.control" 
-    xmlns:t="sap.ui.table"
+    class="sapUiSizeCompact"
 >
     <Panel id="MatDataHeaderPanel" expandable="true" expanded="true" width="auto" class="sapUiSizeCompact">
 
@@ -20,14 +16,14 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/SHORTTEXT}" visible="true">
                                 <f:fields>
-                                    <Input id="SHORTTEXT" value="{headerData>/SHORTTEXT}" editable="false" valueStateText="Required" 
+                                    <Input id="SHORTTEXT" value="{path: 'headerData>/SHORTTEXT', mandatory: 'SHORTTEXT', editable: 'SHORTTEXT'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/BATCH}" visible="true">
                                 <f:fields>
-                                    <Input id="BATCH" value="{headerData>/BATCH}" editable="false" valueStateText="Required" 
+                                    <Input id="BATCH" value="{path: 'headerData>/BATCH', mandatory: 'BATCH', editable: 'BATCH'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -37,13 +33,13 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/MATGRP}" visible="true">
                                     <f:fields>
-                                    <Input id="MATGRP" value="{headerData>/MATGRP}" editable="false" valueStateText="Required" 
+                                    <Input id="MATGRP" value="{path: 'headerData>/MATGRP', mandatory: 'MATGRP', editable: 'MATGRP'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/MATTYP}" visible="true">
                                 <f:fields>
-                                    <Input id="MATTYP" value="{headerData>/MATTYP}" editable="false" valueStateText="Required" 
+                                    <Input id="MATTYP" value="{path: 'headerData>/MATTYP', mandatory: 'MATTYP', editable: 'MATTYP'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>

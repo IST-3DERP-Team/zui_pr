@@ -20,20 +20,20 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/QUANTITY}" visible="true">
                                 <f:fields>
-                                    <Input id="QUANTITY" value="{headerData>/QUANTITY}" editable="false" valueStateText="Required" 
+                                    <Input id="QUANTITY" value="{path: 'headerData>/QUANTITY', mandatory: 'QUANTITY', editable: 'QUANTITY'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange">
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/ORDERQTY}" visible="true">
                                 <f:fields>
-                                    <Input id="POQTY" value="{headerData>/POQTY}" editable="false" valueStateText="Required" 
+                                    <Input id="POQTY" value="{path: 'headerData>/POQTY', mandatory: 'POQTY', editable: 'POQTY'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/OPENQTY}" visible="true">
                                 <f:fields>
-                                    <Input id="OPENQTY" value="{headerData>/OPENQTY}" editable="false" valueStateText="Required" 
+                                    <Input id="OPENQTY" value="{path: 'headerData>/OPENQTY', mandatory: 'OPENQTY', editable: 'OPENQTY'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -51,20 +51,20 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/DELVDATE}" visible="true">
                                     <f:fields>
-                                    <Input id="DELDT" value="{headerData>/DELDT}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <DatePicker id="DELDT" value="{path: 'headerData>/DELDT', mandatory: 'DELDT', editable: 'DELDT'}" displayFormat="short" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/REQDT}" visible="true">
                                 <f:fields>
-                                    <Input id="FTYSTYLE" value="{headerData>/REQDT}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <DatePicker id="FTYSTYLE" value="{path: 'headerData>/REQDT', mandatory: 'REQDT', editable: 'REQDT'}" displayFormat="short" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
                              <f:FormElement label="{captionMsg>/RELDT}" visible="true">
                                 <f:fields>
-                                    <Input id="RELDT" value="{headerData>/RELDT}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <DatePicker id="RELDT" value="{path: 'headerData>/RELDT', mandatory: 'RELDT', editable: 'RELDT'}" displayFormat="short" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>

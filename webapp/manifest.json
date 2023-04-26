@@ -246,7 +246,7 @@
                 },
                 {
                     "name": "PRDetail",
-                    "pattern": "PRDetail/{PRNO}/{PRITM}",
+                    "pattern": "PRDetail/{SBU}/{PRNO}/{PRITM}",
                     "greedy": false,
                     "target": [
                         "TargetPRDetail"
