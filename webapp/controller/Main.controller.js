@@ -88,6 +88,7 @@ sap.ui.define(
                     }
                     else {
                         Common.closeLoadingDialog(that);
+                        that.byId("btnPOList").setEnabled(false);
                         that.byId("btnRefresh").setEnabled(false);
                         that.byId("btnNew").setEnabled(false);
                         that.byId("btnEdit").setEnabled(false);
@@ -151,6 +152,7 @@ sap.ui.define(
                 Common.openLoadingDialog(that);
                 await this.getAllData();
                 await this.getTableColumns();
+                this.byId("btnPOList").setEnabled(true);
                 this.byId("btnRefresh").setEnabled(true);
                 this.byId("btnNew").setEnabled(true);
                 this.byId("btnEdit").setEnabled(true);
@@ -347,50 +349,62 @@ sap.ui.define(
         },
         getDynamicColumns: async function(model, dataSource) {
             var me = this;
-                var modCode = model;
-                var tabName = dataSource;
-                //get dynamic columns based on saved layout or ZERP_CHECK
-                var oJSONColumnsModel = new JSONModel();
-                var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
-                // var vSBU = this.getView().getModel("ui").getData().sbu;
+            var modCode = model;
+            var tabName = dataSource;
+            //get dynamic columns based on saved layout or ZERP_CHECK
+            var oJSONColumnsModel = new JSONModel();
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            // var vSBU = this.getView().getModel("ui").getData().sbu;
 
-                var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
+            var oModel = this.getOwnerComponent().getModel("ZGW_3DERP_COMMON_SRV");
 
-                oModel.setHeaders({
-                    sbu: vSBU,
-                    type: modCode,
-                    tabname: tabName
-                });
-                return new Promise((resolve, reject) => {
-                    oModel.read("/ColumnsSet", {
-                        success: async function (oData, oResponse) {
-                            me._columnLoadError = false;
-                            if (oData.results.length > 0) {
-                                if(modCode === "PRHDR"){
-                                    oJSONColumnsModel.setData(oData.results);
-                                    me.getView().setModel(oJSONColumnsModel, "Columns");
-                                    me.setTableColumnsData(modCode);
-                                    resolve();
-                                }
-                            }else{
-                                me._columnLoadError = true;
-                                if(modCode === "PRHDR"){
-                                    me.getView().setModel(oJSONColumnsModel, "Columns");
-                                    me.setTableColumnsData(modCode);
-                                    resolve();
-                                }
+            oModel.setHeaders({
+                sbu: vSBU,
+                type: modCode,
+                tabname: tabName
+            });
+            return new Promise((resolve, reject) => {
+                oModel.read("/ColumnsSet", {
+                    success: async function (oData, oResponse) {
+                        me._columnLoadError = false;
+                        if (oData.results.length > 0) {
+                            if(modCode === "PRHDR"){
+                                oJSONColumnsModel.setData(oData.results);
+                                me.getView().setModel(oJSONColumnsModel, "Columns");
+                                me.setTableColumnsData(modCode);
+                                resolve();
                             }
-                        },
-                        error: function(){
+                            if(modCode === "PRPOLIST"){
+                                oJSONColumnsModel.setData(oData.results);
+                                me.getView().setModel(oJSONColumnsModel, "POListCol");
+                                me.setTableColumnsData(modCode);
+                                resolve();
+                            }
+                        }else{
                             me._columnLoadError = true;
                             if(modCode === "PRHDR"){
                                 me.getView().setModel(oJSONColumnsModel, "Columns");
                                 me.setTableColumnsData(modCode);
                                 resolve();
                             }
+                            if(modCode === "PRPOLIST"){
+                                oJSONColumnsModel.setData(oData.results);
+                                me.getView().setModel(oJSONColumnsModel, "POListCol");
+                                me.setTableColumnsData(modCode);
+                                resolve();
+                            }
                         }
-                    });
-                })
+                    },
+                    error: function(){
+                        me._columnLoadError = true;
+                        if(modCode === "PRHDR"){
+                            me.getView().setModel(oJSONColumnsModel, "Columns");
+                            me.setTableColumnsData(modCode);
+                            resolve();
+                        }
+                    }
+                });
+            })
         },
         setTableColumnsData(modCode){
             var oColumnsModel;
@@ -409,6 +423,17 @@ sap.ui.define(
                     oData = [];
                 }                
                 this.addColumns("styleDynTable", oColumnsData, oData, modCode);
+            }else if(modCode === 'PRPOLIST'){
+                oColumnsModel = this.getView().getModel("POListCol");  
+                oDataModel = this.getView().getModel("PRPOListData"); 
+                
+                oColumnsData = oColumnsModel === undefined ? [] :oColumnsModel.getProperty('/');
+                oData = oDataModel === undefined ? [] :oDataModel.getProperty('/results');
+                
+                if(this._columnLoadError){
+                    oData = [];
+                }
+                this.addColumns("prPOListTbl", oColumnsData, oData, modCode);    
             }
         },
         addColumns: async function(table, columnsData, data, model) {
@@ -452,7 +477,7 @@ sap.ui.define(
                 var sColumnWidth = context.getObject().ColumnWidth;
                 if (sColumnType === "STRING" || sColumnType === "DATETIME"|| sColumnType === "BOOLEAN") {
                     return new sap.ui.table.Column({
-                        id: sColumnId,
+                        id: model + "-" + sColumnId,
                         label: sColumnLabel,
                         template: me.columnTemplate(sColumnId, sColumnType), //default text
                         width: sColumnWidth + "px",
@@ -466,7 +491,7 @@ sap.ui.define(
                     });
                 }else if (sColumnType === "NUMBER") {
                     return new sap.ui.table.Column({
-                        id: sColumnId,
+                        id: model + "-" + sColumnId,
                         label: sColumnLabel,
                         template: new sap.m.Text({ 
                             text: {
@@ -549,6 +574,13 @@ sap.ui.define(
                 tooltip: "{" + sColumnId + "}" 
             }); //default text
             if (sColumnId === "DELETED") { 
+                //Manage button
+                oColumnTemplate = new sap.m.CheckBox({
+                    selected: "{" + sColumnId + "}",
+                    editable: false
+                });
+            }
+            if (sColumnId === "DLVCOMPLETE") { 
                 //Manage button
                 oColumnTemplate = new sap.m.CheckBox({
                     selected: "{" + sColumnId + "}",
@@ -659,18 +691,20 @@ sap.ui.define(
             //var oButton = oEvent.getSource();
             var PRNo = _PRNO;//oButton.data("PRNO").PRNO; //get the styleno binded to manage button
             var PRItm = _PRITM;//oButton.data("PRNO").PRITM;
+            var vSbu = this.getView().byId("cboxSBU").getSelectedKey();
             
             if(PRNo != "" || PRNo != null){
                 while(PRNo.length < 10) PRNo = "0" + PRNo;
             }
             
             // that.setChangeStatus(false); //remove change flag
-            that.navToDetail(PRNo, PRItm); //navigate to detail page
+            that.navToDetail(vSbu, PRNo, PRItm); //navigate to detail page
         },
 
-        navToDetail: function (PRNo, PRItm) {
+        navToDetail: function (SBU, PRNo, PRItm) {
             //route to detail page
             that._router.navTo("PRDetail", {
+                SBU: SBU,
                 PRNO: PRNo,
                 PRITM: PRItm
             });
@@ -797,6 +831,7 @@ sap.ui.define(
                                 }
                                 else {
                                     if(await me.prLock(me)){
+                                        me.byId("btnPOList").setVisible(false);
                                         me.byId("btnRefresh").setVisible(false);
                                         me.byId("btnNew").setVisible(false);
                                         me.byId("btnEdit").setVisible(false);
@@ -842,9 +877,9 @@ sap.ui.define(
 
             //Filtering and get only distinct value
             oParamData = this._oDataOnEditValidate.filter((value, index, self) => self.findIndex(item => item.DOCTYP === value.DOCTYP) === index)
-
+            console.log(oParamData)
             oTable.getColumns().forEach((col, idx) => {
-                oColumnsData.filter(item => item.ColumnName === col.sId)
+                oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])
                 .forEach(ci => {
                     var sColumnType = ci.DataType;
                     if (ci.Editable) {
@@ -1442,7 +1477,7 @@ sap.ui.define(
 
             if (query) {
                 oTable.getColumns().forEach((col, idx) => {
-                    var sDataType = oColumnsData.filter(item => item.ColumnName === col.sId)[0].ColumnName
+                    var sDataType = oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])[0].ColumnName
 
                     if(sDataType != "DELETED" && sDataType != "CLOSED")
                         aFilter.push(new Filter(sDataType, FilterOperator.Contains, query));
@@ -1468,6 +1503,7 @@ sap.ui.define(
             }
             else {
                 Common.openLoadingDialog(that);
+                this.byId("btnPOList").setVisible(true);
                 this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
@@ -1492,6 +1528,7 @@ sap.ui.define(
         onCloseDiscardChangesDialog: async function() {
             if (this._isEdited) {
                 Common.openLoadingDialog(that);
+                this.byId("btnPOList").setVisible(true);
                 this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
@@ -1643,6 +1680,7 @@ sap.ui.define(
                 
                 Common.closeLoadingDialog(that);
                 
+                this.byId("btnPOList").setVisible(true);
                 this.byId("btnRefresh").setVisible(true);
                 this.byId("btnNew").setVisible(true);
                 this.byId("btnEdit").setVisible(true);
@@ -1959,6 +1997,57 @@ sap.ui.define(
             });                
         },
 
+        onPOListView: async function(){
+            var me = this;
+            var prNo = _PRNO;
+            var prItm = _PRITM;
+
+            var oModel = this.getOwnerComponent().getModel();
+
+            var poListData = {};
+            var oJSONModel = new JSONModel();
+            var poListJSONModel = new JSONModel();
+
+            await new Promise((resolve, reject)=>{
+                oModel.read("/ZERP_POLISTSet",{ 
+                    urlParameters: {
+                        "$filter": "PRNO eq '" + prNo + "' and PRITM eq '"+ prItm +"'"
+                        // "$filter": "VENDORCD eq '0003101604' and PURCHORG eq '1601' and PURCHGRP eq '601' and SHIPTOPLANT eq 'B601' and PURCHPLANT eq 'C600' and DOCTYP eq 'ZMRP'"
+                    },
+                    success: async function (oData, oResponse) {
+                        console.log(prNo)
+                        console.log(prItm)
+                        console.log(oData)
+                        
+                        poListData = {
+                            Title: "PO List"
+                        };
+                        poListJSONModel.setData(poListData);
+
+                        me.poListDialog = sap.ui.xmlfragment(me.getView().getId(), "zuipr.view.fragments.POList", me);
+                        me.poListDialog.setModel(poListJSONModel);
+                        me.getView().addDependent(me.poListDialog);
+
+                        oJSONModel.setData(oData);
+                        me.getView().setModel(oJSONModel, "PRPOListData");
+
+                        await new Promise((resolve, reject)=>{
+                            resolve(me.getDynamicColumns('PRPOLIST','ZDV_PRPOLIST'));
+                        });
+                        // await _promiseResult;
+
+                        me.poListDialog.open();
+                    },
+                    error: function () {
+                    }
+                });
+            })
+        },
+
+        onClosePOList: async function(){
+            this.poListDialog.destroy(true);
+        },
+
         callCaptionsAPI: async function(){
             var oJSONModel = new JSONModel();
             var oDDTextParam = [];
@@ -1983,6 +2072,7 @@ sap.ui.define(
             oDDTextParam.push({CODE: "SEASON"});
 
             //Button Label
+            oDDTextParam.push({CODE: "POLIST"});
             oDDTextParam.push({CODE: "REFRESH"});
             oDDTextParam.push({CODE: "NEW"});
             oDDTextParam.push({CODE: "EDIT"});

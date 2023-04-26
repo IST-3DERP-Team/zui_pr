@@ -1,0 +1,37 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core"
+xmlns:uiT="sap.ui.table">
+	<Dialog title="{/Title}" draggable= "true" escapeHandler=".onClosePOList" afterClose=".onClosePOList">
+		<uiT:Table id="prPOListTbl"
+			class="sapUiTinyMarginBottom sapUiTinyMarginBegin sapUiTinyMarginEnd"
+			visibleRowCountMode="Auto"
+			showColumnVisibilityMenu="true"
+			enableColumnFreeze="true"
+			selectionMode="MultiToggle"
+			selectionBehavior="Row"
+			sort="onSorted">
+			<uiT:extension>
+				<Toolbar>
+					<!-- <Text text="PO No: {ui>/activePONo}" class="selHdrKeyFontStyle" /> -->
+					<ToolbarSpacer/>
+					<!-- <Button id="vpoAddPRToPOSaveBtn" 
+						icon="sap-icon://save"
+						press=".onSaveAddPRtoPO" 
+						text = "Add PR To PO"
+						visible="true" /> -->
+					<Button id="prPOListCancelBtn" 
+						icon="sap-icon://sys-cancel"
+						press=".onClosePOList" 
+						visible="true" />
+					<!-- <Button id="vpoAddPRToPOSaveLayoutBtn" 
+						icon="sap-icon://table-column"
+						press=".onSaveTableLayout('vpoAddPRtoPOTbl')"
+						tooltip="Columns"
+						visible="true" /> -->
+				</Toolbar>
+			</uiT:extension>
+			<uiT:layoutData>
+				<FlexItemData growFactor="1" baseSize="0%"/>
+			</uiT:layoutData>                        
+		</uiT:Table> 
+	</Dialog>
+</core:FragmentDefinition>

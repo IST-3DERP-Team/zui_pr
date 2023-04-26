@@ -20,7 +20,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/INFORECORD}" visible="true">
                                 <f:fields>
-                                    <Input id="INFNR" value="{headerData>/INFNR}" editable="false" valueStateText="Required" 
+                                    <Input id="INFNR" value="{path: 'headerData>/INFNR', mandatory: 'INFNR', editable: 'INFNR'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -28,7 +28,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/VENDOR}" visible="true">
                                 <f:fields>
-                                    <Input id="VENDOR" value="{headerData>/VENDOR}" editable="false" valueStateText="Required" 
+                                    <Input id="VENDOR" value="{path: 'headerData>/VENDOR', mandatory: 'VENDOR', editable: 'VENDOR'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -36,7 +36,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/PURORG}" visible="true">
                                 <f:fields>
-                                    <Input id="PURORG" value="{headerData>/PURORG}" editable="false" valueStateText="Required" 
+                                    <Input id="PURORG" value="{path: 'headerData>/PURORG', mandatory: 'PURORG', editable: 'PURORG'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>

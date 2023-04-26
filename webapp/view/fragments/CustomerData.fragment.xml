@@ -13,14 +13,14 @@
             <!-- Style Header Form -->
             <f:Form id="CustDataHeaderForm" editable="true">
                 <f:layout>
-                    <f:ResponsiveGridLayout columnsXL="4" columnsL="3" columnsM="3" singleContainerFullSize="false" />
+                    <f:ResponsiveGridLayout columnsXL="5" columnsL="5" columnsM="5" singleContainerFullSize="false" />
                 </f:layout>
                 <f:formContainers>
                     <f:FormContainer>
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/SUPTYP}" visible="true">
                                 <f:fields>
-                                    <Input id="SUPTYP" value="{headerData>/SUPTYP}" editable="false" valueStateText="Required" 
+                                    <Input id="SUPTYP" value="{path: 'headerData>/SUPTYP', mandatory: 'SUPTYP', editable: 'SUPTYP'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -28,7 +28,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/SALESGRP}" visible="true">
                                 <f:fields>
-                                    <Input id="SALESGRP" value="{headerData>/SALESGRP}" editable="false" valueStateText="Required" 
+                                    <Input id="SALESGRP" value="{path: 'headerData>/SALESGRP', mandatory: 'SALESGRP', editable: 'SALESGRP'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -36,7 +36,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/CUSTGRP}" visible="true">
                                 <f:fields>
-                                    <Input id="CUSTGRP" value="{headerData>/CUSTGRP}" editable="false" valueStateText="Required" 
+                                    <Input id="CUSTGRP" value="{path: 'headerData>/CUSTGRP', mandatory: 'CUSTGRP', editable: 'CUSTGRP'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
@@ -44,7 +44,15 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/SEASON}" visible="true">
                                 <f:fields>
-                                    <Input id="SEASONCD" value="{headerData>/SEASONCD}" editable="false" valueStateText="Required" 
+                                    <Input id="SEASONCD" value="{path: 'headerData>/SEASONCD', mandatory: 'SEASONCD', editable: 'SEASONCD'}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
+                        <f:formElements>
+                            <f:FormElement label="{captionMsg>/CUSTSTYLE}" visible="true">
+                                <f:fields>
+                                    <Input id="CUSTSTYLE" value="{path: 'headerData>/CUSTSTYLE', mandatory: 'CUSTSTYLE', editable: 'CUSTSTYLE'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
