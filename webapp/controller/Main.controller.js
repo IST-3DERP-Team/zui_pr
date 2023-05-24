@@ -121,9 +121,11 @@ sap.ui.define(
 				oStatusText.setText(sText);
 			}
         },
-        onSBUChange: function(oEvent) {
+        onSBUChange: async function(oEvent) {
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
             this.getView().getModel("ui").setProperty("/sbu", vSBU);
+
+            await this.getHeaderSearchValuesBasedonSBU();
         },
         setSmartFilterModel: function () {
             //Model StyleHeaderFilters is for the smartfilterbar
@@ -165,57 +167,68 @@ sap.ui.define(
 
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
+                await this.getHeaderSearchValuesBasedonSBU();
                 Common.closeLoadingDialog(that);
-
-                var oJSONModel = new JSONModel();
-                var iCounter = 0;
-                var itemResult = [];
-                var vSBU = this.getView().getModel("ui").getData().sbu;
-                var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
-
-                await new Promise((resolve, reject) => {
-                    oModel.read("/ZVB_3DERP_MATTYPE_SH", {
-                        success: function (oData, oResponse) {
-                            for(var item in oData.results){
-                                iCounter++;
-                                if(oData.results[item].SBU === vSBU){
-                                    itemResult.push(oData.results[item])
-                                }
-                                if(iCounter === oData.results.length){
-                                    oJSONModel.setData(itemResult)
-                                    me.getView().setModel(oJSONModel, "matTypSource");
-                                    resolve();
-                                }
-                            }
-                        },
-                        error: function (err) { }
-                    });
-                })
-
-                itemResult = [];
-                oJSONModel = new JSONModel();
-                iCounter = 0;
-                await new Promise((resolve, reject) => {
-                    oModel.read("/ZVB_3DERP_SEASON_SH", {
-                        success: function (oData, oResponse) {
-                            for(var item in oData.results){
-                                iCounter++;
-                                if(oData.results[item].SBU === vSBU){
-                                    itemResult.push(oData.results[item])
-                                }
-                                if(iCounter === oData.results.length){
-                                    oJSONModel.setData(itemResult)
-                                    me.getView().setModel(oJSONModel, "seasonSource");
-                                    resolve();
-                                }
-                            }
-                        },
-                        error: function (err) { }
-                    });
-                })
-                
             }
             
+        },
+
+        getHeaderSearchValuesBasedonSBU: async function(){
+            var me = this;
+            var oJSONModel = new JSONModel();
+            var iCounter = 0;
+            var itemResult = [];
+            var vSBU = this.getView().getModel("ui").getData().sbu;
+            var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
+
+            await new Promise((resolve, reject) => {
+                oModel.read("/ZVB_3DERP_MATTYPE_SH", {
+                    success: function (oData, oResponse) {
+                        for(var item in oData.results){
+                            iCounter++;
+                            if(oData.results[item].SBU === vSBU){
+                                itemResult.push(oData.results[item])
+                            }
+                            if(iCounter === oData.results.length){
+                                //sort Object
+                                // const sortedValues = Object.values(itemResult).sort();
+                                // const sortedObj = {};
+                                // console.log(sortedValues);
+                                // for (let i = 0; i < sortedValues.length; i++) {
+                                //     sortedObj[i] = sortedValues[i];
+                                // }
+
+                                oJSONModel.setData(itemResult)
+                                me.getView().setModel(oJSONModel, "matTypSource");
+                                resolve();
+                            }
+                        }
+                    },
+                    error: function (err) { }
+                });
+            })
+
+            itemResult = [];
+            oJSONModel = new JSONModel();
+            iCounter = 0;
+            await new Promise((resolve, reject) => {
+                oModel.read("/ZVB_3DERP_SEASON_SH", {
+                    success: function (oData, oResponse) {
+                        for(var item in oData.results){
+                            iCounter++;
+                            if(oData.results[item].SBU === vSBU){
+                                itemResult.push(oData.results[item])
+                            }
+                            if(iCounter === oData.results.length){
+                                oJSONModel.setData(itemResult)
+                                me.getView().setModel(oJSONModel, "seasonSource");
+                                resolve();
+                            }
+                        }
+                    },
+                    error: function (err) { }
+                });
+            })
         },
 
         getAllData: async function(){
@@ -877,7 +890,6 @@ sap.ui.define(
 
             //Filtering and get only distinct value
             oParamData = this._oDataOnEditValidate.filter((value, index, self) => self.findIndex(item => item.DOCTYP === value.DOCTYP) === index)
-            console.log(oParamData)
             oTable.getColumns().forEach((col, idx) => {
                 oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])
                 .forEach(ci => {
@@ -1140,7 +1152,7 @@ sap.ui.define(
         //     else if (sModel === 'attributes') this._isAttrEdited = true;
         //     // console.log(oSource.getBindingInfo("value").parts)
         // },
-        handleValueHelp: function(oEvent) {
+        handleValueHelp_old: function(oEvent) {
             var oModel = this.getOwnerComponent().getModel('ZVB_3DERP_PR_FILTERS_CDS');
             var oSource = oEvent.getSource();
             // var sEntity = oSource.getBindingInfo("suggestionItems").path;
@@ -1405,13 +1417,289 @@ sap.ui.define(
                 })
             }
         },
+
+        handleValueHelp: async function(oEvent){
+            var me = this;
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            // var purPlantVal = this.getView().byId("PLANTCD").getValue();
+
+            var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PR_FILTERS_CDS');
+            var oModelFilter2 = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+            var oSource = oEvent.getSource();
+            var bProceed = true;
+
+            var fieldName = oSource.getBindingInfo("value").parts[0].path.replace("/", "");
+            this._inputValue = oSource.getValue();
+            this._inputSource = oSource;
+
+            var valueHelpObjects = [];
+            var title = "";
+
+            if(fieldName === 'MATNO'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_PRMATNO',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.MatNo;
+                                item.Desc = item.GMCDesc;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = me.getView().getModel("captionMsg").getData()["MATNO"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'MATGRP') {
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_MATGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.MaterialGrp;
+                                item.Desc = "";
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = "Mat. Grp."
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'SHIPTOPLANT') {
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_SHIPTOPLANT_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.ShipToPlant;
+                                item.Desc = "";
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = "Ship-To Plant"
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'PLANTCD') {
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_PURPLANT_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.PurchPlant;
+                                item.Desc = "";
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = "Plant"
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'VENDOR') {
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_VENDOR_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.Vendor;
+                                item.Desc = item.Description;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = "Vendor"
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'SUPTYP') {
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_SUPPTYP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.SupTyp;
+                                item.Desc = item.ShortText;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = "Supply Type"
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+
+            if(fieldName === 'BATCH'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_PR_BATCH_SH',{
+                        success: function (data, response) {
+                            var dataResult = [];
+                            data.results.forEach(item=>{
+                                if(item.BATCH !== ""){
+                                    if(item.SBU === vSBU){
+                                        item.Item = item.BATCH;
+                                        item.Desc = item.Description;
+                                        dataResult.push(item);
+                                    }
+                                    if(item.SBU == ""){
+                                        item.SBU = vSBU
+                                        item.Item = item.BATCH;
+                                        item.Desc = item.Description;
+                                        dataResult.push(item);
+                                    }
+                                }
+                            })
+                            valueHelpObjects = dataResult;
+                            title = me.getView().getModel("captionMsg").getData()["BATCH"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if(fieldName === 'PURGRP'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_PURGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.PurchGrp;
+                                item.Desc = item.Description;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = me.getView().getModel("captionMsg").getData()["PURCHGRP"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if(fieldName === 'SALESGRP'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_PR_SALESGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.SALESGRP;
+                                item.Desc = item.Description;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = me.getView().getModel("captionMsg").getData()["SALESGRP"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if(fieldName === 'CUSTGRP'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_PR_CUSTGRP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.CUSTGRP;
+                                item.Desc = item.Description;
+                            })
+
+                            valueHelpObjects = data.results;
+                            title = me.getView().getModel("captionMsg").getData()["CUSTGRP"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if(fieldName === 'SEASONCD'){
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_SEASON_SH',{
+                        success: function (data, response) {
+                            var dataResult = [];
+                            data.results.forEach(item=>{
+                                if(item.SBU === vSBU){
+                                    item.Item = item.SEASONCD;
+                                    item.Desc = item.DESCRIPTION;
+                                    dataResult.push(item);
+                                }
+                            })
+                            valueHelpObjects = dataResult;
+                            title = me.getView().getModel("captionMsg").getData()["SEASON"]
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if(bProceed){
+                var oVHModel = new JSONModel({
+                    items: valueHelpObjects,
+                    title: title
+                });
+
+                // create value help dialog
+                if (!this._valueHelpDialog) {
+                    this._valueHelpDialog = sap.ui.xmlfragment(
+                        "zuipr.view.fragments.valuehelp.ValueHelpDialog",
+                        me
+                    );
+
+                    this._valueHelpDialog.setModel(oVHModel);
+                    this.getView().addDependent(this._valueHelpDialog);
+                }
+                else {
+                    this._valueHelpDialog.setModel(oVHModel);
+                }
+                this._valueHelpDialog.open();
+            }
+        },
+
         handleValueHelpSearch : function (oEvent) {
+            // var sValue = oEvent.getParameter("value");
+
+            // var oFilter = new sap.ui.model.Filter({
+            //     filters: [
+            //         new sap.ui.model.Filter("VHTitle", sap.ui.model.FilterOperator.Contains, sValue),
+            //         new sap.ui.model.Filter("VHDesc", sap.ui.model.FilterOperator.Contains, sValue)
+            //     ],
+            //     and: false
+            // });
+
+            // oEvent.getSource().getBinding("items").filter([oFilter]);
             var sValue = oEvent.getParameter("value");
 
             var oFilter = new sap.ui.model.Filter({
                 filters: [
-                    new sap.ui.model.Filter("VHTitle", sap.ui.model.FilterOperator.Contains, sValue),
-                    new sap.ui.model.Filter("VHDesc", sap.ui.model.FilterOperator.Contains, sValue)
+                    new sap.ui.model.Filter("Item", sap.ui.model.FilterOperator.Contains, sValue),
+                    new sap.ui.model.Filter("Desc", sap.ui.model.FilterOperator.Contains, sValue)
                 ],
                 and: false
             });
@@ -2015,10 +2303,6 @@ sap.ui.define(
                         // "$filter": "VENDORCD eq '0003101604' and PURCHORG eq '1601' and PURCHGRP eq '601' and SHIPTOPLANT eq 'B601' and PURCHPLANT eq 'C600' and DOCTYP eq 'ZMRP'"
                     },
                     success: async function (oData, oResponse) {
-                        console.log(prNo)
-                        console.log(prItm)
-                        console.log(oData)
-                        
                         poListData = {
                             Title: "PO List"
                         };
