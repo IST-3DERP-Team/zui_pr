@@ -20,4 +20,6 @@ builder:
           name: ZUI_PR
           description: Purchase Requisition
           package: ZPK_LTH_3DERP
-          transport: LTDK908719
+          transport: LTDK910878
+        exclude:
+          - /test/

@@ -20,6 +20,7 @@
 		<StandardListItem
 			title="{Item}"
 			description="{Desc}"
+			selected="{desc2}"
 		/>
 	</SelectDialog>
 </core:FragmentDefinition>

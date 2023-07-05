@@ -34,7 +34,10 @@ sap.ui.define([
 
                 this._tblIndex = null;
                 this._purOrg = null;
+                this._suggestionPurPlantHasValue = false;
 
+                //OnRow Edit Increment Count
+                this._tblOnRowEditincCount = 0;
                 this.callCaptionsAPI();
 
             },
@@ -341,7 +344,7 @@ sap.ui.define([
 
                     this.getView().getModel("PRDetDataModel").setProperty("/results", detailsItemObj);
                     await this.setTableData('prDetTable');
-                    this.onRowEdit('prDetTable', 'PRDetColModel');
+                    await this.onRowEdit('prDetTable', 'PRDetColModel');
                 }
             },
             onPRDetPurge: async function(){
@@ -418,7 +421,7 @@ sap.ui.define([
                         }
 
                     }
-                    this.onRowEdit('prDetTable', 'PRDetColModel');
+                    await this.onRowEdit('prDetTable', 'PRDetColModel');
                 }
             },
             setTableData: async function(table){
@@ -440,32 +443,34 @@ sap.ui.define([
 
                 var oDetTable = this.getView().byId(table);
                 oDetTable.setModel(oModel);
+                await new Promise((resolve, reject)=> {
 
-                //bind the dynamic column to the table
-                oDetTable.bindColumns("/columns", function (index, context) {
-                    var sColumnId = context.getObject().ColumnName;
-                    var sColumnLabel = context.getObject().ColumnLabel;
-                    var sColumnType = context.getObject().ColumnType;
-                    var sColumnWidth = context.getObject().ColumnWidth;
-                    var sColumnVisible = context.getObject().Visible;
-                    var sColumnSorted = context.getObject().Sorted;
-                    var sColumnSortOrder = context.getObject().SortOrder;
-                    return new sap.ui.table.Column({
-                         id: 'prDetTable-' + sColumnId,
-                         label: sColumnLabel, //"{i18n>" + sColumnId + "}",
-                         template: me.columnTemplate(sColumnId),
-                         width: sColumnWidth + 'px',
-                         sortProperty: sColumnId,
-                         filterProperty: sColumnId,
-                         autoResizable: true,
-                         visible: sColumnVisible ,
-                         sorted: sColumnSorted,
-                         sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+                    //bind the dynamic column to the table
+                    oDetTable.bindColumns("/columns", function (index, context) {
+                        var sColumnId = context.getObject().ColumnName;
+                        var sColumnLabel = context.getObject().ColumnLabel;
+                        var sColumnType = context.getObject().ColumnType;
+                        var sColumnWidth = context.getObject().ColumnWidth;
+                        var sColumnVisible = context.getObject().Visible;
+                        var sColumnSorted = context.getObject().Sorted;
+                        var sColumnSortOrder = context.getObject().SortOrder;
+                        return new sap.ui.table.Column({
+                            id: 'prDetTable-' + sColumnId,
+                            label: sColumnLabel, //"{i18n>" + sColumnId + "}",
+                            template: me.columnTemplate(sColumnId),
+                            width: sColumnWidth + 'px',
+                            sortProperty: sColumnId,
+                            filterProperty: sColumnId,
+                            autoResizable: true,
+                            visible: sColumnVisible ,
+                            sorted: sColumnSorted,
+                            sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+                        });
                     });
-                });
 
-                //bind the data to the table
-                oDetTable.bindRows("/rows");
+                    //bind the data to the table
+                    resolve(oDetTable.bindRows("/rows"));
+                });
             },
             columnTemplate: function (sColumnId) {
                 var oDetColumnTemplate;
@@ -482,17 +487,20 @@ sap.ui.define([
                 }
                 return oDetColumnTemplate;
             },
-            onRowEdit: function(table, model){
+            onRowEdit: async function(table, model){
                 var me = this;
                 // this.getView().getModel(model).getData().results.forEach(item => item.Edited = false);
                 var oTable = this.byId(table);
 
                 var oColumnsModel = this.getView().getModel(model);
                 var oColumnsData = oColumnsModel.getProperty('/results');
-
-                oTable.getColumns().forEach((col, idx) => {
-                    oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])
-                        .forEach(ci => {
+                var count = 0;
+                await new Promise((resolve, reject)=>{
+                    oTable.getColumns().forEach((col, idx) => {
+                        count++;
+                        oColumnsData.filter(item => item.ColumnName === col.sId.split("-")[1])
+                        .forEach(async ci => {
+                            me._tblOnRowEditincCount++;
                             var sColumnName = ci.ColumnName;
                             var sColumnType = ci.DataType;
                             if (ci.Editable) {
@@ -504,13 +512,16 @@ sap.ui.define([
                                     }));
                                 }else if (sColumnType === "STRING") {
                                     col.setTemplate(new sap.m.Input({
-                                        id: "col-" + sColumnName,
+                                        id: "col"+ me._tblOnRowEditincCount +"-" + sColumnName,
                                         type: "Text",
                                         value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
                                         maxLength: +ci.Length,
                                         showValueHelp: true,
                                         valueHelpRequest: this.handleValueHelp.bind(this),
-                                        liveChange: this.onInputLiveChange.bind(this)
+                                        liveChange: this.onInputLiveChange.bind(this),
+                                        showSuggestion: true,
+                                        suggestionItemSelected: this.onSuggestionItemSelected.bind(this),
+                                        suggestionItems: await this.onInputSuggestionItems(sColumnName)
                                     }));
                                 }else if (sColumnType === "DATETIME"){
                                     col.setTemplate(new sap.m.DatePicker({
@@ -524,15 +535,151 @@ sap.ui.define([
                                         id: "col-" + sColumnName,
                                         type: sap.m.InputType.Number,
                                         value: "{path:'" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"', type:'sap.ui.model.type.Decimal', formatOptions:{ minFractionDigits:" + null + ", maxFractionDigits:" + null + " }, constraints:{ precision:" + ci.Decimal + ", scale:" + null + " }}",
-
+    
                                         maxLength: +ci.Length,
-
+    
                                         liveChange: this.onNumberLiveChange.bind(this)
                                     }));
                                 }
                             }
                         });
-                });
+                    });
+
+                    if(oTable.getColumns().length === count){
+                        resolve();
+                    }
+                })
+                
+            },
+
+            onInputSuggestionItems: async function(colName){
+                var me = this;
+                var vSBU = this._sbu;
+                var purPlantVal = this.getView().byId("PLANTCD").getValue();
+
+                var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+                var oJSONModel = new JSONModel();
+
+                var returnData; 
+
+                if(colName === "SEASONCD"){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_SEASON_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    if(item.SBU === vSBU){
+                                        item.Item = item.SEASONCD;
+                                        item.Desc = item.DESCRIPTION;
+                                        dataResult.push(item);
+                                    }
+                                })
+                                oJSONModel.setData(dataResult)
+
+                                resolve(me.getView().setModel(oJSONModel, "mPRDetSEASONCD"));
+                                // suggestionData = dataResult;
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                    returnData = {
+                        path: 'mPRDetSEASONCD>/',
+                        template: new sap.ui.core.Item({
+                            key: "{mPRDetSEASONCD>Item}",
+                            text: "{mPRDetSEASONCD>Item} - {mPRDetSEASONCD>Desc}"
+                        }),
+                        templateShareable: true 
+                    }
+                }
+
+                if(colName === "PURORG"){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_PURORG_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    if(item.PurchPlant === purPlantVal){
+                                        item.Item = item.PURORG;
+                                        dataResult.push(item);
+                                    }
+                                })
+                                oJSONModel.setData(dataResult)
+                                resolve(me.getView().setModel(oJSONModel, "mPRDetPURORG"));
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                    returnData = {
+                        path: 'mPRDetPURORG>/',
+                        template: new sap.ui.core.Item({
+                            key: "{mPRDetPURORG>Item}",
+                            text: "{mPRDetPURORG>Item}"
+                        }),
+                        templateShareable: true 
+                    }
+                }
+
+                if(colName === "SUPTYP"){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_MPRSUPTYP_SH',{
+                            success: function (data, response) {
+                                data.results.forEach(item=>{
+                                    item.Item = item.SUPTYP;
+                                    item.Desc = item.Description;
+                                })
+
+                                oJSONModel.setData(data.results)
+                                resolve(me.getView().setModel(oJSONModel, "mPRDetSUPTYP"));
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                    returnData = {
+                        path: 'mPRDetSUPTYP>/',
+                        template: new sap.ui.core.Item({
+                            key: "{mPRDetSUPTYP>Item}",
+                            text: "{mPRDetSUPTYP>Item} - {mPRDetSUPTYP>Desc}"
+                        }),
+                        templateShareable: true 
+                    }
+                }
+
+                if(colName === "VENDOR"){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                                    item.Item = item.VENDOR;
+                                    item.Desc = item.Description;
+                                })
+
+                                oJSONModel.setData(data.results)
+                                resolve(me.getView().setModel(oJSONModel, "mPRDetVENDOR"));
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                    returnData = {
+                        path: 'mPRDetVENDOR>/',
+                        template: new sap.ui.core.Item({
+                            key: "{mPRDetVENDOR>Item}",
+                            text: "{mPRDetVENDOR>Item} - {mPRDetVENDOR>Desc}"
+                        }),
+                        templateShareable: true 
+                    }
+                }
+
+                return returnData;
             },
             onInputLiveChange: async function(oEvent){
                 var me = this;
@@ -585,6 +732,22 @@ sap.ui.define([
                         }
                     })
                 }
+                
+               if(oEvent.getSource().getParent().getId().includes("prDetTable")){
+                    var oInput = oEvent.getSource();
+                    var oCell = oInput.getParent();
+                    // var oRow = oCell.getBindingContext().getObject();
+                    var sPath = oCell.getBindingContext().getPath();
+
+                    this._tblIndex = sPath;
+
+                    var sRowPath = this._tblIndex == undefined ? null :"/results/"+ this._tblIndex.split("/")[2];
+                    var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
+                    this._purOrg = oRow.PURORG;
+                }else{
+                    this._tblIndex = null;
+                    this._purOrg = null;
+                }
 
                 if(oEvent.getSource().getId().includes("MATNO")){
                     var matNo = oEvent.getParameters().value;
@@ -592,19 +755,56 @@ sap.ui.define([
                     await new Promise((resolve, reject) => {
                         oModelFilter.read('/ZVB_3DERP_PR_MATNO_SH',{
                             success: async function (data, response) {
-                                data.results.forEach(item=>{
+                                data.results.forEach(async item=>{
                                     if(item.MATNO === matNo){
                                         oRow.MATNO = item.MATNO
                                         oRow.UOM = item.UOM
                                         oRow.SHORTTEXT = item.GMCDescen
                                         oRow.MATGRP = item.MatGrp
                                         oRow.MATTYP = item.MatTyp
+                                        
+                                        await me.setTableData('prDetTable');
+                                        await me.onRowEdit('prDetTable', 'PRDetColModel');
+                                        resolve();
                                     }else{
                                         oRow.MATNO = matNo
                                     }
                                 })
+                                resolve();
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                }else if(oEvent.getSource().getId().includes("BATCH")){
+                    var batch = oEvent.getParameters().value;
+                    var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
+                    var vSBU = this._sbu;
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                            success: async function (data, response) {
+                                data.results.forEach(item=>{
+                                    if(item.BATCH !== ""){
+                                        if(item.SBU === vSBU){
+                                            if(item.BATCH === batch){
+                                                oRow.ORDERNO = item.OrderNo
+                                            }else{
+                                                oRow.ORDERNO = item.OrderNo
+                                            }
+                                        }else{
+                                            oRow.BATCH = batch;
+                                        }
+                                        if(item.SBU == ""){
+                                            oRow.ORDERNO = item.OrderNo
+                                        }else{
+                                            oRow.BATCH = batch;
+                                        }
+                                    }
+                                });
+                                
                                 await me.setTableData('prDetTable');
-                                resolve(me.onRowEdit('prDetTable', 'PRDetColModel'));
+                                await me.onRowEdit('prDetTable', 'PRDetColModel');
                                 resolve();
                             },
                             error: function (err) {
@@ -613,9 +813,72 @@ sap.ui.define([
                         });
                     });
                 }else if(oEvent.getSource().getId().includes("VENDOR")){
-                    this._purOrg = oEvent.getParameters().value;
-                    var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
-                    this._purOrg = oRow.PURORG;
+                    // this._purOrg = oEvent.getParameters().value;
+                    // var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
+                    // this._purOrg = oRow.PURORG;
+                    if(oEvent.getParameters().value.length < 10){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Invalid Vendor!");
+                        me._validationErrors.push(oEvent.getSource().getId())
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        me._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                me._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                    if(this._purOrg === "" || this._purOrg === undefined || this._purOrg === null){
+                        MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_PURORG_REQUIRED"]);
+                        var oSource = oEvent.getSource();
+                        this._inputSource = oSource;
+                        this._suggestionPurPlantHasValue = false;
+                        this._inputSource.setValue("");
+                        return;
+                    }
+                }else if(oEvent.getSource().getId().includes("SHIPTOPLANT")){
+                    var plantCd = this.getView().byId("PLANTCD").getValue();
+                    if(plantCd === "" || plantCd === null || plantCd === undefined){
+                        this.getView().byId("PLANTCD").setValueState("Error");
+                        this.getView().byId("PLANTCD").setValueStateText("Required Field!");
+                        MessageBox.error("Please Select Purchasing Plant First!");
+                        var oSource = oEvent.getSource();
+                        this._inputSource = oSource;
+                        this._suggestionPurPlantHasValue = false;
+                        this._inputSource.setValue("");
+                        return;
+                    }else{
+                        if(!this._suggestionPurPlantHasValue){
+                            this._suggestionPurPlantHasValue = true;
+                            var oJSONModel = new JSONModel();
+                            var plantCd = this.getView().byId("PLANTCD").getValue();
+                            
+                            await new Promise((resolve, reject) => {
+                                oModelFilter.read('/ZVB_3DERP_MPRSHIPTOPLNT_SH',{
+                                    success: function (data, response) {
+                                        var dataResult = [];
+                                        data.results.forEach(item=>{
+                                            if(plantCd === item.PurchPlant){
+                                                item.Item = item.plantcd;
+                                                item.Desc = item.Description;
+                                                dataResult.push(item);
+                                            }
+                                        })
+                                        
+                                        oJSONModel.setData(dataResult)
+                                        me.getView().setModel(oJSONModel, "shipToPlantSource");
+                                        resolve();
+                                    },
+                                    error: function (err) {
+                                        resolve();
+                                    }
+                                });
+                            });
+                        }
+                    }
+                }else if(oEvent.getSource().getId().includes("PLANTCD")){
+                    this._suggestionPurPlantHasValue = false;
+                    this.getView().byId("SHIPTOPLANT").setValue("");
                 }else{
                     this._purOrg = null;
                 }
@@ -658,6 +921,29 @@ sap.ui.define([
                         }
                     })
                 }
+            },
+            onSuggestionItemSelected: async function(oEvent){
+                var oSelectedItem = oEvent.getParameter("selectedItem");
+                var sKey = oSelectedItem.getKey();
+                var oSource = oEvent.getSource();
+
+                if(oEvent.getSource().getId().includes("VENDOR")){
+                    if(sKey.length < 10){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Invalid Vendor!");
+                        me._validationErrors.push(oEvent.getSource().getId())
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        me._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                me._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                }
+                this._inputSource = oSource;
+                this._inputSource.setValue(sKey);
+                oSelectedItem.setText(sKey)
             },
             handleValueHelp: async function(oEvent){
                 var me = this;
@@ -768,7 +1054,7 @@ sap.ui.define([
                                     data.results.forEach(item => {
                                         if(plantCd === item.PurchPlant){
                                             item.Item = item.plantcd;
-                                            // item.Desc = item.Desc1;
+                                            item.Desc = item.Description;
                                             dataResult.push(item)
                                         }
                                     })
@@ -855,12 +1141,14 @@ sap.ui.define([
                                         if(item.SBU === vSBU){
                                             item.Item = item.BATCH;
                                             item.Desc = item.Description;
+                                            item.Desc2 = item.OrderNo;
                                             dataResult.push(item);
                                         }
                                         if(item.SBU == ""){
                                             item.SBU = vSBU
                                             item.Item = item.BATCH;
                                             item.Desc = item.Description;
+                                            item.Desc2 = item.OrderNo;
                                             dataResult.push(item);
                                         }
                                     }
@@ -950,11 +1238,14 @@ sap.ui.define([
                                     var dataResult = [];
                                     data.results.forEach(item=>{
                                         while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
-                                        item.Item = item.VENDOR;
-                                        item.Desc = item.Description;
+                                        if(item.PURORG === me._purOrg){
+                                            item.Item = item.VENDOR;
+                                            item.Desc = item.Description;
+                                            dataResult.push(item);
+                                        }
                                     })
 
-                                    valueHelpObjects = data.results;
+                                    valueHelpObjects = dataResult;
                                     title = me.getView().getModel("captionMsg").getData()["VENDOR"]
                                     resolve();
                                 },
@@ -991,6 +1282,7 @@ sap.ui.define([
             },
             handleValueHelpClose: async function(oEvent){
                 var me = this;
+                var vSBU = this._sbu;
 
                 // var prDetDataModel = this.getView().getModel('PRDetDataModel').getProperty('/results');
                 var tblIndex = this._tblIndex;
@@ -1021,7 +1313,7 @@ sap.ui.define([
                                             }
                                         })
                                         await me.setTableData('prDetTable');
-                                        resolve(me.onRowEdit('prDetTable', 'PRDetColModel'));
+                                        await me.onRowEdit('prDetTable', 'PRDetColModel');
                                         resolve();
                                     },
                                     error: function (err) {
@@ -1031,6 +1323,37 @@ sap.ui.define([
                                 });
                             });
                             Common.closeLoadingDialog(me);
+                        }
+
+                        if(this._inputSource.getId().includes("BATCH")){
+                            var batch = oSelectedItem.getTitle();
+                            await new Promise((resolve, reject) => {
+                                oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                                    success: async function (data, response) {
+                                        data.results.forEach(item=>{
+                                            if(item.BATCH !== ""){
+                                                if(item.SBU === vSBU){
+                                                    if(item.BATCH === batch){
+                                                        oRow.ORDERNO = item.OrderNo
+                                                    }else{
+                                                        oRow.ORDERNO = item.OrderNo
+                                                    }
+                                                }
+                                                if(item.SBU == ""){
+                                                    oRow.ORDERNO = item.OrderNo
+                                                }
+                                            }
+                                        });
+                                        await me.setTableData('prDetTable');
+                                        await me.onRowEdit('prDetTable', 'PRDetColModel');
+                                        resolve();
+                                    },
+                                    error: function (err) {
+                                        MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_ERROR"]);
+                                        resolve();
+                                    }
+                                });
+                            });
                         }
 
                         // var sRowPath = this._inputSource.getBindingInfo("value").binding.oContext.sPath;
@@ -1121,6 +1444,30 @@ sap.ui.define([
                             })
                             oJSONModel.setData(dataResult)
                             me.getView().setModel(oJSONModel, "purchPlantSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // 'SHIPTOPLANT'
+                oJSONModel = new JSONModel();
+                var plantCd = this.getView().byId("PLANTCD").getValue();
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_MPRSHIPTOPLNT_SH',{
+                        success: function (data, response) {
+                            var dataResult = [];
+                            data.results.forEach(item=>{
+                                if(plantCd === item.PurchPlant){
+                                    item.Item = item.plantcd;
+                                    item.Desc = item.Description;
+                                    dataResult.push(item);
+                                }
+                            })
+                            
+                            oJSONModel.setData(dataResult)
+                            me.getView().setModel(oJSONModel, "shipToPlantSource");
                             resolve();
                         },
                         error: function (err) {
@@ -1393,7 +1740,6 @@ sap.ui.define([
                             }
                         }
                     }
-
                 }
 
                 oSelectedIndices.forEach(item => {
@@ -1529,6 +1875,7 @@ sap.ui.define([
                     var prCreateSetParam = []
 
                     var prItem = 0;
+                    var orderNohasValueCheck = false
 
                     var prCreationMessage = "";
                     var prCreateSetParamZERPPR = []; //Store PR Items from Table Set
@@ -1538,9 +1885,11 @@ sap.ui.define([
                     //     oTmpSelectedIndices.push(oTable.getBinding("rows").aIndices[item])
                     // })
                     // oSelectedIndices = oTmpSelectedIndices;
-
+                    
+                    Common.openLoadingDialog(this);
                     if(oSelectedIndices.length > 0){
-                        oSelectedIndices.forEach(async (item, index) => {
+                        for(var item in oSelectedIndices){
+                        // oSelectedIndices.forEach(async (item, index) => {
                             matNo = aData.at(item).MATNO;
                             batch = aData.at(item).BATCH;
                             matTyp = aData.at(item).MATTYP;
@@ -1563,110 +1912,91 @@ sap.ui.define([
                             });
 
                             if(!hasError){
-                                if(!hasZERPMatBatch){
-                                    ZERPMatBatchParam = {
-                                        MATNO: matNo,
-                                        BATCH: batch,
-                                        IONO: batch
-                                    }
-                                    oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
+                                if(noRangeCd === ""){
                                     await new Promise((resolve, reject) => {
-                                        oModel.submitChanges({
-                                            groupId: "insert",
-                                            success: function(oData, oResponse){
-                                                //Success
+                                        oModel.read('/ZERP_MATTYPSet',{
+                                            urlParameters: {
+                                                "$filter": "MATTYP eq '" + matTyp + "'"
+                                            },
+                                            success: function (data, response) {
+                                                noRangeCd = data.results[0].BATCHSEQKY;
                                                 resolve();
-                                            },error: function(error){
-                                                MessageBox.error(error);
+                                            },
+                                            error: function (err) {
+                                                hasError = true;
                                                 resolve();
                                             }
-                                        })
+                                        });
                                     });
                                 }
-
-                                await new Promise((resolve, reject) => {
-                                    oModel.read('/ZERP_MATTYPSet',{
-                                        urlParameters: {
-                                            "$filter": "MATTYP eq '" + matTyp + "'"
-                                        },
-                                        success: function (data, response) {
-                                            noRangeCd = data.results[0].BATCHSEQKY;
-                                            resolve();
-                                        },
-                                        error: function (err) {
-                                            hasError = true;
-                                            resolve();
+                                if(aData.at(item).ORDERNO === "" || aData.at(item).ORDERNO === null || aData.at(item).ORDERNO === undefined){
+                                    orderNohasValueCheck = false;
+                                    if(noRangeCd !== ""){
+                                        var prItemInsert;
+                                        prItem = prItem + 10
+                                        ZERPNorangeKeyParam = {
+                                            NORANGECD: noRangeCd,
+                                            KEYCD: matNo + batch,
+                                            CURRENTNO: "000"
                                         }
-                                    });
-                                });
-
-                                if(noRangeCd !== ""){
-                                    var prItemInsert;
-                                    prItem = prItem + 10
-                                    ZERPNorangeKeyParam = {
-                                        NORANGECD: noRangeCd,
-                                        KEYCD: matNo + batch,
-                                        CURRENTNO: "000"
-                                    }
-                                    oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
-                                    await new Promise((resolve, reject) => {
-                                        oModel.submitChanges({
-                                            groupId: "insert",
-                                            success: function(oData, oResponse){
-                                                //Success
-                                                resolve();
-                                            },error: function(error){
-                                                MessageBox.error(error);
-                                                resolve();
-                                            }
+                                        oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
+                                        await new Promise((resolve, reject) => {
+                                            oModel.submitChanges({
+                                                groupId: "insert",
+                                                success: function(oData, oResponse){
+                                                    //Success
+                                                    resolve();
+                                                },error: function(error){
+                                                    MessageBox.error(error);
+                                                    resolve();
+                                                }
+                                            })
+                                        });
+                                        prItemInsert = prItem;
+                                        prItemInsert = String(parseInt(prItemInsert));
+                                        while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
+                                        prCreateSetParam.push({
+                                            Tblhdr:     "0000000001",
+                                            PreqItem:   prItemInsert,
+                                            DocType:    aData.at(item).DOCTYP,
+                                            PurGroup:   aData.at(item).PURGRP,
+                                            Preq_Date:   sapDateFormat.format(new Date()) + "T00:00:00",
+                                            // ShortText:  aData.at(item).SHORTTEXT,
+                                            Material:   matNo,
+                                            Plant:      aData.at(item).PLANTCD,
+                                            MatGrp:     aData.at(item).MATGRP,
+                                            Quantity:   aData.at(item).QUANTITY,
+                                            Unit:       aData.at(item).UOM,
+                                            DelivDate:  aData.at(item).DELDT !== undefined ? sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00": sapDateFormat.format(new Date()) + "T00:00:00",
+                                            Batch:      batch,
+                                            Des_Vendor:  aData.at(item).VENDOR,
+                                            PurchOrg:   aData.at(item).PURORG,
                                         })
-                                    });
-                                    prItemInsert = prItem;
-                                    prItemInsert = String(parseInt(prItemInsert));
-                                    while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
-                                    prCreateSetParam.push({
-                                        Tblhdr:     "0000000001",
-                                        PreqItem:   prItemInsert,
-                                        DocType:    aData.at(item).DOCTYP,
-                                        PurGroup:   aData.at(item).PURGRP,
-                                        Preq_Date:   sapDateFormat.format(new Date()) + "T00:00:00",
-                                        // ShortText:  aData.at(item).SHORTTEXT,
-                                        Material:   matNo,
-                                        Plant:      aData.at(item).PLANTCD,
-                                        MatGrp:     aData.at(item).MATGRP,
-                                        Quantity:   aData.at(item).QUANTITY,
-                                        Unit:       aData.at(item).UOM,
-                                        DelivDate:  sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
-                                        Batch:      batch,
-                                        Des_Vendor:  aData.at(item).VENDOR,
-                                        PurchOrg:   aData.at(item).PURORG,
-                                    })
-                                    prCreateSetParamZERPPR.push({
-                                        Tblhdr:     "0000000001",
-                                        PreqItem:   prItemInsert,
-                                        DocType:    aData.at(item).DOCTYP,
-                                        PurGroup:   aData.at(item).PURGRP,
-                                        PurchOrg:   aData.at(item).PURORG,
-                                        Plant:      aData.at(item).PLANTCD,
-                                        Material:   matNo,
-                                        MatGrp:     aData.at(item).MATGRP,
-                                        Quantity:   aData.at(item).QUANTITY,
-                                        Unit:       aData.at(item).UOM,
-                                        DelivDate:  sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00",
-                                        Batch:      batch,
-                                        SupTyp:     aData.at(item).SUPTYP,
-                                        SalesGrp:   aData.at(item).SALESGRP,
-                                        CustGrp:    aData.at(item).CUSTGRP,
-                                        ShipToPlant:aData.at(item).SHIPTOPLANT,
-                                        SeasonCd:   aData.at(item).SEASONCD
+                                        prCreateSetParamZERPPR.push({
+                                            Tblhdr:     "0000000001",
+                                            PreqItem:   prItemInsert,
+                                            DocType:    aData.at(item).DOCTYP,
+                                            PurGroup:   aData.at(item).PURGRP,
+                                            PurchOrg:   aData.at(item).PURORG,
+                                            Plant:      aData.at(item).PLANTCD,
+                                            Material:   matNo,
+                                            MatGrp:     aData.at(item).MATGRP,
+                                            Quantity:   aData.at(item).QUANTITY,
+                                            Unit:       aData.at(item).UOM,
+                                            DelivDate:  aData.at(item).DELDT !== undefined ? sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00": sapDateFormat.format(new Date()) + "T00:00:00",
+                                            Batch:      batch,
+                                            SupTyp:     aData.at(item).SUPTYP,
+                                            SalesGrp:   aData.at(item).SALESGRP,
+                                            CustGrp:    aData.at(item).CUSTGRP,
+                                            ShipToPlant:aData.at(item).SHIPTOPLANT,
+                                            SeasonCd:   aData.at(item).SEASONCD
+    
+                                            // FixedVend:  aData.at(item).VENDOR
+                                        })
+                                    }
 
-                                        // FixedVend:  aData.at(item).VENDOR
-                                    })
-                                }
-                                await new Promise(async (resolve, reject) => {
-                                    iCounter++;
-                                    if(oSelectedIndices.length === iCounter){
-                                        Common.openLoadingDialog(this);
+                                    await new Promise(async (resolve, reject) => {
+                                        iCounter++;
                                         prCreateSetParamSet = {
                                             iv_userid: "",
                                         }
@@ -1694,7 +2024,131 @@ sap.ui.define([
                                         })
 
                                         await me.extendToZERP_PR(prCreateSetParamZERPPR, errTyp, prCreatedPRNO);
-                                        Common.closeLoadingDialog(this);
+                                        resolve();
+                                    });
+                                    prCreateSetParam = [];
+                                    prCreateSetParamZERPPR = [];
+
+                                }else{
+                                    orderNohasValueCheck = true;
+                                }
+                                if(!hasZERPMatBatch){
+                                    ZERPMatBatchParam = {
+                                        MATNO: matNo,
+                                        BATCH: batch,
+                                        IONO: batch
+                                    }
+                                    oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
+                                    await new Promise((resolve, reject) => {
+                                        oModel.submitChanges({
+                                            groupId: "insert",
+                                            success: function(oData, oResponse){
+                                                //Success
+                                                resolve();
+                                            },error: function(error){
+                                                MessageBox.error(error);
+                                                resolve();
+                                            }
+                                        })
+                                    });
+                                }
+
+                                
+                                if(orderNohasValueCheck){
+                                    if(noRangeCd !== ""){
+                                        var prItemInsert;
+                                        prItem = prItem + 10
+                                        ZERPNorangeKeyParam = {
+                                            NORANGECD: noRangeCd,
+                                            KEYCD: matNo + batch,
+                                            CURRENTNO: "000"
+                                        }
+                                        oModel.create("/ZERP_NORANGEKEYSet", ZERPNorangeKeyParam, modelParameter);
+                                        await new Promise((resolve, reject) => {
+                                            oModel.submitChanges({
+                                                groupId: "insert",
+                                                success: function(oData, oResponse){
+                                                    //Success
+                                                    resolve();
+                                                },error: function(error){
+                                                    MessageBox.error(error);
+                                                    resolve();
+                                                }
+                                            })
+                                        });
+                                        prItemInsert = prItem;
+                                        prItemInsert = String(parseInt(prItemInsert));
+                                        while(prItemInsert.length < 5) prItemInsert = "0" + prItemInsert.toString();
+                                        prCreateSetParam.push({
+                                            Tblhdr:     "0000000001",
+                                            PreqItem:   prItemInsert,
+                                            DocType:    aData.at(item).DOCTYP,
+                                            PurGroup:   aData.at(item).PURGRP,
+                                            Preq_Date:   sapDateFormat.format(new Date()) + "T00:00:00",
+                                            // ShortText:  aData.at(item).SHORTTEXT,
+                                            Material:   matNo,
+                                            Plant:      aData.at(item).PLANTCD,
+                                            MatGrp:     aData.at(item).MATGRP,
+                                            Quantity:   aData.at(item).QUANTITY,
+                                            Unit:       aData.at(item).UOM,
+                                            DelivDate:  aData.at(item).DELDT !== undefined ? sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00": sapDateFormat.format(new Date()) + "T00:00:00",
+                                            Batch:      batch,
+                                            Des_Vendor:  aData.at(item).VENDOR,
+                                            PurchOrg:   aData.at(item).PURORG,
+                                        })
+                                        prCreateSetParamZERPPR.push({
+                                            Tblhdr:     "0000000001",
+                                            PreqItem:   prItemInsert,
+                                            DocType:    aData.at(item).DOCTYP,
+                                            PurGroup:   aData.at(item).PURGRP,
+                                            PurchOrg:   aData.at(item).PURORG,
+                                            Plant:      aData.at(item).PLANTCD,
+                                            Material:   matNo,
+                                            MatGrp:     aData.at(item).MATGRP,
+                                            Quantity:   aData.at(item).QUANTITY,
+                                            Unit:       aData.at(item).UOM,
+                                            DelivDate:  aData.at(item).DELDT !== undefined ? sapDateFormat.format(new Date(aData.at(item).DELDT)) + "T00:00:00": sapDateFormat.format(new Date()) + "T00:00:00",
+                                            Batch:      batch,
+                                            SupTyp:     aData.at(item).SUPTYP,
+                                            SalesGrp:   aData.at(item).SALESGRP,
+                                            CustGrp:    aData.at(item).CUSTGRP,
+                                            ShipToPlant:aData.at(item).SHIPTOPLANT,
+                                            SeasonCd:   aData.at(item).SEASONCD
+
+                                            // FixedVend:  aData.at(item).VENDOR
+                                        })
+                                    }
+                                }
+                                await new Promise(async (resolve, reject) => {
+                                    iCounter++;
+                                    if(oSelectedIndices.length === iCounter){
+                                        prCreateSetParamSet = {
+                                            iv_userid: "",
+                                        }
+                                        prCreateSetParamMain = prCreateSetParamSet;
+                                        prCreateSetParamMain["N_PRHEADER"] = [{
+                                            Tblhdr: "0000000001"
+                                        }];
+                                        prCreateSetParamMain["N_PRITEMS"] = prCreateSetParam;
+                                        prCreateSetParamMain["N_PRITEMTEXT"] = [];
+                                        prCreateSetParamMain["N_PRRETURN"] = [];
+
+                                        await new Promise((resolve, reject)=>{
+                                            rFcModel.create("/PRCreateSet", prCreateSetParamMain, {
+                                                method: "POST",
+                                                success: function(oData, oResponse){
+                                                    prCreationMessage = oData.N_PRRETURN.results[0].Message; //After CreatePRSet Message
+                                                    prCreatedPRNO = oData.N_PRRETURN.results[0].MessageV1; //CreatedPRNo
+                                                    errTyp = oData.N_PRRETURN.results[0].Type;
+                                                    resolve();
+                                                },error: function(error){
+                                                    MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_CREATE_PR_ERROR"]);
+                                                    resolve()
+                                                }
+                                            })
+                                        })
+
+                                        await me.extendToZERP_PR(prCreateSetParamZERPPR, errTyp, prCreatedPRNO);
                                         if(prCreationMessage !== ""){
 
                                             if(errTyp !== "I"){
@@ -1784,11 +2238,15 @@ sap.ui.define([
                                     resolve();
                                 });
                             }
-                        })
+                        // })
+                        }
                     }else{
                         MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_NO_PR_TO_SAVE"]);
                     }
+                    
+                    Common.closeLoadingDialog(this);
                 }
+                
             },
 
             extendToZERP_PR: async function(PRItems, errTyp, PRNo){
