@@ -198,7 +198,6 @@ sap.ui.define([
                 await new Promise((resolve, reject)=>{
                     oModel.read("/MANPRDYNAMICCOLSet", {
                         success: function (oData, oResponse) {
-                            console.log(oData)
                             var visibleFields = {};
                             var editableFields ={};
                             var mandatoryFields = {};
@@ -304,9 +303,6 @@ sap.ui.define([
                                             }
                                         }
                                         
-                                        
-                                        console.log(oEditableFields);
-                                        console.log(oMandatoryFields);
                                         // var count = 0;
                                         // var indx = 0;
                                         // var strDocTyp = "";

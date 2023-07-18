@@ -20,7 +20,7 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/INFORECORD}" visible="true">
                                 <f:fields>
-                                    <Input id="INFNR" value="{path: 'headerData>/INFNR', mandatory: 'INFNR', editable: 'INFNR'}" editable="false" valueStateText="Required" 
+                                    <Input id="INFORECORD" value="{path: 'headerData>/INFORECORD', mandatory: 'INFORECORD', editable: 'INFORECORD'}" editable="false" valueStateText="Required" 
                                         change="onHeaderChange" liveChange="onHeaderChange"/>
                                 </f:fields>
                             </f:FormElement>
