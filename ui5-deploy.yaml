@@ -14,12 +14,12 @@ builder:
       afterTask: generateCachebusterInfo
       configuration:
         target:
-          destination: LTD888
-          url: http://159.138.39.203:8000
+          destination: LTD888_S4HANA2022
+          url: http://190.92.230.65:8000
         app:
           name: ZUI_PR
           description: Purchase Requisition
           package: ZPK_LTH_3DERP
-          transport: LTDK910878
+          transport: LTDK916551
         exclude:
           - /test/

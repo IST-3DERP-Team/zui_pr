@@ -679,6 +679,47 @@ sap.ui.define([
                     }
                 }
 
+                if(colName === "BATCH"){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    if(item.BATCH !== ""){
+                                        if(item.SBU === vSBU){
+                                            item.Item = item.BATCH;
+                                            item.Desc = item.Description;
+                                            item.Desc2 = item.OrderNo;
+                                            dataResult.push(item);
+                                        }
+                                        if(item.SBU == ""){
+                                            item.SBU = vSBU
+                                            item.Item = item.BATCH;
+                                            item.Desc = item.Description;
+                                            item.Desc2 = item.OrderNo;
+                                            dataResult.push(item);
+                                        }
+                                    }
+                                })
+
+                                oJSONModel.setData(data.results)
+                                resolve(me.getView().setModel(oJSONModel, "mPRDetBATCH"));
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                    returnData = {
+                        path: 'mPRDetBATCH>/',
+                        template: new sap.ui.core.Item({
+                            key: "{mPRDetBATCH>Item}",
+                            text: "{mPRDetBATCH>Item} - {mPRDetBATCH>Desc}"
+                        }),
+                        templateShareable: true 
+                    }
+                }
+
                 return returnData;
             },
             onInputLiveChange: async function(oEvent){
@@ -781,37 +822,37 @@ sap.ui.define([
                     var batch = oEvent.getParameters().value;
                     var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
                     var vSBU = this._sbu;
-                    await new Promise((resolve, reject) => {
-                        oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
-                            success: async function (data, response) {
-                                data.results.forEach(item=>{
-                                    if(item.BATCH !== ""){
-                                        if(item.SBU === vSBU){
-                                            if(item.BATCH === batch){
-                                                oRow.ORDERNO = item.OrderNo
-                                            }else{
-                                                oRow.ORDERNO = item.OrderNo
-                                            }
-                                        }else{
-                                            oRow.BATCH = batch;
-                                        }
-                                        if(item.SBU == ""){
-                                            oRow.ORDERNO = item.OrderNo
-                                        }else{
-                                            oRow.BATCH = batch;
-                                        }
-                                    }
-                                });
+                    // await new Promise((resolve, reject) => {
+                    //     oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                    //         success: async function (data, response) {
+                    //             data.results.forEach(item=>{
+                    //                 if(item.BATCH !== ""){
+                    //                     if(item.SBU === vSBU){
+                    //                         if(item.BATCH === batch){
+                    //                             oRow.ORDERNO = item.OrderNo
+                    //                         }else{
+                    //                             oRow.ORDERNO = item.OrderNo
+                    //                         }
+                    //                     }else{
+                    //                         oRow.BATCH = batch;
+                    //                     }
+                    //                     if(item.SBU == ""){
+                    //                         oRow.ORDERNO = item.OrderNo
+                    //                     }else{
+                    //                         oRow.BATCH = batch;
+                    //                     }
+                    //                 }
+                    //             });
                                 
-                                await me.setTableData('prDetTable');
-                                await me.onRowEdit('prDetTable', 'PRDetColModel');
-                                resolve();
-                            },
-                            error: function (err) {
-                                resolve();
-                            }
-                        });
-                    });
+                    //             await me.setTableData('prDetTable');
+                    //             await me.onRowEdit('prDetTable', 'PRDetColModel');
+                    //             resolve();
+                    //         },
+                    //         error: function (err) {
+                    //             resolve();
+                    //         }
+                    //     });
+                    // });
                 }else if(oEvent.getSource().getId().includes("VENDOR")){
                     // this._purOrg = oEvent.getParameters().value;
                     // var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
@@ -1644,43 +1685,12 @@ sap.ui.define([
             // },
 
             onSaveHeader: async function(){
-                // var docTypVal = this.getView().byId("DOCTYP").getValue();
-                // var purGrpVal = this.getView().byId("PURGRP").getValue();
-                // var purPlantVal = this.getView().byId("PLANTCD").getValue();
-                // var custGrpVal = this.getView().byId("CUSTGRP").getValue();
-                // var salesGrpVal = this.getView().byId("SALESGRP").getValue();
-
-                // if(docTypVal === "" || purGrpVal === "" || purPlantVal === "" || custGrpVal === "" || salesGrpVal === ""){
-
-                //     if(docTypVal === ""){
-                //         this.getView().byId("DOCTYP").setValueState("Error");
-                //         this.getView().byId("DOCTYP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
-                //     }
-                //     if(purGrpVal === ""){
-                //         this.getView().byId("PURGRP").setValueState("Error");
-                //         this.getView().byId("PURGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
-                //     }
-                //     if(purPlantVal === ""){
-                //         this.getView().byId("PLANTCD").setValueState("Error");
-                //         this.getView().byId("PLANTCD").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
-                //     }
-                //     if(custGrpVal === ""){
-                //         this.getView().byId("CUSTGRP").setValueState("Error");
-                //         this.getView().byId("CUSTGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
-                //     }
-                //     if(salesGrpVal === ""){
-                //         this.getView().byId("SALESGRP").setValueState("Error");
-                //         this.getView().byId("SALESGRP").setValueStateText(this.getView().getModel("captionMsg").getData()["INFO_REQUIRED_FIELD"]);
-                //     }
-                //     MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_BELOW_FIELD_REQ"]);
-                //     return;
-                // }
-
                 var me = this;
                 var oTable = this.byId("prDetTable");
                 var oSelectedIndices = oTable.getBinding("rows").aIndices;
                 var oTmpSelectedIndices = [];
                 var aData = oTable.getModel().getData().rows;
+                var vSBU = this._sbu;
 
                 //Boolean to check if there is Validation Errors
                 var boolProceed = true;
@@ -1752,59 +1762,6 @@ sap.ui.define([
                 var colCounter = 0;
 
                 if(oSelectedIndices.length > 0){
-                    // await new Promise((resolve, reject)=>{
-                    //     for (var i = 0; i < aItems.length; i++) {
-                    //         var oItem = aItems[i];
-                    //         for (var index = 0; index < oSelectedIndices.length; index++) {
-                    //             var item = oSelectedIndices[index];
-                    //             colCounter++;
-                    //             if(oItem.getIndex() === item){
-                    //                 var aCells = oItem.getCells();
-                    //                 for (var i = 0; i < aCells.length; i++) {
-                    //                     colCounter++;
-                    //                     var oCell = aCells[i];
-                    //                     if (oCell.isA("sap.m.Input")) {
-                    //                         if(oCell.getBindingInfo("value").mandatory === "true"){
-                    //                             if(oCell.getValue() === ""){
-                    //                                 oCell.setValueState(sap.ui.core.ValueState.Error);
-                    //                                 me._validationErrors.push(oCell.getId());
-                    //                             }else{
-                    //                                 oCell.setValueState(sap.ui.core.ValueState.None);
-                    //                                 me._validationErrors.forEach((item, index) => {
-                    //                                     if (item === oCell.getId()) {
-                    //                                         me._validationErrors.splice(index, 1)
-                    //                                     }
-                    //                                 })
-                    //                             }
-                    //                         }else{
-                    //                             oCell.setValueState(sap.ui.core.ValueState.None);
-                    //                         }
-                    //                     }else if (oCell.isA("sap.m.DatePicker")) {
-                    //                         if(oCell.getBindingInfo("value").mandatory === "true"){
-                    //                             if(oCell.getValue() === ""){
-                    //                                 oCell.setValueState(sap.ui.core.ValueState.Error);
-                    //                                 me._validationErrors.push(oCell.getId());
-                    //                             }else{
-                    //                                 oCell.setValueState(sap.ui.core.ValueState.None);
-                    //                                 me._validationErrors.forEach((item, index) => {
-                    //                                     if (item === oCell.getId()) {
-                    //                                         me._validationErrors.splice(index, 1)
-                    //                                     }
-                    //                                 })
-                    //                             }
-                    //                         }else{
-                    //                             oCell.setValueState(sap.ui.core.ValueState.None);
-                    //                         }
-                    //                     }
-                    //                 };
-                    //             }
-
-                    //             if(oSelectedIndices.length === colCounter){
-                    //                 resolve();
-                    //             }
-                    //         }
-                    //     };
-                    // });
                     aItems.forEach(function(oItem) {
                         oSelectedIndices.forEach((item, index) => {
                             if(oItem.getIndex() === item){
@@ -1858,6 +1815,7 @@ sap.ui.define([
                         "groupId": "insert"
                     };
                     var rFcModel = this.getOwnerComponent().getModel('ZGW_3DERP_RFC_SRV');
+                    var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
                     var iCounter = 0;
 
                     var matNo = "";
@@ -1929,6 +1887,32 @@ sap.ui.define([
                                         });
                                     });
                                 }
+                                await new Promise((resolve, reject) => {
+                                    oModelFilter.read('/ZVB_3DERP_PR_BATCH_SH',{
+                                        success: async function (data, response) {
+                                            data.results.forEach(item2=>{
+                                                if(item2.BATCH !== ""){
+                                                    if(item2.SBU === vSBU){
+                                                        if(item2.BATCH ===  aData.at(item).BATCH){
+                                                            aData.at(item).ORDERNO = item2.OrderNo
+                                                        }else{
+                                                            aData.at(item).ORDERNO = item2.OrderNo
+                                                        }
+                                                    }
+
+                                                    if(item.SBU == ""){
+                                                        aData.at(item).ORDERNO = item2.OrderNo
+                                                    }
+                                                }
+                                            });
+                                            resolve();
+                                        },
+                                        error: function (err) {
+                                            resolve();
+                                        }
+                                    });
+                                });
+
                                 if(aData.at(item).ORDERNO === "" || aData.at(item).ORDERNO === null || aData.at(item).ORDERNO === undefined){
                                     orderNohasValueCheck = false;
                                     if(noRangeCd !== ""){
@@ -2238,7 +2222,6 @@ sap.ui.define([
                                     resolve();
                                 });
                             }
-                        // })
                         }
                     }else{
                         MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_NO_PR_TO_SAVE"]);
