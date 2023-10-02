@@ -1434,6 +1434,8 @@ sap.ui.define(
 
             var valueHelpObjects = [];
             var title = "";
+            var sRowPath = oSource.oParent.getBindingContext().sPath;
+            let oModelData = {};
 
             if(fieldName === 'MATNO'){
                 await new Promise((resolve, reject) => {
@@ -1511,16 +1513,40 @@ sap.ui.define(
                     });
                 });
             }
-            if (fieldName === 'VENDOR') {
+            if (fieldName === 'PURORG') {
+                var vPlantCd = oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PLANTCD");
                 await new Promise((resolve, reject) => {
-                    oModelFilter.read('/ZVB_3DERP_VENDOR_SH',{
+                    oModelFilter.read('/ZVB_3DERP_PR_PURORG_SH',{
                         success: function (data, response) {
+                            oModelData = data.results.filter(item=> item.PurchPlant === vPlantCd )
+                            oModelData.forEach(item=>{
+                                item.Item = item.PURORG;
+                                item.Desc = item.Description;
+                            })
+                             
+
+                            valueHelpObjects = oModelData;// data.results
+                            title = "Purch. Org"
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            }
+            if (fieldName === 'VENDOR') {
+                var vPurOrg= oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PURORG");
+                await new Promise((resolve, reject) => {
+                    oModelFilter2.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                        success: function (data, response) {
+                            oModelData = data.results.filter(item=> item.PURORG === vPurOrg )
                             data.results.forEach(item=>{
-                                item.Item = item.Vendor;
+                                item.Item = item.VENDOR;
                                 item.Desc = item.Description;
                             })
 
-                            valueHelpObjects = data.results;
+                            valueHelpObjects = oModelData;// data.results
                             title = "Vendor"
                             resolve();
                         },
@@ -1953,9 +1979,15 @@ sap.ui.define(
                             MessageBox.information(message);
                             
                         },
-                        error: function() {
-                            message = msgError
-                            MessageBox.error(message);
+                        error: function(err) {
+                            var errorMsg;
+                            try {
+                                errorMsg = JSON.parse(err.responseText).error.message.value;
+                            } catch (err) {
+                                errorMsg = err.responseText;
+                            }
+                            //message = msgError
+                            MessageBox.error(errorMsg);
                             resolve();
                         }
                     })

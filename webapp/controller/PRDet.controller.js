@@ -135,6 +135,9 @@ sap.ui.define([
             loadAllData: async function(){
                 await this.getHeaderData();
                 await this.getHeaderConfig();
+                await new Promise((resolve, reject)=>{
+                    resolve(this.handleSuggestions())
+                });
             },
             getHeaderData: async function () {
                 var me = this;
@@ -501,9 +504,16 @@ sap.ui.define([
                                 MessageBox.information(message);
                                 
                             },
-                            error: function() {
-                                message = msgError
-                                MessageBox.error(message);
+                            error: function(err) {
+                                var errorMsg;
+                                try {
+                                    errorMsg = JSON.parse(err.responseText).error.message.value;
+                                } catch (err) {
+                                    errorMsg = err.responseText;
+                                }
+
+                                //message = errorMsg
+                                MessageBox.error(errorMsg);
                                 resolve();
                             }
                         })
@@ -629,6 +639,332 @@ sap.ui.define([
                 Common.closeLoadingDialog(that);
             },
 
+            handleSuggestions: async function(){
+                var me = this;
+                var vSBU = this._sbu;
+                var purPlantVal = this.getView().getModel("headerData").getData().PLANTCD;
+                var bProceed = true;
+
+                var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+
+                var oJSONModel = new JSONModel();
+
+                oJSONModel = new JSONModel();
+                // 'PURORG'
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_PR_PURORG_SH',{
+                        success: function (data, response) {
+                            var dataResult = [];
+                            data.results.forEach(item=>{
+                                if(item.PurchPlant === purPlantVal){
+                                    item.Item = item.PURORG;
+                                    item.Desc = item.Description;
+                                    dataResult.push(item);
+                                }
+                                // item.Desc = item.DESCRIPTION;
+                            })
+                            oJSONModel.setData(dataResult)
+                            me.getView().setModel(oJSONModel, "purchOrgSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+                // if(fieldName === 'VENDOR'){
+                    var vPurOrg = this.getView().getModel("headerData").getData().PURORG;
+                    if(vPurOrg === null || vPurOrg === undefined || vPurOrg === ""){
+                        bProceed = false;
+                    }
+
+                   //if(bProceed){
+                        oJSONModel = new JSONModel();
+                        await new Promise((resolve, reject) => {
+                            oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                                success: function (data, response) {
+                                    var dataResult = [];
+                                    data.results.forEach(item=>{
+                                        while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                                        if(item.PURORG === vPurOrg){
+                                            item.Item = item.VENDOR;
+                                            item.Desc = item.Description;
+                                            dataResult.push(item);
+                                        }
+                                    })
+
+                                    oJSONModel.setData(dataResult)
+                                    me.getView().setModel(oJSONModel, "vendorSource");
+                                    resolve();
+                                },
+                                error: function (err) {
+                                    resolve();
+                                }
+                            });
+                        });
+                    //}else{
+                       //MessageBox.error("Purchasing Org. is Required!");
+                   //}
+                //}
+                
+                // 'SUPTYP'
+                oJSONModel = new JSONModel();
+                await new Promise((resolve, reject) => {
+                    oModelFilter.read('/ZVB_3DERP_MPRSUPTYP_SH',{
+                        success: function (data, response) {
+                            data.results.forEach(item=>{
+                                item.Item = item.SUPTYP;
+                                item.Desc = item.Description;
+                            })
+                            oJSONModel.setData(data.results)
+                            me.getView().setModel(oJSONModel, "supTypSource");
+                            resolve();
+                        },
+                        error: function (err) {
+                            resolve();
+                        }
+                    });
+                });
+            },
+
+            onSuggestionItemSelected: async function(oEvent){
+                var oSelectedItem = oEvent.getParameter("selectedItem");
+                var sKey = oSelectedItem.getKey();
+                var oSource = oEvent.getSource();
+                var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+                var me = this;
+                var oJSONModel = new JSONModel();
+               
+
+                if(oEvent.getSource().getId().includes("VENDOR")){
+                    if(sKey.length < 10){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Invalid Vendor!");
+                        me._validationErrors.push(oEvent.getSource().getId())
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        me._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                me._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                }
+
+                
+                this._inputSource = oSource;
+                this._inputSource.setValue(sKey);
+                oSelectedItem.setText(sKey)
+
+                if(oEvent.getSource().getId().includes("PURORG")){
+                    var vPurOrg = this.getView().getModel("headerData").getData().PURORG;
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                                    if(item.PURORG === vPurOrg){
+                                        item.Item = item.VENDOR;
+                                        item.Desc = item.Description;
+                                        dataResult.push(item);
+                                    }
+                                })
+
+                                oJSONModel.setData(dataResult)
+                                me.getView().setModel(oJSONModel, "vendorSource");
+                                resolve();
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                }
+            },
+
+            handleValueHelp: async function(oEvent){
+                var me = this;
+                var vSBU = this._sbu;
+                var purPlantVal = this.getView().getModel("headerData").getData().PLANTCD;
+                var bProceed = true;
+
+                
+                var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
+                var oSource = oEvent.getSource();
+                var fieldName = oSource.getBindingInfo("value").parts[0].path.replace("/", "");
+
+                this._inputId = oSource.getId();
+                this._inputValue = oSource.getValue();
+                this._inputSource = oSource;
+
+                var valueHelpObjects = [];
+                var title = "";
+
+                
+                if(fieldName === 'PURORG'){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_PR_PURORG_SH',{
+                            success: function (data, response) {
+                                var dataResult = [];
+                                data.results.forEach(item=>{
+                                    if(item.PurchPlant === purPlantVal){
+                                        item.Item = item.PURORG;
+                                        item.Desc = item.Description;
+                                        dataResult.push(item);
+                                    }
+                                    // item.Desc = item.DESCRIPTION;
+                                })
+                                valueHelpObjects = dataResult;
+                                title = me.getView().getModel("captionMsg").getData()["PURORG"]
+                                resolve();
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                }
+                if(fieldName === 'SUPTYP'){
+                    await new Promise((resolve, reject) => {
+                        oModelFilter.read('/ZVB_3DERP_MPRSUPTYP_SH',{
+                            success: function (data, response) {
+                                data.results.forEach(item=>{
+                                    item.Item = item.SUPTYP;
+                                    item.Desc = item.Description;
+                                })
+
+                                valueHelpObjects = data.results;
+                                title = me.getView().getModel("captionMsg").getData()["SUPTYP"]
+                                resolve();
+                            },
+                            error: function (err) {
+                                resolve();
+                            }
+                        });
+                    });
+                }
+                if(fieldName === 'VENDOR'){
+                    var vPurOrg = this.getView().getModel("headerData").getData().PURORG;
+                    if(vPurOrg === null || vPurOrg === undefined || vPurOrg === ""){
+                        bProceed = false;
+                    }
+
+                    if(bProceed){
+                        await new Promise((resolve, reject) => {
+                            oModelFilter.read('/ZVB_3DERP_PR_VENDOR_SH',{
+                                success: function (data, response) {
+                                    var dataResult = [];
+                                    data.results.forEach(item=>{
+                                        while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
+                                        if(item.PURORG === vPurOrg){
+                                            item.Item = item.VENDOR;
+                                            item.Desc = item.Description;
+                                            dataResult.push(item);
+                                        }
+                                    })
+
+                                    valueHelpObjects = dataResult;
+                                    title = me.getView().getModel("captionMsg").getData()["VENDOR"]
+                                    resolve();
+                                },
+                                error: function (err) {
+                                    resolve();
+                                }
+                            });
+                        });
+                    }else{
+                        MessageBox.error(me.getView().getModel("captionMsg").getData()["INFO_PURORG_REQUIRED"]);
+                    }
+                }
+                if(bProceed){
+                    var oVHModel = new JSONModel({
+                        items: valueHelpObjects,
+                        title: title
+                    });
+
+                    // create value help dialog
+                    if (!this._valueHelpDialog) {
+                        this._valueHelpDialog = sap.ui.xmlfragment(
+                            "zuipr.view.fragments.valuehelp.ValueHelpDialog",
+                            me
+                        );
+
+                        this._valueHelpDialog.setModel(oVHModel);
+                        this.getView().addDependent(this._valueHelpDialog);
+                    }
+                    else {
+                        this._valueHelpDialog.setModel(oVHModel);
+                    }
+                    this._valueHelpDialog.open();
+                }
+            },
+            handleValueHelpClose: async function(oEvent){
+                var me = this;
+                var vSBU = this._sbu;
+
+                // var prDetDataModel = this.getView().getModel('PRDetDataModel').getProperty('/results');
+                var tblIndex = this._tblIndex;
+                var sRowPath = this._tblIndex == undefined ? null :"/results/"+ tblIndex.split("/")[2];
+
+
+                if (oEvent.sId === "confirm") {
+                    var oSelectedItem = oEvent.getParameter("selectedItem");
+
+                    if (oSelectedItem) {
+                        this._inputSource.setValue(oSelectedItem.getTitle());
+                        
+                        if (this._inputValue !== oSelectedItem.getTitle()) {
+                            // this.getView().getModel("mainTab").setProperty(sRowPath + '/Edited', true);
+
+                            this._bHeaderChanged = true;
+                        }
+                    }
+
+                    this._inputSource.setValueState("None");
+                }
+                else if (oEvent.sId === "cancel") {
+
+                }
+            },
+            handleValueHelpSearch: async function(oEvent){
+                var sValue = oEvent.getParameter("value");
+
+                var oFilter = new sap.ui.model.Filter({
+                    filters: [
+                        new sap.ui.model.Filter("Item", sap.ui.model.FilterOperator.Contains, sValue),
+                        new sap.ui.model.Filter("Desc", sap.ui.model.FilterOperator.Contains, sValue)
+                    ],
+                    and: false
+                });
+
+                oEvent.getSource().getBinding("items").filter([oFilter]);
+            },
+
+           
+
+            onHeaderChange: function (oEvent) {
+                if(oEvent.getSource().getBindingInfo("value").mandatory){
+                    if(oEvent.getParameters().value === ""){
+                        oEvent.getSource().setValueState("Error");
+                        oEvent.getSource().setValueStateText("Required Field");
+                        this._validationErrors.push(oEvent.getSource().getId());
+                    }else{
+                        oEvent.getSource().setValueState("None");
+                        this._validationErrors.forEach((item, index) => {
+                            if (item === oEvent.getSource().getId()) {
+                                this._validationErrors.splice(index, 1)
+                            }
+                        })
+                    }
+                }
+                //if original value is equal to change value
+                if(oEvent.getParameters().value === oEvent.getSource().getBindingInfo("value").binding.oValue){
+                    this._isEdited = false;
+                }else{
+                    this._isEdited = true;
+                }
+            },
 
            
         });

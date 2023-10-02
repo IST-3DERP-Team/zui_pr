@@ -25,22 +25,42 @@
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>
+                           <f:formElements>
+                            <f:FormElement label="{captionMsg>/PURORG}" visible="true">
+                                <f:fields>
+                                    <Input id="PURORG" value="{path: 'headerData>/PURORG', mandatory: 'PURORG', editable: 'PURORG'}" editable="false" valueStateText="Required" 
+                                        change="onHeaderChange" liveChange="onHeaderChange" valueHelpRequest="handleValueHelp" showSuggestion="true"
+                                        suggestionItems="{path: 'purchOrgSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" 
+                                        >
+                                        <suggestionItems>
+                                            <core:Item key="{purchOrgSource>Item}" text="{purchOrgSource>Item} - {purchOrgSource>Desc}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
+                                    </Input>
+
+                                </f:fields>
+                            </f:FormElement>
+                        </f:formElements>
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/VENDOR}" visible="true">
                                 <f:fields>
                                     <Input id="VENDOR" value="{path: 'headerData>/VENDOR', mandatory: 'VENDOR', editable: 'VENDOR'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                        change="onHeaderChange" liveChange="onHeaderChange" valueHelpRequest="handleValueHelp" showSuggestion="true"
+                                        suggestionItems="{path: 'vendorSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" 
+                                         >
+                                        <suggestionItems>
+                                             <core:Item key="{vendorSource>Item}" text="{vendorSource>Item} - {vendorSource>Desc}" />
+                                        </suggestionItems>
+                                        <layoutData>
+                                            <FlexItemData growFactor="1" />
+                                        </layoutData>
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>
-                        <f:formElements>
-                            <f:FormElement label="{captionMsg>/PURORG}" visible="true">
-                                <f:fields>
-                                    <Input id="PURORG" value="{path: 'headerData>/PURORG', mandatory: 'PURORG', editable: 'PURORG'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
-                                </f:fields>
-                            </f:FormElement>
-                        </f:formElements>
+                        
                         <f:layoutData>
                             <l:GridData span="XL5 L7 M7 S12" />
                         </f:layoutData>

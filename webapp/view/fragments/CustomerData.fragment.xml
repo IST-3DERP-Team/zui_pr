@@ -21,7 +21,17 @@
                             <f:FormElement label="{captionMsg>/SUPTYP}" visible="true">
                                 <f:fields>
                                     <Input id="SUPTYP" value="{path: 'headerData>/SUPTYP', mandatory: 'SUPTYP', editable: 'SUPTYP'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                        change="onHeaderChange" liveChange="onHeaderChange" valueHelpRequest="handleValueHelp" showSuggestion="true"
+                                        suggestionItems="{path: 'supTypSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" 
+                                    >
+                                    
+                                    <suggestionItems>
+                                        <core:Item key="{supTypSource>Item}" text="{supTypSource>Item} - {supTypSource>Desc}" />
+                                    </suggestionItems>
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" />
+                                    </layoutData>
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>

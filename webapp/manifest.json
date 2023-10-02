@@ -35,7 +35,7 @@
                 }
             },
             "ZVB_3DERP_PR_FILTERS_CDS_Annotation": {
-                "uri": "/destinations/LTD888/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PR_FILTERS_CDS_VAN',Version='0001')/$value/",
+                "uri": "/destinations/LTD888_S4HANA2022/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PR_FILTERS_CDS_VAN',Version='0001')/$value/",
                 "type": "ODataAnnotation",
                 "settings": {
                     "localUri": "localService/ZVB_3DERP_PR_FILTERS_CDS/ZVB_3DERP_PR_FILTERS_CDS_Annotation.xml"
@@ -71,7 +71,7 @@
                 }
             },
             "ZVB_3DERP_PRM_FILTERS_CDS_Annotation": {
-                "uri": "/destinations/LTD888/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PRM_FILTERS_CDS_VAN',Version='0001')/$value/",
+                "uri": "/destinations/LTD888_S4HANA2022/sap/opu/odata/IWFND/CATALOGSERVICE;v=2/Annotations(TechnicalName='ZVB_3DERP_PRM_FILTERS_CDS_VAN',Version='0001')/$value/",
                 "type": "ODataAnnotation",
                 "settings": {
                     "localUri": "localService/ZVB_3DERP_PRM_FILTERS_CDS/ZVB_3DERP_PRM_FILTERS_CDS_Annotation.xml"
@@ -116,7 +116,7 @@
         }
     },
     "sap.ui5": {
-        "flexEnabled": true,
+        "flexEnabled": false,
         "dependencies": {
             "minUI5Version": "1.71.49",
             "libs": {
