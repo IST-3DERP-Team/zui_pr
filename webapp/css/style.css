@@ -67,3 +67,8 @@
 .requiredField {
     color: red !important;
 }
+.sapMLabelRequired, .sapMLabelRequired::before {
+
+    color: #c75858 !important;
+
+}

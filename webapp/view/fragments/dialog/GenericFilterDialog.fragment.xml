@@ -1,0 +1,172 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        xmlns:layout="sap.ui.layout"
+        xmlns:tnt="sap.tnt"
+        fragmentName="fragment1">
+    <Dialog contentWidth="1000px" 
+        contentHeight="515px"
+        title="{captionMsg>/FLTRCRIT}"
+        resizable="true"
+        draggable="true">
+        <!-- <beginButton>
+			<Button type="Emphasized" text="OK" press=".onColFilterConfirm" width="4rem" />
+		</beginButton>
+        <endButton>
+			<Button text="Cancel" press=".onColFilterCancel"/>
+		</endButton> -->
+        <buttons>
+            <Button type="Emphasized" text="{captionMsg>/OK}" tooltip="{captionMsg>/OK}" press="onColFilterConfirm" width="4rem" />
+            <Button text="{captionMsg>/CANCEL}" tooltip="{captionMsg>/CANCEL}" press="onColFilterCancel"/>
+            <Button text="{captionMsg>/CLRFLTRS}" tooltip="{captionMsg>/CLRFLTRS}" press="onColFilterClear" >
+                <customData>
+                    <core:CustomData key="Function" value="Clear" />
+                </customData>
+            </Button>
+        </buttons>
+        <SplitContainer>
+            <masterPages>
+                <Page
+                    title="Filter by Value"
+                    backgroundDesign= "Solid"
+                    showHeader="false"
+                    class="sapUiStdPage">
+                    <List items="{/items}" itemPress="onFilterItemPress" mode="SingleSelectMaster">
+                        <StandardListItem title="{ColumnLabel}" info="{ColumnInfo}" tooltip="{ColumnLabel}" type="Active" selected="{selected}" icon="sap-icon://text-align-justified" />
+                    </List>
+                </Page>
+            </masterPages>
+            <detailPages>
+                <Page 
+                    title="Filter by Value"
+                    backgroundDesign= "Solid"
+                    showHeader="false"
+                    class="sapUiStdPage">
+                    <VBox fitContainer="true">
+                        <VBox height="35px">
+                            <Toolbar>
+                                <Button icon="sap-icon://clear-filter" tooltip="{captionMsg>/REMOVEFLTR}" press="onRemoveColFilter" enabled="{/btnRemoveFilterEnable}"/>
+                                <ToolbarSeparator />
+                                <RadioButton selected="{/selectVLF}" select="onSetUseColFilter">
+                                    <customData>
+                                        <core:CustomData key="FilterType" value="VLF" />
+                                    </customData>        
+                                </RadioButton>
+                                <tnt:InfoLabel text="{captionMsg>/VALUELIST}" class="sapUiSmallMarginEnd cursorPointer">
+                                    <tnt:customData>
+                                        <core:CustomData key="FilterType" value="VLF" />
+                                    </tnt:customData>
+                                </tnt:InfoLabel>
+                                <ToolbarSeparator />
+                                <RadioButton selected="{/selectUDF}" select="onSetUseColFilter" visible="{/rbtnUDFVisible}">
+                                    <customData>
+                                        <core:CustomData key="FilterType" value="UDF" />
+                                    </customData>        
+                                </RadioButton>
+                                <tnt:InfoLabel text="{captionMsg>/USERDEF}" class="cursorPointer" visible="{/lblUDFVisible}" >
+                                    <tnt:customData>
+                                        <core:CustomData key="FilterType" value="UDF" />
+                                    </tnt:customData>
+                                </tnt:InfoLabel>
+                            </Toolbar>
+                        </VBox>
+                        <VBox fitContainer="true" visible="{/panelVLFVisible}">
+                            <uit:Table
+                                rows="{/currValues}"
+                                columnHeaderVisible="true"
+                                selectionMode="MultiToggle"
+                                visibleRowCountMode="Auto"
+                                rowSelectionChange="onFilterValuesSelectionChange">
+                                <uit:extension>
+                                    <Toolbar>
+                                        <Text text="{/rowCount} item/s" />
+                                        <ToolbarSpacer/>
+                                        <ToolbarSeparator />
+                                        <SearchField
+                                            placeholder="{captionMsg>/SEARCH}"
+                                            value="{/searchValue}"
+                                            search="onSearchFilterValue"
+                                            visible="true"
+                                            width="300px"/>                                           
+                                    </Toolbar>
+                                </uit:extension> 
+                                <uit:columns>
+                                    <uit:Column width="50px" visible="false">
+                                        <Label text="Select" />
+                                        <uit:template>
+                                            <CheckBox selected="{Selected}" wrapping="false" />
+                                        </uit:template>
+                                    </uit:Column>
+                                    <uit:Column width="100%">
+                                        <Label text="{/selectedItem}" />
+                                        <uit:template>
+                                            <Text text="{Value}" wrapping="false" tooltip="{Value}" />
+                                        </uit:template>
+                                    </uit:Column>
+                                </uit:columns>
+                                <uit:layoutData>
+                                    <FlexItemData growFactor="1" baseSize="0%"/>
+                                </uit:layoutData>                                  
+                            </uit:Table>
+                            <layoutData>
+                                <FlexItemData growFactor="1" baseSize="0%"/>
+                            </layoutData> 
+                        </VBox>
+                        <VBox fitContainer="true" visible="{/panelUDFVisible}">
+                            <HBox fitContainer="true" class="sapUiTinyMarginBegin sapUiTinyMarginEnd sapUiTinyMarginTop" visible="true">
+                                <ComboBox selectedKey="{/customColFilterOperator}" class="sapUiTinyMarginEnd" change="onCustomColFilterChange" width="200px">
+                                    <core:Item key="EQ" text="Equals" />
+                                    <core:Item key="NE" text="Not Equals" />
+                                    <core:Item key="Contains" text="Contains" />
+                                    <core:Item key="NotContains" text="Not Contains" />
+                                    <core:Item key="GT" text="Greater Than" />
+                                    <core:Item key="GE" text="Greater Than Or Equals" />
+                                    <core:Item key="LT" text="Less Than" />
+                                    <core:Item key="LE" text="Less Than Or Equals" />
+                                    <core:Item key="BT" text="Between" />
+                                </ComboBox>
+                                <Input value="{/customColFilterFrVal}" liveChange="onCustomColFilterChange" type="Text" visible="{/customColFilterFrValVisible}">
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" baseSize="0%"/>
+                                    </layoutData> 
+                                </Input>
+                                <DatePicker
+                                    value="{/customColFilterFrVal}"
+                                    displayFormat="MM/dd/yyyy"
+                                    valueFormat="MM/dd/yyyy"
+                                    change="onCustomColFilterChange"
+                                    visible="{/customColFilterFrDateVisible}">
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" baseSize="0%"/>
+                                    </layoutData> 
+                                </DatePicker>
+                            </HBox>
+                            <HBox fitContainer="true" class="sapUiTinyMarginBegin sapUiTinyMarginEnd" visible="{/panelUDFToVisible}">
+                                <Text text="to" textAlign="End" width="200px" class="sapUiTinyMarginEnd sapUiTinyMarginTop"></Text>
+                                <Input value="{/customColFilterToVal}" liveChange="onCustomColFilterChange" type="Text" visible="{/customColFilterToValVisible}">
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" baseSize="0%"/>
+                                    </layoutData>                                    
+                                </Input>
+                                <DatePicker
+                                    value="{/customColFilterToVal}"
+                                    displayFormat="MM/dd/yyyy"
+                                    valueFormat="MM/dd/yyyy"
+                                    change="onCustomColFilterChange"
+                                    visible="{/customColFilterToDateVisible}">
+                                    <layoutData>
+                                        <FlexItemData growFactor="1" baseSize="0%"/>
+                                    </layoutData> 
+                                </DatePicker>
+                            </HBox> 
+                            <layoutData>
+                                <FlexItemData growFactor="1" baseSize="0%"/>
+                            </layoutData>
+                        </VBox>
+                    </VBox>
+                </Page>
+            </detailPages>
+        </SplitContainer>   
+    </Dialog>
+</core:FragmentDefinition>
