@@ -1,0 +1,43 @@
+<core:FragmentDefinition
+	height="100%"
+	xmlns="sap.m"
+	xmlns:table="sap.ui.table"
+	xmlns:core="sap.ui.core"
+	xmlns:js="zuicostcnfg.js">
+    <Dialog 
+		contentWidth="375px"
+        contentHeight="260px"
+        title="Select {/title}"
+        resizable="true"
+        draggable="true">
+        <endButton>
+			<Button text="Cancel" />
+		</endButton>
+		<VBox fitContainer="true">
+			<table:Table 
+				enableColumnReordering="false" 
+				class="sapUiTinyMargin" 
+				visibleRowCountMode="Auto" 
+				selectionMode="Single"
+				selectionBehavior="RowOnly">
+				<table:extension>
+					<Toolbar height="35px" class="sapUiTinyMarginBottom">
+						<Text text="{/count} item/s" />
+						<ToolbarSpacer/>
+						<ToolbarSeparator/>
+						<SearchField
+							placeholder="Filter"
+							value=""
+							width="15rem"/>                                
+					</Toolbar>
+				</table:extension>	
+				<table:layoutData>
+					<FlexItemData growFactor="1" baseSize="0%"/>
+				</table:layoutData>			
+			</table:Table>
+			<layoutData>
+				<FlexItemData growFactor="1" />
+			</layoutData>	
+		</VBox>
+	</Dialog>
+</core:FragmentDefinition>

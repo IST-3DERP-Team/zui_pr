@@ -217,6 +217,9 @@
                     "defaultCountMode": "Inline",
                     "refreshAfterChange": false
                 }
+            },
+            "CAPTION_MSGS_MODEL": {
+                "type": "sap.ui.model.json.JSONModel"
             }
         },
         "resources": {
