@@ -1,4 +1,90 @@
 {
+    "headerData":[
+        {
+            "ColumnName": "MATNO", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggMATNO", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggMATNO>/", "text": "{onSuggMATNO>Item}", "additionalText": "{onSuggMATNO>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_matno"
+            }
+        },
+        {
+            "ColumnName": "BATCH", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggBATCH", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggBATCH>/", "text": "{onSuggBATCH>Item}", "additionalText": "{onSuggBATCH>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_batch"
+            }
+        },
+        {
+            "ColumnName": "MATGRP", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggMATGRP", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggMATGRP>/", "text": "{onSuggMATGRP>Item}", "additionalText": "{onSuggMATGRP>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_matgrp"
+            }
+        },
+        {
+            "ColumnName": "SHIPTOPLANT", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggSHIPTOPLANT", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggSHIPTOPLANT>/", "text": "{onSuggSHIPTOPLANT>Item}", "additionalText": "{onSuggSHIPTOPLANT>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_shiptoplant"
+            }
+        },
+        {
+            "ColumnName": "PLANTCD", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggPLANTCD", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggPLANTCD>/", "text": "{onSuggPLANTCD>Item}", "additionalText": "{onSuggPLANTCD>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_plantcd"
+            }
+        },
+        {
+            "ColumnName": "PURGRP", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggPURGRP", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggPURGRP>/", "text": "{onSuggPURGRP>Item}", "additionalText": "{onSuggPURGRP>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_purgrp"
+            }
+        },
+        {
+            "ColumnName": "PURORG", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggPURORG", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggPURORG>/", "text": "{onSuggPURORG>Item}", "additionalText": "{onSuggPURORG>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_purorg"
+            }
+        },
+        {
+            "ColumnName": "VENDOR", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggVENDOR", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggVENDOR>/", "text": "{onSuggVENDOR>Item}", "additionalText": "{onSuggVENDOR>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_vendor"
+            }
+        },
+        {
+            "ColumnName": "SUPTYP", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggSUPTYP", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggSUPTYP>/", "text": "{onSuggSUPTYP>Item}", "additionalText": "{onSuggSUPTYP>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_suptyp"
+            }
+        },
+        {
+            "ColumnName": "SALESGRP", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggSALESGRP", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggSALESGRP>/", "text": "{onSuggSALESGRP>Item}", "additionalText": "{onSuggSALESGRP>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_salesgrp"
+            }
+        },
+        {
+            "ColumnName": "CUSTGRP", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggCUSTGRP", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggCUSTGRP>/", "text": "{onSuggCUSTGRP>Item}", "additionalText": "{onSuggCUSTGRP>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_custgrp"
+            }
+        },
+        {
+            "ColumnName": "SEASONCD", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggSEASONCD", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggSEASONCD>/", "text": "{onSuggSEASONCD>Item}", "additionalText": "{onSuggSEASONCD>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvdtl_seasoncd"
+            }
+        }
+    ],
     "styleDynTable":[
         {
             "ColumnName": "MATNO", "TextFormatMode": "ValueKey",
