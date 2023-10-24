@@ -28,16 +28,26 @@
                            <f:formElements>
                             <f:FormElement label="{captionMsg>/PURORG}" visible="true">
                                 <f:fields>
-                                    <Input id="PURORG" value="{path: 'headerData>/PURORG', mandatory: 'PURORG', editable: 'PURORG'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange" valueHelpRequest="handleValueHelp" showSuggestion="true"
-                                        suggestionItems="{path: 'purchOrgSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" 
-                                        >
-                                        <suggestionItems>
-                                            <core:Item key="{purchOrgSource>Item}" text="{purchOrgSource>Item} - {purchOrgSource>Desc}" />
-                                        </suggestionItems>
-                                        <layoutData>
-                                            <FlexItemData growFactor="1" />
-                                        </layoutData>
+                                    <Input id="PURORG" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/PURORG'}, { value: 'onSuggPURORG' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'PURORG',
+                                            editable: 'PURORG'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="false" 
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggPURORG>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggPURORG>Item}" text="{onSuggPURORG>Desc}" additionalText="{onSuggPURORG>Item}" />
+                                            </suggestionItems>
                                     </Input>
 
                                 </f:fields>
@@ -46,16 +56,26 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/VENDOR}" visible="true">
                                 <f:fields>
-                                    <Input id="VENDOR" value="{path: 'headerData>/VENDOR', mandatory: 'VENDOR', editable: 'VENDOR'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange" valueHelpRequest="handleValueHelp" showSuggestion="true"
-                                        suggestionItems="{path: 'vendorSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" 
-                                         >
-                                        <suggestionItems>
-                                             <core:Item key="{vendorSource>Item}" text="{vendorSource>Item} - {vendorSource>Desc}" />
-                                        </suggestionItems>
-                                        <layoutData>
-                                            <FlexItemData growFactor="1" />
-                                        </layoutData>
+                                    <Input id="VENDOR" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/VENDOR'}, { value: 'onSuggVENDOR' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'VENDOR',
+                                            editable: 'VENDOR'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="false" 
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggVENDOR>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggVENDOR>Item}" text="{onSuggVENDOR>Desc}" additionalText="{onSuggVENDOR>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>

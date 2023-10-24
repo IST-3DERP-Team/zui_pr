@@ -223,7 +223,7 @@ sap.ui.define(
                         data.results.forEach(item=>{
                             item.MATGRP = item.MaterialGrp;
                             item.Item = item.MaterialGrp;
-                            item.Desc = "";
+                            item.Desc = item.Description;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggMATGRP");
@@ -241,7 +241,7 @@ sap.ui.define(
                         data.results.forEach(item=>{
                             item.SHIPTOPLANT = item.ShipToPlant;
                             item.Item = item.ShipToPlant;
-                            item.Desc = "";
+                            item.Desc = item.DESCRIPTION;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggSHIPTOPLANT");
@@ -259,7 +259,7 @@ sap.ui.define(
                         data.results.forEach(item=>{
                             item.PLANTCD = item.PurchPlant;
                             item.Item = item.PurchPlant;
-                            item.Desc = "";
+                            item.Desc = item.DESCRIPTION;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggPLANTCD");
@@ -465,7 +465,7 @@ sap.ui.define(
                     oModelFilter2.read('/ZVB_3DERP_PR_VENDOR_SH',{
                         success: function (data, response) {
                             oModelData = data.results.filter(item=> item.PURORG === vPurOrg )
-                            data.results.forEach(item=>{
+                            oModelData.forEach(item=>{
                                 while (item.VENDOR.length < 10) item.VENDOR = "0" + item.VENDOR;
                                 item.Item = item.VENDOR;
                                 item.Desc = item.Description;
@@ -2963,6 +2963,7 @@ sap.ui.define(
         },
 
         prLock: async (me) => {
+            return true;
             var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
             var oParamLock = {};
             var sError = "";
@@ -3001,6 +3002,7 @@ sap.ui.define(
         },
 
         prUnLock() {
+            return;
             var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
             var oParamUnLock = {};
             var me = this;

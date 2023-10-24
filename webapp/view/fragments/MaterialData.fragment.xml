@@ -23,8 +23,27 @@
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/BATCH}" visible="true">
                                 <f:fields>
-                                    <Input id="BATCH" value="{path: 'headerData>/BATCH', mandatory: 'BATCH', editable: 'BATCH'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <Input id="BATCH" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/BATCH'}, { value: 'onSuggBATCH' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'BATCH',
+                                            editable: 'BATCH'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="false" 
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggBATCH>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggBATCH>Item}" text="{onSuggBATCH>Desc}" additionalText="{onSuggBATCH>Item}" />
+                                            </suggestionItems>
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>
@@ -33,14 +52,52 @@
                         <f:formElements>
                             <f:FormElement label="{captionMsg>/MATGRP}" visible="true">
                                     <f:fields>
-                                    <Input id="MATGRP" value="{path: 'headerData>/MATGRP', mandatory: 'MATGRP', editable: 'MATGRP'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <Input id="MATGRP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/MATGRP'}, { value: 'onSuggMATGRP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'MATGRP',
+                                            editable: 'MATGRP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="false" 
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggMATGRP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggMATGRP>Item}" text="{onSuggMATGRP>Desc}" additionalText="{onSuggMATGRP>Item}" />
+                                            </suggestionItems>
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement label="{captionMsg>/MATTYP}" visible="true">
                                 <f:fields>
-                                    <Input id="MATTYP" value="{path: 'headerData>/MATTYP', mandatory: 'MATTYP', editable: 'MATTYP'}" editable="false" valueStateText="Required" 
-                                        change="onHeaderChange" liveChange="onHeaderChange"/>
+                                    <Input id="MATTYP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/MATTYP'}, { value: 'onSuggMATTYP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'MATTYP',
+                                            editable: 'MATTYP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="false" 
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggMATTYP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggMATTYP>Item}" text="{onSuggMATTYP>Desc}" additionalText="{onSuggMATTYP>Item}" />
+                                            </suggestionItems>
+                                    </Input>
                                 </f:fields>
                             </f:FormElement>
                         </f:formElements>
