@@ -1,0 +1,49 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog 
+		title="{/title}"
+		ok=".onCustomSmartFilterValueHelpOkPress"
+		cancel=".onCustomSmartFilterValueHelpCancelPress"
+		afterClose=".onCustomSmartFilterValueHelpAfterClose"
+		supportRanges="true"
+		key="{/key}"
+	>
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch">
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem 
+						groupName="__$INTERNAL$"
+						name="KEY"
+						label="{/title}"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="KEY" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<!-- <fb:FilterGroupItem 
+						groupName="__$INTERNAL$"
+						name="MATTYPE"
+						label="MATTYPE"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="MATTYPE" />
+						</fb:control>
+					</fb:FilterGroupItem> -->
+					<!-- <fb:FilterGroupItem 
+						groupName="__$INTERNAL$"
+						name="DESCRIPTION"
+						label="Description test"
+						visibleInFilterBar="true"
+					>
+						<fb:control>
+							<m:Input name="DESCRIPTION" />
+						</fb:control>
+					</fb:FilterGroupItem> -->
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>
