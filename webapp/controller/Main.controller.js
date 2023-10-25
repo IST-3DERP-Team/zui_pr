@@ -12,8 +12,10 @@ sap.ui.define(
         "sap/ui/model/xml/XMLModel",
         "../js/TableFilter",
         "../js/TableValueHelp",
+        'sap/m/SearchField',
+        'sap/ui/model/type/String',
     ],
-    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator,Device, HashChanger, XMLModel, TableFilter, TableValueHelp) {
+    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator,Device, HashChanger, XMLModel, TableFilter, TableValueHelp, SearchField, typeString) {
       "use strict";
 
       var that;
@@ -110,6 +112,11 @@ sap.ui.define(
                 },
                 error: function (err) { }
             });
+            this._oMultiInputMatTyp = this.getView().byId("multiInputMatTyp");
+            this._oMultiInputMatTyp.addValidator(this._onMultiInputValidate.bind(this));
+
+            this._oMultiInputSeasonCd = this.getView().byId("multiInputSeasonCd");
+            this._oMultiInputSeasonCd.addValidator(this._onMultiInputValidate.bind(this));
         },
         getAppAction: async function(){
             if(sap.ushell.Container !==undefined){
@@ -140,6 +147,273 @@ sap.ui.define(
             var oModel = this.getOwnerComponent().getModel("ZVB_3DERP_PR_FILTERS_CDS");
             var oSmartFilter = this.getView().byId("SmartFilterBar");
             oSmartFilter.setModel(oModel);
+        },
+
+        onCustomSmartFilterValueHelp: function(oEvent) {
+            var oSource = oEvent.getSource();
+            var sModel = oSource.mBindingInfos.suggestionRows.model;
+            var oCustomSmartFilterModel;
+            var oSmartField = {};
+            if (sModel == "materialTypeSrc") {
+                oSmartField = {
+                    idLabel: "Material Type",
+                    idName: "MATTYP"
+                }
+
+                this.oColModel = new JSONModel({
+                    "cols": [
+                        {
+                            "label": "Material Type",
+                            "template": "MATTYP",
+                            "width": "10rem",
+                            "sortProperty": "MATTYP"
+                        },
+                        {
+                            "label": "Description",
+                            "template": "DESCRIPTION",
+                            "sortProperty": "DESCRIPTION"
+                        },
+                    ]
+                });
+
+                oCustomSmartFilterModel = new JSONModel({
+                    "title": "Material Type",
+                    "key": "MATTYP"
+                })
+            }
+            if(sModel == "seasonCodeSrc") {
+                oSmartField = {
+                    idLabel: "Season Code",
+                    idName: "SEASONCD"
+                }
+
+                this.oColModel = new JSONModel({
+                    "cols": [
+                        {
+                            "label": "Season Code",
+                            "template": "SEASONCD",
+                            "width": "10rem",
+                            "sortProperty": "SEASONCD"
+                        },
+                        {
+                            "label": "Description",
+                            "template": "DESCRIPTION",
+                            "sortProperty": "DESCRIPTION"
+                        },
+                    ]
+                });
+
+                oCustomSmartFilterModel = new JSONModel({
+                    "title": "Season Code",
+                    "key": "SEASONCD"
+                })
+            }
+            var aCols = this.oColModel.getData().cols;
+                this._oBasicSearchField = new SearchField({
+                    showSearchButton: false
+            });
+
+            this._oCustomSmartFilterValueHelpDialog = sap.ui.xmlfragment("zuipr.view.fragments.valuehelp.SmartFilterValueHelpDialog", this);
+            this.getView().addDependent(this._oCustomSmartFilterValueHelpDialog);
+
+            this._oCustomSmartFilterValueHelpDialog.setModel(oCustomSmartFilterModel);
+
+            this._oCustomSmartFilterValueHelpDialog.setRangeKeyFields([{
+                label: oSmartField.idLabel,
+                key: oSmartField.idName,
+                type: "string",
+                typeInstance: new typeString({}, {
+                    maxLength: 4
+                })
+            }]);
+
+            this._oCustomSmartFilterValueHelpDialog.getTableAsync().then(function (oTable) {
+                oTable.setModel(this.getView().getModel(sModel));
+                oTable.setModel(this.oColModel, "columns");
+                if (oTable.bindRows) {
+                    oTable.bindAggregation("rows", "/results");
+                }
+
+                if (oTable.bindItems) {
+                    oTable.bindAggregation("items", "/results", function () {
+                        return new ColumnListItem({
+                            cells: aCols.map(function (column) {
+                                return new Label({ text: "{" + column.template + "}" });
+                            })
+                        });
+                    });
+                }
+
+                this._oCustomSmartFilterValueHelpDialog.update();
+            }.bind(this));
+
+            if (sModel == "materialTypeSrc") this._oCustomSmartFilterValueHelpDialog.setTokens(this._oMultiInputMatTyp.getTokens());
+            if (sModel == "seasonCodeSrc") this._oCustomSmartFilterValueHelpDialog.setTokens(this._oMultiInputSeasonCd.getTokens());
+            this._oCustomSmartFilterValueHelpDialog.open();
+        },
+
+        onCustomSmartFilterValueHelpOkPress: function (oEvent) {
+            var aTokens = oEvent.getParameter("tokens");
+                var oSource = oEvent.getSource();
+                var sKey = Object.values(oSource.oModels)[0].oData.key;
+                //var oObject = oArgs.suggestionObject.getBindingContext(oSmartField.model).getObject(),
+
+                aTokens.forEach(item => {
+                    item.mProperties.text = item.mProperties.key;
+                })
+                
+                if (sKey == "MATTYP") this._oMultiInputMatTyp.setTokens(aTokens);
+                this._oCustomSmartFilterValueHelpDialog.close();
+                if (sKey == "SEASONCD") this._oMultiInputSeasonCd.setTokens(aTokens);
+                this._oCustomSmartFilterValueHelpDialog.close();
+
+        },
+        onFilterBarSearch: function (oEvent) {
+            var sSearchQuery = this._oBasicSearchField.getValue(),
+                aSelectionSet = oEvent.getParameter("selectionSet");
+            
+            var aFilters = aSelectionSet.reduce(function (aResult, oControl) {
+
+                var sKey = that._oCustomSmartFilterValueHelpDialog.getModel().oData.key;
+                if (oControl.getValue()) {
+                    aResult.push(new Filter({
+                        path: sKey, //oControl.getName(),
+                        operator: FilterOperator.Contains,
+                        value1: oControl.getValue()
+                    }));
+                }
+
+                return aResult;
+            }, []);
+
+            this._filterTable(new Filter({
+                filters: aFilters,
+                and: true
+            }));
+        },
+        _filterTable: function (oFilter) {
+            var oValueHelpDialog = this._oCustomSmartFilterValueHelpDialog;
+
+            oValueHelpDialog.getTableAsync().then(function (oTable) {
+                if (oTable.bindRows) {
+                    oTable.getBinding("rows").filter(oFilter);
+                }
+
+                if (oTable.bindItems) {
+                    oTable.getBinding("items").filter(oFilter);
+                }
+
+                oValueHelpDialog.update();
+            });
+        },
+        _onMultiInputValidate: function(oArgs) {
+            var oSmartField = {};
+
+            if (oArgs.suggestionObject.sId.includes("multiInputMatTyp")) {
+                oSmartField.model = "materialTypeSrc";
+                oSmartField.id = "MATTYP";
+                oSmartField.desc = "DESCRIPTION";
+            }
+            if (oArgs.suggestionObject.sId.includes("multiInputSeasonCd")) {
+                oSmartField.model = "seasonCodeSrc";
+                oSmartField.id = "SEASONCD";
+                oSmartField.desc = "DESCRIPTION";
+            }
+
+            var aToken;
+            if (oSmartField.model == "materialTypeSrc") aToken = this._oMultiInputMatTyp.getTokens();
+            if (oSmartField.model == "seasonCodeSrc") aToken = this._oMultiInputSeasonCd.getTokens();
+
+            if (oArgs.suggestionObject) {
+                var oObject = oArgs.suggestionObject.getBindingContext(oSmartField.model).getObject(),
+                    oToken = new Token();
+
+                oToken.setKey(oObject[oSmartField.id]);
+                //oToken.setText(oObject[oSmartField.desc] + " (" + oObject[oSmartField.id] + ")");
+                oToken.setText(oObject[oSmartField.id]);
+                aToken.push(oToken)
+
+                if (oSmartField.model == "materialTypeSrc") {
+                    this._oMultiInputMatTyp.setTokens(aToken);
+                    this._oMultiInputMatTyp.setValueState("None");
+                }
+                if (oSmartField.model == "seasonCodeSrc") {
+                    this._oMultiInputSeasonCd.setTokens(aToken);
+                    this._oMultiInputSeasonCd.setValueState("None");
+                }
+            }else if (oArgs.text !== "") {
+                if (oSmartField.model == "materialTypeSrc") {
+                    this._oMultiInputMatTyp.setValueState("Error");
+                }
+                if (oSmartField.model == "seasonCodeSrc") {
+                    this._oMultiInputSeasonCd.setValueState("Error");
+                }
+            }
+            return null;
+        },
+
+        onCustomSmartFilterValueHelpChange: function(oEvent) {
+            var oSource = oEvent.getSource();
+            if (oSource.sId.includes("multiInputMatTyp")) {
+                if (oEvent.getParameter("value") === "") this._oMultiInputMatTyp.setValueState("None");
+
+                var aToken = this._oMultiInputMatTyp.getTokens();
+                var aMatTypeList = [];
+
+                aToken.forEach(item => {
+                    aMatTypeList.push(item.mProperties.key);
+                });
+
+                if (aMatTypeList.length > 0){
+                    if (oEvent.getParameter("value") === "") this._oMultiInputMatTyp.setValueState("None");
+                }
+            }
+            if (oSource.sId.includes("multiInputSeasonCd")) {
+                if (oEvent.getParameter("value") === "") this._oMultiInputSeasonCd.setValueState("None");
+
+                var aToken = this._oMultiInputSeasonCd.getTokens();
+                var aMatTypeList = [];
+
+                aToken.forEach(item => {
+                    aMatTypeList.push(item.mProperties.key);
+                });
+
+                if (aMatTypeList.length > 0){
+                    if (oEvent.getParameter("value") === "") this._oMultiInputSeasonCd.setValueState("None");
+                }
+            }
+        },
+
+        onCustomSmartFilterValueHelpTokenUpdate(oEvent) {
+            var oSource = oEvent.getSource();
+            var oParameter = oEvent.getParameters();
+
+            if (oParameter.type == "removed") {
+                if (oSource.sId.includes("multiInputMatTyp")) {
+                    var aToken = this._oMultiInputMatTyp.getTokens();
+                    var aMatTypeList = [];
+
+                    aToken.forEach(item => {
+                        if (oParameter.removedTokens.filter(x => x.mProperties.key == item.mProperties.key).length == 0) {
+                            aMatTypeList.push(item.mProperties.key);
+                        }
+                    });
+
+                    if (aMatTypeList.length > 0){}
+                } 
+                if (oSource.sId.includes("multiInputSeasonCd")) {
+                    var aToken = this._oMultiInputSeasonCd.getTokens();
+                    var aMatTypeList = [];
+
+                    aToken.forEach(item => {
+                        if (oParameter.removedTokens.filter(x => x.mProperties.key == item.mProperties.key).length == 0) {
+                            aMatTypeList.push(item.mProperties.key);
+                        }
+                    });
+
+                    if (aMatTypeList.length > 0){}
+                } 
+            }
         },
 
         onRefreshMain: async function(){
@@ -484,7 +758,6 @@ sap.ui.define(
 
         getHeaderSearchValuesBasedonSBU: async function(){
             var me = this;
-            var oJSONModel = new JSONModel();
             var iCounter = 0;
             var itemResult = [];
             var vSBU = this.getView().getModel("ui").getData().sbu;
@@ -496,19 +769,15 @@ sap.ui.define(
                         for(var item in oData.results){
                             iCounter++;
                             if(oData.results[item].SBU === vSBU){
+                                oData.results[item].MATTYP = oData.results[item].MaterialType;
+                                oData.results[item].DESCRIPTION = oData.results[item].Description;
                                 itemResult.push(oData.results[item])
                             }
                             if(iCounter === oData.results.length){
-                                //sort Object
-                                // const sortedValues = Object.values(itemResult).sort();
-                                // const sortedObj = {};
-                                // console.log(sortedValues);
-                                // for (let i = 0; i < sortedValues.length; i++) {
-                                //     sortedObj[i] = sortedValues[i];
-                                // }
-
-                                oJSONModel.setData(itemResult)
-                                me.getView().setModel(oJSONModel, "matTypSource");
+                                var aData = new JSONModel({
+                                    results: itemResult
+                                });
+                                me.getView().setModel(aData, "materialTypeSrc");
                                 resolve();
                             }
                         }
@@ -518,7 +787,6 @@ sap.ui.define(
             })
 
             itemResult = [];
-            oJSONModel = new JSONModel();
             iCounter = 0;
             await new Promise((resolve, reject) => {
                 oModel.read("/ZVB_3DERP_SEASON_SH", {
@@ -529,8 +797,10 @@ sap.ui.define(
                                 itemResult.push(oData.results[item])
                             }
                             if(iCounter === oData.results.length){
-                                oJSONModel.setData(itemResult)
-                                me.getView().setModel(oJSONModel, "seasonSource");
+                                var aData = new JSONModel({
+                                    results: itemResult
+                                });
+                                me.getView().setModel(aData, "seasonCodeSrc");
                                 resolve();
                             }
                         }
@@ -564,75 +834,96 @@ sap.ui.define(
 
             var msgError = this.getView().getModel("captionMsg").getData()["INFO_ERROR"];
 
-            aFiltersObj.push(aFilters);
-            aFiltersObj = aFiltersObj[0];
+            var oSmartFilter = this.getView().byId("SmartFilterBar").getFilters();
+            var aFilters = [],
+                aFilter = [],
+                aCustomFilter = [],
+                aSmartFilter = [];
 
-            if (this.getView().byId("SmartFilterBar")) {
-
-                var oCtrlMatTyp = this.getView().byId("SmartFilterBar").determineControlByName("MATTYP");
-                var oCtrlSeasonCd = this.getView().byId("SmartFilterBar").determineControlByName("SEASONCD");
-                if (oCtrlMatTyp) {
-                    if(oCtrlMatTyp.getSelectedKey() !== ""){
-                        if(aFilters.length === 0){
-                            aFiltersObj.push({
-                                aFilters: [{
-                                    sPath: "MATTYP",
-                                    sOperator: "EQ",
-                                    oValue1: oCtrlMatTyp.getSelectedKey(),
-                                    _bMultiFilter: false
-                                }]
-                            })
-                        }else{
-                            aFiltersObj[0].aFilters[parseInt(Object.keys(aFiltersObj[0].aFilters).pop())+1] = ({
-                                sPath: "MATTYP",
-                                sOperator: "EQ",
-                                oValue1: oCtrlMatTyp.getSelectedKey(),
-                                _bMultiFilter: false
-                            })
+            if (oSmartFilter.length > 0)  {
+                // aFilters = oSmartFilter[0].aFilters;
+                oSmartFilter[0].aFilters.forEach(item => {
+                    if(item.sPath === undefined){
+                        if(item.aFilters[0].sPath === 'PRNO'){
+                            if (!isNaN(item.aFilters[0].oValue1)) {
+                                while (item.aFilters[0].oValue1.length < 10) item.aFilters[0].oValue1 = "0" + item.aFilters[0].oValue1;
+                            }
                         }
-                    }
-                }
-                if (oCtrlSeasonCd) {
-                    if(oCtrlSeasonCd.getSelectedKey() !== ""){
-                        if(aFilters.length === 0){
-                            aFiltersObj.push({
-                                aFilters: [{
-                                    sPath: "SEASONCD",
-                                    sOperator: "EQ",
-                                    oValue1: oCtrlSeasonCd.getSelectedKey(),
-                                    _bMultiFilter: false
-                                }]
-                            })
-                        }else{
-                            aFiltersObj[0].aFilters[parseInt(Object.keys(aFiltersObj[0].aFilters).pop())+1] = ({
-                                sPath: "SEASONCD",
-                                sOperator: "EQ",
-                                oValue1: oCtrlSeasonCd.getSelectedKey(),
-                                _bMultiFilter: false
-                            })
-                        }
-                    }
-                }
-            }
-            
-            if (aFilters.length > 0) {
-                aFilters[0].aFilters.forEach(item => {
-                    if (item.sPath === 'PRNO') {
+                    }else if (item.sPath === 'PRNO') {
                         if (!isNaN(item.oValue1)) {
                             while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
                         }
                     }
-                    if (item.sPath === 'VENDOR') {
+
+
+                    if(item.sPath === undefined){
+                        if(item.aFilters[0].sPath === 'VENDOR'){
+                            if (!isNaN(item.aFilters[0].oValue1)) {
+                                while (item.aFilters[0].oValue1.length < 10) item.aFilters[0].oValue1 = "0" + item.aFilters[0].oValue1;
+                            }
+                        }
+                    }else if (item.sPath === 'VENDOR') {
                         if (!isNaN(item.oValue1)) {
                             while (item.oValue1.length < 10) item.oValue1 = "0" + item.oValue1;
                         }
+                    }
+
+
+
+                    if (item.aFilters === undefined) {
+                        aFilter.push(new Filter(item.sPath, item.sOperator, item.oValue1));
+                    }
+                    else {
+                        aFilters.push(item);
                     }
                 })
+
+                if (aFilter.length > 0) { aFilters.push(new Filter(aFilter, false)); }
             }
 
+            if (this.getView().byId("SmartFilterBar")) {
+                var oCtrl = this.getView().byId("SmartFilterBar").determineControlByName("MATTYP");
+
+                if (oCtrl) {
+                    var aCustomFilter = [];
+
+                    if (oCtrl.getTokens().length === 1) {
+                        oCtrl.getTokens().map(function(oToken) {
+                            aFilters.push(new Filter("MATTYP", FilterOperator.EQ, oToken.getKey()))
+                        })
+                    }
+                    else if (oCtrl.getTokens().length > 1) {
+                        oCtrl.getTokens().map(function(oToken) {
+                            aCustomFilter.push(new Filter("MATTYP", FilterOperator.EQ, oToken.getKey()))
+                        })
+
+                        aFilters.push(new Filter(aCustomFilter));
+                    }
+                }
+
+                var oCtrl = this.getView().byId("SmartFilterBar").determineControlByName("SEASONCD");
+
+                if (oCtrl) {
+                    var aCustomFilter = [];
+
+                    if (oCtrl.getTokens().length === 1) {
+                        oCtrl.getTokens().map(function(oToken) {
+                            aFilters.push(new Filter("SEASONCD", FilterOperator.EQ, oToken.getKey()))
+                        })
+                    }
+                    else if (oCtrl.getTokens().length > 1) {
+                        oCtrl.getTokens().map(function(oToken) {
+                            aCustomFilter.push(new Filter("SEASONCD", FilterOperator.EQ, oToken.getKey()))
+                        })
+
+                        aFilters.push(new Filter(aCustomFilter));
+                    }
+                }
+            }
+            aSmartFilter.push(new Filter(aFilters, true));
             return new Promise((resolve, reject)=>{
                 oModel.read("/PRSet", {
-                    filters: aFiltersObj,
+                    filters: aSmartFilter,
                     success: function (data, response) {
                         if (data.results.length > 0) {
                             data.results.forEach((item, index) => {
@@ -2963,7 +3254,6 @@ sap.ui.define(
         },
 
         prLock: async (me) => {
-            return true;
             var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
             var oParamLock = {};
             var sError = "";
@@ -3002,7 +3292,6 @@ sap.ui.define(
         },
 
         prUnLock() {
-            return;
             var oModelLock = this.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
             var oParamUnLock = {};
             var me = this;

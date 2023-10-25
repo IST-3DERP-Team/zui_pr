@@ -90,28 +90,82 @@
                         <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterMatTyp" key="MATTYP" groupId="_BASIC" label="{captionMsg>/MATTYP}" tooltip="{captionMsg>/MATTYP}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                                 <smartFilterBar:customControl>
-                                    <m:ComboBox id="cboxMATTYP"
+                                    <!-- <m:ComboBox id="cboxMATTYP"
                                         change="onSBUChange"
                                         items="{
                                             path: 'matTypSource>/'
                                         }"
                                         >
                                         <core:Item key="{matTypSource>MaterialType}" text="{matTypSource>MaterialType} - {matTypSource>Description}" />
-                                    </m:ComboBox>       
+                                    </m:ComboBox>        -->
+                                    <m:MultiInput id="multiInputMatTyp"
+                                        change="onCustomSmartFilterValueHelpChange"
+                                        valueHelpRequest=".onCustomSmartFilterValueHelp"
+                                        tokenUpdate="onCustomSmartFilterValueHelpTokenUpdate"
+                                        suggestionRows="{
+                                            path: 'materialTypeSrc>/results',
+                                            sorter: { path: 'MaterialType' },
+                                            length: 1000,
+                                            templateShareable: false
+                                        }">
+                                        <m:suggestionColumns>
+                                            <m:Column>
+                                                <m:Label text="Material Type"/>
+                                            </m:Column>
+                                            <!-- <Column>
+                                                <Label text="Description"/>
+                                            </Column> -->
+                                        </m:suggestionColumns>
+                                        <m:suggestionRows>
+                                            <m:ColumnListItem>
+                                                <m:cells>
+                                                    <m:Label text="{materialTypeSrc>MaterialType}" />
+                                                    <!-- <Label text="{materialType>DESCRIPTION}" /> -->
+                                                </m:cells>
+                                            </m:ColumnListItem>
+                                        </m:suggestionRows>
+                                    </m:MultiInput>
                                  </smartFilterBar:customControl>
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
                         <smartFilterBar:controlConfiguration>
                             <smartFilterBar:ControlConfiguration id="filterSeason" key="SEASONCD" groupId="_BASIC" label="{captionMsg>/SEASON}" tooltip="{captionMsg>/SEASON}" preventInitialDataFetchInValueHelpDialog="false" displayBehaviour ="idOnly">
                                 <smartFilterBar:customControl>
-                                    <m:ComboBox id="cboxSEASON"
+                                    <!-- <m:ComboBox id="cboxSEASON"
                                         change="onSBUChange"
                                         items="{
                                             path: 'seasonSource>/'
                                         }"
                                         >
                                         <core:Item key="{seasonSource>SEASONCD}" text="{seasonSource>SEASONCD} - {seasonSource>DESCRIPTION}" />
-                                    </m:ComboBox>       
+                                    </m:ComboBox>        -->
+                                    <m:MultiInput id="multiInputSeasonCd"
+                                        change="onCustomSmartFilterValueHelpChange"
+                                        valueHelpRequest=".onCustomSmartFilterValueHelp"
+                                        tokenUpdate="onCustomSmartFilterValueHelpTokenUpdate"
+                                        suggestionRows="{
+                                            path: 'seasonCodeSrc>/results',
+                                            sorter: { path: 'SEASONCD' },
+                                            length: 1000,
+                                            templateShareable: false
+                                        }">
+                                        <m:suggestionColumns>
+                                            <m:Column>
+                                                <m:Label text="Season Code"/>
+                                            </m:Column>
+                                            <!-- <Column>
+                                                <Label text="Description"/>
+                                            </Column> -->
+                                        </m:suggestionColumns>
+                                        <m:suggestionRows>
+                                            <m:ColumnListItem>
+                                                <m:cells>
+                                                    <m:Label text="{seasonCodeSrc>SEASONCD}" />
+                                                    <!-- <Label text="{materialType>DESCRIPTION}" /> -->
+                                                </m:cells>
+                                            </m:ColumnListItem>
+                                        </m:suggestionRows>
+                                    </m:MultiInput>
                                  </smartFilterBar:customControl>
                             </smartFilterBar:ControlConfiguration>
                         </smartFilterBar:controlConfiguration>
