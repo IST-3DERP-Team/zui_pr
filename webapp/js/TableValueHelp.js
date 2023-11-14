@@ -1,8 +1,9 @@
 sap.ui.define([ 
     "sap/ui/model/json/JSONModel" ,
     "sap/ui/model/Filter",
-	"sap/ui/model/FilterOperator"
-], function(JSONModel,Filter,FilterOperator) {
+	"sap/ui/model/FilterOperator",
+    'sap/m/MessageBox',
+], function(JSONModel,Filter,FilterOperator,MessageBox) {
 	"use strict";
 
 	return {        
@@ -267,7 +268,18 @@ sap.ui.define([
             var oSource = oEvent.getSource();
 
             //extra code and not included in this standard code
-            await this.onSuggestionItems_VENDOR_PURORG(oEvent);
+            if(oEvent.getSource().getParent().getId().includes("prDetTable")){
+                if(oSource.getId().includes("VENDOR")){
+                    var sRowPath = oSource.oParent.getBindingContext().sPath;
+                    var oSource = oEvent.getSource();
+                    var vPurOrg= oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PURORG");
+                    if(vPurOrg === undefined || vPurOrg === "" || vPurOrg === null){
+                        oEvent.getSource().setValue("");
+                        MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_PURORG_REQUIRED"]);
+                        return;
+                    }
+                }
+            }
 
 
             this._inputSource = oSource;
@@ -288,8 +300,6 @@ sap.ui.define([
             var vh = this.getView().getModel(sPath).getData();
             var aColumns = [], oDDTextParam = [];
             var oDDText = this.getView().getModel("ddtext").getData();
-            
-            // await this.onSuggestionItems_VENDOR_PURORG();
 
             if (vhColumns !== undefined) {
                 vhColumns.forEach(item => {

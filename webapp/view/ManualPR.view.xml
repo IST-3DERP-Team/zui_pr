@@ -40,10 +40,33 @@
                                         <!-- <Title text="{i18n>salesDocDetail}" class="sapUiTinyMarginBegin"/> -->
                                     </HBox>
                                     <ToolbarSpacer/>
-                                        <Button id = "btnDetAdd" type="Ghost"  icon="sap-icon://add" tooltip="{captionMsg>/ADD}" press="onPRDetAdd"/>
-                                        <Button id = "btnDetPurge" type="Ghost"  icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onPRDetPurge"/>
-                                        <Button id = "btnDetTabLayout" type="Ghost" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>
-                                    
+                                        <Button id = "btnDetAdd" type="Ghost"  icon="sap-icon://add" text="{captionMsg>/ADD}" tooltip="{captionMsg>/ADD}" press="onPRDetAdd"/>
+                                        <Button id = "btnDetPurge" type="Ghost"  icon="sap-icon://delete" text="{captionMsg>/DELETE}" tooltip="{captionMsg>/DELETE}" press="onPRDetPurge"/>
+                                        <Button id = "btnDetTabLayout" type="Ghost" icon="sap-icon://grid" text="{captionMsg>/SAVELAYOUT}" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>
+                                        <Button id="btnDetBtnFullScreen" 
+                                            icon="sap-icon://full-screen"
+                                            type="Ghost"
+                                            press="onTableResize"
+                                            tooltip="{captionMsg>/FULLSCREEN}"
+                                            text="{captionMsg>/FULLSCREEN}"
+                                            visible="true" >
+                                            <customData>
+                                                <core:CustomData key="Type" value="Dtl" />
+                                                <core:CustomData key="Max" value="1" />
+                                            </customData>
+                                        </Button>
+                                        <Button id="btnDetBtnExitFullScreen" 
+                                            icon="sap-icon://exit-full-screen"
+                                            type="Ghost"
+                                            press="onTableResize"
+                                            tooltip="{captionMsg>/EXITFULLSCREEN}"
+                                            text="{captionMsg>/EXITFULLSCREEN}"
+                                            visible="false">
+                                            <customData>
+                                                <core:CustomData key="Type" value="Dtl" />
+                                                <core:CustomData key="Max" value="0" />
+                                            </customData>
+                                        </Button>
                                 </OverflowToolbar>
                             </uiT:extension>
                             <uiT:layoutData>

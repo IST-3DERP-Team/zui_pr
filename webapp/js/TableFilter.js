@@ -23,8 +23,7 @@ sap.ui.define([
                             icon: "sap-icon://filter",
                             text: "Filter",
                             select: function(oEvent) {
-                                
-                                console.log(oEvent.getSource().oParent.oParent.getAggregation("label").getProperty("text"));
+
                                 _this.onColFilter(sTableId, oEvent.getSource().oParent.oParent.getAggregation("label").getProperty("text"), me);
                             }                        
                         })
@@ -60,7 +59,6 @@ sap.ui.define([
                 sTableId = oEvent;
             }
             else {
-                console.log(sTableId);
                 sTableId = oEvent.getSource().data("TableName");
             }
 
@@ -86,6 +84,7 @@ sap.ui.define([
             var vFilterType = "VLF";
 
             var oTableColumns = [];
+
             var aTableColumns = jQuery.extend(true, [], me._aColumns[sTableId]);
             aTableColumns.forEach((col, idx) => {
                 if (!(col.ColumnName === "MANDT" || col.ColumnName === "DOCTYPE" || col.ColumnName === "SHORTTEXT" || col.ColumnName === "INFORECORD" || col.ColumnName === "COMPANY" || col.ColumnName === "PLANMONTH")) {
@@ -213,8 +212,7 @@ sap.ui.define([
 
                 oSearchValues[col.ColumnName] = "";
             })
-            console.log(vSelectedColumn);
-
+            
             oDialog.getModel().setProperty("/sourceTabId", sTableId);
             oDialog.getModel().setProperty("/items", oTableColumns);
             oDialog.getModel().setProperty("/values", oColumnValues);
@@ -394,7 +392,7 @@ sap.ui.define([
             // me.setActiveRowHighlightByTableId(sSourceTabId);
 
             //additonal code
-            if (sSourceTabId === "salDocDynTable") {
+            if (sSourceTabId === "styleDynTable") {
                 var vActiveRec = me.byId(sSourceTabId).getModel().getData().rows.filter((item,index) => index === 0)[0].DLVNO;
 
                 // if (me.getView().getModel("ui").getProperty("/activeDlv") !== vActiveRec) {
@@ -408,7 +406,7 @@ sap.ui.define([
                 //     me.getDetailData(false);
                 // }
 
-                me.getView().getModel("ui").setProperty("/saldocCount", me.byId(sSourceTabId).getBinding("rows").aIndices.length);
+                me.getView().getModel("counts").setProperty("/total", me.byId(sSourceTabId).getBinding("rows").aIndices.length);
             }
             // else if (sSourceTabId === "mainDetailTab") {
             //     me.getView().getModel("counts").setProperty("/detail", me.byId(sSourceTabId).getBinding("rows").aIndices.length);
@@ -509,7 +507,6 @@ sap.ui.define([
                 oFilter = "";
             }
 
-            // console.log(oFilter)
             me.byId(sSourceTabId).getBinding("rows").filter(oFilter, "Application");
             me._colFilters[sSourceTabId] = jQuery.extend(true, {}, oDialog.getModel().getData());
             
@@ -553,7 +550,6 @@ sap.ui.define([
                 // }
             }
             else {
-                console.log(me.byId(sSourceTabId).getModel().getData().rows.length);
                 me.getView().getModel("counts").setProperty("/total", me.byId(sSourceTabId).getModel().getData().rows.length);
             }
         },
