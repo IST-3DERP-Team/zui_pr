@@ -233,7 +233,31 @@
                             <m:Button id="btnDelete" text="{captionMsg>/DELETE}" icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onDeletePR"/>
                             <m:Button id="btnClose" text="{captionMsg>/CLOSE}" icon="sap-icon://complete" tooltip="{captionMsg>/CLOSE}" press="onClosePR"/>
                             <m:Button id="btnTabLayout" text="{captionMsg>/SAVELAYOUT}" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>   
-                            <m:Button id="btnView" text="{captionMsg>/VIEW}" icon="sap-icon://detail-view" tooltip="{captionMsg>/VIEW}" press="goToDetail"/>   
+                            <m:Button id="btnView" text="{captionMsg>/VIEW}" icon="sap-icon://detail-view" tooltip="{captionMsg>/VIEW}" press="goToDetail"/> 
+                            <m:Button id="btnFullScreen" 
+                                icon="sap-icon://full-screen"
+                                type="Ghost"
+                                press="onTableResize"
+                                tooltip="{captionMsg>/FULLSCREEN}"
+                                text="{captionMsg>/FULLSCREEN}"
+                                visible="true" >
+                                <m:customData>
+                                    <core:CustomData key="Type" value="Hdr" />
+                                    <core:CustomData key="Max" value="1" />
+                                </m:customData>
+                            </m:Button>
+                            <m:Button id="btnExitFullScreen" 
+                                icon="sap-icon://exit-full-screen"
+                                type="Ghost"
+                                press="onTableResize"
+                                tooltip="{captionMsg>/EXITFULLSCREEN}"
+                                text="{captionMsg>/EXITFULLSCREEN}"
+                                visible="false">
+                                <m:customData>
+                                    <core:CustomData key="Type" value="Hdr" />
+                                    <core:CustomData key="Max" value="0" />
+                                </m:customData>
+                            </m:Button>  
                         </m:Toolbar>
                     </uiT:extension>
                     <uiT:layoutData>

@@ -108,6 +108,7 @@ sap.ui.define(
                         that.byId("btnCancel").setEnabled(false);
                         that.byId("btnTabLayout").setEnabled(false);
                         that.byId("btnView").setEnabled(false);
+                        that.byId("btnFullScreen").setEnabled(false);
                     }
                 },
                 error: function (err) { }
@@ -447,6 +448,7 @@ sap.ui.define(
                 this.byId("btnCancel").setEnabled(true);
                 this.byId("btnTabLayout").setEnabled(true);
                 this.byId("btnView").setEnabled(true);
+                this.byId("btnFullScreen").setEnabled(true);
 
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
@@ -3172,6 +3174,22 @@ sap.ui.define(
 
         onClosePOList: async function(){
             this.poListDialog.destroy(true);
+        },
+
+        onTableResize: function(oEvent){
+            var vFullScreen = oEvent.getSource().data("Max") === "1" ? true : false;
+            var vTableTyp = oEvent.getSource().data("Type");
+            if(vTableTyp === "Hdr"){
+                if(vFullScreen){
+                    this.byId("SmartFilterBar").setFilterBarExpanded(false);
+                    this.byId("btnFullScreen").setVisible(false);
+                    this.byId("btnExitFullScreen").setVisible(true);
+                }else{
+                    this.byId("SmartFilterBar").setFilterBarExpanded(true);
+                    this.byId("btnFullScreen").setVisible(true);
+                    this.byId("btnExitFullScreen").setVisible(false);
+                }
+            }
         },
 
         callCaptionsAPI: async function(){

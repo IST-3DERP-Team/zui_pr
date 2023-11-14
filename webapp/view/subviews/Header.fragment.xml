@@ -7,8 +7,8 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                 <Toolbar id="TB1" height="2rem">
                     <Title text="{captionMsg>/HEADER}" />
                     <ToolbarSpacer />
-                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveHeader" visible="true"/> 
-                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" tooltip="{captionMsg>/CANCEL}" press="cancelHeaderEdit" visible="true"/> 
+                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" text="{captionMsg>/SAVE}" tooltip="{captionMsg>/SAVE}" press="onSaveHeader" visible="true"/> 
+                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" text="{captionMsg>/CANCEL}" tooltip="{captionMsg>/CANCEL}" press="cancelHeaderEdit" visible="true"/> 
                     
                 </Toolbar>
             </headerToolbar>
@@ -24,7 +24,7 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                         <f:formElements>
                             <f:FormElement id="feDOCTYP" label="{captionMsg>/DOCTYP}" visible="{= ${VisibleFieldsData>/DOCTYP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="DOCTYP" value="{path: 'headerData>/DOCTYP', mandatory: 'DOCTYP'}" showSuggestion="true" suggestionItems="{path: 'docTypSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                    <!-- <Input id="DOCTYP" value="{path: 'headerData>/DOCTYP', mandatory: 'DOCTYP'}" showSuggestion="true" suggestionItems="{path: 'docTypSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{docTypSource>Item}" text="{docTypSource>Item} - {docTypSource>Desc}" />
@@ -32,6 +32,26 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="DOCTYP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/DOCTYP'}, { value: 'onSuggDOCTYP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'DOCTYP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/DOCTYP}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggDOCTYP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggDOCTYP>Item}" text="{onSuggDOCTYP>Desc}" additionalText="{onSuggDOCTYP>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>   
@@ -44,7 +64,7 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                             </f:FormElement>
                             <f:FormElement id="fePURGRP" label="{captionMsg>/PURCHGRP}" visible="{= ${VisibleFieldsData>/PURGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PURGRP" value="{path: 'headerData>/PURGRP', mandatory: 'PURGRP'}" showSuggestion="true" suggestionItems="{path: 'purchGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
+                                    <!-- <Input id="PURGRP" value="{path: 'headerData>/PURGRP', mandatory: 'PURGRP'}" showSuggestion="true" suggestionItems="{path: 'purchGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/PURGRP}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{purchGrpSource>Item}" text="{purchGrpSource>Item} - {purchGrpSource>Desc}" />
@@ -52,12 +72,32 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="PURGRP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/PURGRP'}, { value: 'onSuggPURGRP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'PURGRP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/PURGRP}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggPURGRP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggPURGRP>Item}" text="{onSuggPURGRP>Desc}" additionalText="{onSuggPURGRP>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement id="fePLANTCD" label="{captionMsg>/PURCHPLANT}" visible="{= ${VisibleFieldsData>/PLANTCD} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="PLANTCD" value="{path: 'headerData>/PLANTCD', mandatory: 'PLANTCD'}" showSuggestion="true" suggestionItems="{path: 'purchPlantSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
+                                    <!-- <Input id="PLANTCD" value="{path: 'headerData>/PLANTCD', mandatory: 'PLANTCD'}" showSuggestion="true" suggestionItems="{path: 'purchPlantSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/PLANTCD}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{purchPlantSource>Item}" text="{purchPlantSource>Item} - {purchPlantSource>Desc}" />
@@ -65,12 +105,32 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="PLANTCD" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/PLANTCD'}, { value: 'onSuggPLANTCD' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'PLANTCD'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/PLANTCD}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggPLANTCD>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggPLANTCD>Item}" text="{onSuggPLANTCD>Desc}" additionalText="{onSuggPLANTCD>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
                             <f:FormElement id="feShipToPlant" label="{captionMsg>/SHIPTOPLANT}" visible="{= ${VisibleFieldsData>/SHIPTOPLANT} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="SHIPTOPLANT" value="{path: 'headerData>/SHIPTOPLANT', mandatory: 'SHIPTOPLANT'}" showSuggestion="true" suggestionItems="{path: 'shipToPlantSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/SHIPTOPLANT}" valueStateText="Required"
+                                    <!-- <Input id="SHIPTOPLANT" value="{path: 'headerData>/SHIPTOPLANT', mandatory: 'SHIPTOPLANT'}" showSuggestion="true" suggestionItems="{path: 'shipToPlantSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{HeaderEdiEditableFieldsDatatModeModel>/SHIPTOPLANT}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{shipToPlantSource>Item}" text="{shipToPlantSource>Item} - {shipToPlantSource>Desc}" />
@@ -78,6 +138,26 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="SHIPTOPLANT" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/SHIPTOPLANT'}, { value: 'onSuggSHIPTOPLANT' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'SHIPTOPLANT'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/SHIPTOPLANT}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggSHIPTOPLANT>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggSHIPTOPLANT>Item}" text="{onSuggSHIPTOPLANT>Desc}" additionalText="{onSuggSHIPTOPLANT>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
@@ -88,7 +168,7 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                         <f:formElements>
                             <f:FormElement id="feCUSTGRP" label="{captionMsg>/CUSTGRP}" visible="{= ${VisibleFieldsData>/CUSTGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="CUSTGRP" value="{path: 'headerData>/CUSTGRP', mandatory: 'CUSTGRP'}" showSuggestion="true" suggestionItems="{path: 'custGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
+                                    <!-- <Input id="CUSTGRP" value="{path: 'headerData>/CUSTGRP', mandatory: 'CUSTGRP'}" showSuggestion="true" suggestionItems="{path: 'custGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/CUSTGRP}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{custGrpSource>Item}" text="{custGrpSource>Item} - {custGrpSource>Desc}" />
@@ -96,12 +176,32 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="CUSTGRP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/CUSTGRP'}, { value: 'onSuggCUSTGRP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'CUSTGRP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/CUSTGRP}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggCUSTGRP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggCUSTGRP>Item}" text="{onSuggCUSTGRP>Desc}" additionalText="{onSuggCUSTGRP>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>    
                             <f:FormElement id="feSALESGRP" label="{captionMsg>/SALESGRP}" visible="{= ${VisibleFieldsData>/SALESGRP} === true ? true : false }">
                                 <f:fields>
-                                    <Input id="SALESGRP" value="{path: 'headerData>/SALESGRP', mandatory: 'SALESGRP'}" showSuggestion="true" suggestionItems="{path: 'salesGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
+                                    <!-- <Input id="SALESGRP" value="{path: 'headerData>/SALESGRP', mandatory: 'SALESGRP'}" showSuggestion="true" suggestionItems="{path: 'salesGrpSource>/'}" suggestionItemSelected="onSuggestionItemSelected" showValueHelp="true" editable="{EditableFieldsData>/SALESGRP}" valueStateText="Required"
                                          change="onInputLiveChange" valueHelpRequest="handleValueHelp" liveChange="onInputLiveChange">
                                         <suggestionItems>
                                             <core:Item key="{salesGrpSource>Item}" text="{salesGrpSource>Item} - {salesGrpSource>Desc}" />
@@ -109,6 +209,26 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                                         <layoutData>
                                             <FlexItemData growFactor="1" />
                                         </layoutData>
+                                    </Input> -->
+                                    <Input id="SALESGRP" 
+                                        type="Text"
+                                        value="{
+                                            parts: [{path: 'headerData>/SALESGRP'}, { value: 'onSuggSALESGRP' }, { value: 'Item' }, { value: 'Desc' }, { value: 'ValueKey' }],
+                                            formatter: '.formatValueHelp',
+                                            mandatory: 'SALESGRP'
+                                        }" 
+                                        textFormatMode="ValueKey"
+                                        showValueHelp="true" 
+                                        editable="{EditableFieldsData>/SALESGRP}"
+                                        valueStateText="Required"
+                                        valueHelpRequest="handleFormValueHelp"
+                                        showSuggestion="true" 
+                                        suggestionItems="{path: 'onSuggSALESGRP>/', length: 10000, templateShareable: false}"
+                                        maxSuggestionWidth="160px"
+                                        change="onInputLiveChangeSuggestion">
+                                            <suggestionItems>
+                                                <core:ListItem key="{onSuggSALESGRP>Item}" text="{onSuggSALESGRP>Desc}" additionalText="{onSuggSALESGRP>Item}" />
+                                            </suggestionItems>
                                     </Input>
                                 </f:fields>
                             </f:FormElement>
