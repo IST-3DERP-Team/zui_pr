@@ -3070,6 +3070,15 @@ sap.ui.define([
                 oDDTextParam.push({CODE: "PURORG"});
                 oDDTextParam.push({CODE: "VENDOR"});
 
+                oDDTextParam.push({CODE: "FLTRCRIT"});
+                oDDTextParam.push({CODE: "OK"});
+                oDDTextParam.push({CODE: "CANCEL"});
+                oDDTextParam.push({CODE: "CLRFLTRS"});
+                oDDTextParam.push({CODE: "REMOVEFLTR"});
+                oDDTextParam.push({CODE: "VALUELIST"});
+                oDDTextParam.push({CODE: "USERDEF"});
+                oDDTextParam.push({CODE: "SEARCH"});
+
                 oDDTextParam.push({CODE: "INFO_PURORG_REQUIRED"});
                 oDDTextParam.push({CODE: "FULLSCREEN"});
                 oDDTextParam.push({CODE: "EXITFULLSCREEN"});
