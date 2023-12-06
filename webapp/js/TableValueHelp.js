@@ -298,7 +298,7 @@ sap.ui.define([
                     var vPlantCd= oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PLANTCD");
                     if(vPlantCd === undefined || vPlantCd === "" || vPlantCd === null){
                         oEvent.getSource().setValue("");
-                        MessageBox.error("Plant is Required!");
+                        MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_PLANT_REQUIRED"]);
                         return;
                     }else{
                         await this.onSuggestionItems_VENDOR_PURORG(oEvent);
