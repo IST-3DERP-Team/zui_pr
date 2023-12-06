@@ -659,40 +659,49 @@ sap.ui.define([
                                     //     suggestionItemSelected: this.onSuggestionItemSelected.bind(this),
                                     //     suggestionItems: await this.onInputSuggestionItems(sColumnName)
                                     // }));
-
-                                    col.setTemplate(new sap.m.Input({
-                                        id: "col"+ me._tblOnRowEditincCount +"-" + sColumnName,
-                                        type: "Text",
-                                        value: {
-                                            parts: [
-                                                { path: ci.ColumnName }, 
-                                                { value: "onSugg" + ci.ColumnName }, 
-                                                { value: 'Item' }, 
-                                                { value: 'Desc' }, 
-                                                { value: 'ValueKey' }
-                                            ],
-                                            formatter: this.formatValueHelp.bind(this),
-                                            mandatory: ci.Mandatory
-                                        },
-                                        // value: "{path: '" + ci.ColumnName + "', mandatory: '" + ci.Mandatory + "'}",
-                                        // maxLength: +ci.Length,
-                                        textFormatMode: 'ValueKey',
-                                        showValueHelp: true,
-                                        valueHelpRequest: TableValueHelp.handleTableValueHelp.bind(this),//this.handleValueHelp.bind(this),
-                                        showSuggestion: true,
-                                        suggestionItems: {
-                                            path: 'onSugg' + ci.ColumnName + '>/',
-                                            length: 10000,
-                                            template: new sap.ui.core.ListItem({
-                                                key: '{onSugg' + ci.ColumnName + '>Item}',
-                                                text: '{onSugg' + ci.ColumnName + '>Desc}',
-                                                additionalText: '{onSugg' + ci.ColumnName + '>Item}'
-                                            }),
-                                            templateShareable: false
-                                        },
-                                        maxSuggestionWidth: "160px",
-                                        change: this.onInputLiveChangeSuggestion.bind(this)
-                                    }));
+                                    if(sColumnName === "SHORTTEXT" || sColumnName === "UOM" || sColumnName === "MATGRP" || sColumnName === "MATTYP"){
+                                        col.setTemplate(new sap.m.Input({
+                                            id: "col"+ me._tblOnRowEditincCount +"-" + sColumnName,
+                                            type: "Text",
+                                            value: "{path: '" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"'}",
+                                            enabled: false,
+                                            change: this.onInputLiveChange.bind(this)
+                                        }));
+                                    }else{
+                                        col.setTemplate(new sap.m.Input({
+                                            id: "col"+ me._tblOnRowEditincCount +"-" + sColumnName,
+                                            type: "Text",
+                                            value: {
+                                                parts: [
+                                                    { path: ci.ColumnName }, 
+                                                    { value: "onSugg" + ci.ColumnName }, 
+                                                    { value: 'Item' }, 
+                                                    { value: 'Desc' }, 
+                                                    { value: 'Other' }
+                                                ],
+                                                formatter: this.formatValueHelp.bind(this),
+                                                mandatory: ci.Mandatory
+                                            },
+                                            // value: "{path: '" + ci.ColumnName + "', mandatory: '" + ci.Mandatory + "'}",
+                                            // maxLength: +ci.Length,
+                                            textFormatMode: 'Key',
+                                            showValueHelp: true,
+                                            valueHelpRequest: TableValueHelp.handleTableValueHelp.bind(this),//this.handleValueHelp.bind(this),
+                                            showSuggestion: true,
+                                            suggestionItems: {
+                                                path: 'onSugg' + ci.ColumnName + '>/',
+                                                length: 10000,
+                                                template: new sap.ui.core.ListItem({
+                                                    key: '{onSugg' + ci.ColumnName + '>Item}',
+                                                    text: '{onSugg' + ci.ColumnName + '>Desc}',
+                                                    additionalText: '{onSugg' + ci.ColumnName + '>Item}'
+                                                }),
+                                                templateShareable: false
+                                            },
+                                            maxSuggestionWidth: "160px",
+                                            change: this.onInputLiveChangeSuggestion.bind(this)
+                                        }));
+                                    }
                                 }else if (sColumnType === "DATETIME"){
                                     col.setTemplate(new sap.m.DatePicker({
                                         id: "col-" + sColumnName,
@@ -988,7 +997,7 @@ sap.ui.define([
                         this.getView().getModel("PRDetDataModel").setProperty(sRowPath + "/" + sCol, oSource.getSelectedKey())
 
                         if(oSource.getId().includes("MATNO")){
-                            this.onInputLiveLoadMatNoTableInformation(oEvent);
+                            await this.onInputLiveLoadMatNoTableInformation(oEvent);
                         }
                         if(oSource.getId().includes("PURORG")){
                             this.onSuggestionItems_Vendor(oEvent);
@@ -1013,42 +1022,56 @@ sap.ui.define([
 
             onInputLiveLoadMatNoTableInformation: async function(oEvent){
                 var me = this;
+                var oTable = this.getView().byId('prDetTable');
                 var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
                 var oInput = oEvent.getSource();
                 var oCell = oInput.getParent();
                 // var oRow = oCell.getBindingContext().getObject();
                 var sPath = oCell.getBindingContext().getPath();
                 var sRowPath = sPath == undefined ? null :"/results/"+ sPath.split("/")[2];
-
                 var matNo = oEvent.getSource().getSelectedKey();
-                var oRow = this.getView().getModel("PRDetDataModel").getProperty(sRowPath);
+
                 Common.openLoadingDialog(this);
                 await new Promise((resolve, reject) => {
                     oModelFilter.read('/ZVB_3DERP_PR_MATNO_SH',{
                         success: async function (data, response) {
                             data.results.forEach(async item=>{
                                 if(item.MATNO === matNo){
-                                    oRow.MATNO = item.MATNO
-                                    oRow.UOM = item.UOM
-                                    oRow.SHORTTEXT = item.GMCDescen
-                                    oRow.MATGRP = item.MatGrp
-                                    oRow.MATTYP = item.MatTyp
-                                    
-                                    me.setTableData('prDetTable');
-                                    await me.onRowEdit('prDetTable', 'PRDetColModel');
-                                    resolve();
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/MATNO',item.MATNO);
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/UOM',item.UOM);
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/SHORTTEXT',item.GMCDescen);
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/MATGRP',item.MatGrp);
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/MATTYP',item.MatTyp);
+                                    // resolve();
                                 }else{
-                                    oRow.MATNO = matNo
+                                    me.getView().getModel("PRDetDataModel").setProperty(sRowPath + '/MATNO',matNo);
                                 }
+                                resolve();
                             })
-                            resolve();
                         },
                         error: function (err) {
                             resolve();
                         }
                     });
                 });
+                // Rebind the table rows to reflect changes
+                await oTable.getModel("PRDetDataModel").refresh(true);
+                await oTable.unbindRows(); // Unbind rows
+                await oTable.bindRows("/rows"); // Rebind rows
                 Common.closeLoadingDialog(this);
+
+                // Example: Move focus to another column
+                var oRow = oInput.getParent(); // Assuming oRow is the row element
+                var oCells = oRow.getCells(); // Assuming the cells in the row are accessible directly
+
+                // Assuming you want to move the focus to the next cell in the same row
+                var nextColumnIndex = oCells.indexOf(oInput) + 0; // Get the index of the next column
+                if (nextColumnIndex < oCells.length) {
+                    var oNextInput = oCells[nextColumnIndex]; // Access the next input element or desired UI control
+
+                    // Move focus to the next input element in the same row
+                    oNextInput.focus();
+                }
             },
             
             onInputLiveChange: async function(oEvent){
@@ -2470,8 +2493,7 @@ sap.ui.define([
                     var oModelFilter = this.getOwnerComponent().getModel('ZVB_3DERP_PRM_FILTERS_CDS');
                     var iCounter = 0;
 
-                    var matNo = "";
-                    var batch = "";
+                    var matNo, batch, custGrp, salesGrp, seasonCd = "";
                     var hasError = false;
                     var hasZERPMatBatch = false;
                     var ZERPMatBatchParam = {}
@@ -2503,6 +2525,9 @@ sap.ui.define([
                             matNo = aData.at(item).MATNO;
                             batch = aData.at(item).BATCH;
                             matTyp = aData.at(item).MATTYP;
+                            custGrp = aData.at(item).CUSTGRP;
+                            salesGrp = aData.at(item).SALESGRP;
+                            seasonCd = aData.at(item).SEASONCD;
                             await new Promise((resolve, reject) => {
                                 oModel.read('/ZERP_MATBATCHSet',{
                                     urlParameters: {
@@ -2670,7 +2695,10 @@ sap.ui.define([
                                     ZERPMatBatchParam = {
                                         MATNO: matNo,
                                         BATCH: batch,
-                                        IONO: batch
+                                        IONO: batch,
+                                        CUSTGRP: custGrp,
+                                        SALESGRP: salesGrp,
+                                        SEASONCD: seasonCd
                                     }
                                     oModel.create("/ZERP_MATBATCHSet", ZERPMatBatchParam, modelParameter);
                                     await new Promise((resolve, reject) => {
@@ -2852,12 +2880,31 @@ sap.ui.define([
 
                                                 var oHistory = History.getInstance();
                                                 var sPreviousHash = oHistory.getPreviousHash();
-
                                                 if (sPreviousHash !== undefined) {
-                                                    window.history.go(-1);
+                                                    var oRouter = this.getOwnerComponent().getRouter();
+                                                    oRouter.attachRouteMatched(function(oEvent) {
+                                                        // Check if the route matched is 'main'
+                                                        if (oEvent.getParameter("name") === "main") {
+                                                            // Access the 'main' controller and call the method 'yourMethod'
+                                                            var oMainController = oEvent.getParameter("view").getController();
+                                                            oMainController.onSearch(); // Replace 'yourMethod' with your actual method name
+                                                        }
+                                                    });
+                                                    oRouter.navTo("main", {}, true);
+                                                    // window.history.go(-1);
                                                 } else {
                                                     var oRouter = this.getOwnerComponent().getRouter();
+                                                    oRouter.attachRouteMatched(function(oEvent) {
+                                                        // Check if the route matched is 'main'
+                                                        if (oEvent.getParameter("name") === "main") {
+                                                            // Access the 'main' controller and call the method 'yourMethod'
+                                                            var oMainController = oEvent.getParameter("view").getController();
+                                                            oMainController.onSearch(); // Replace 'yourMethod' with your actual method name
+                                                        }
+                                                    });
                                                     oRouter.navTo("main", {}, true);
+
+
                                                 }
 
                                                 // me.byId("DOCTYP").setEnabled(true);
