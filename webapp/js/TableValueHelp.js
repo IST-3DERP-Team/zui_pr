@@ -279,6 +279,31 @@ sap.ui.define([
                         return;
                     }
                 }
+            }else if(oEvent.getSource().getParent().getId().includes("styleDynTable")){
+                if(oSource.getId().includes("VENDOR")){
+                    var sRowPath = oSource.oParent.getBindingContext().sPath;
+                    var oSource = oEvent.getSource();
+                    var vPurOrg= oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PURORG");
+                    if(vPurOrg === undefined || vPurOrg === "" || vPurOrg === null){
+                        oEvent.getSource().setValue("");
+                        MessageBox.error(this.getView().getModel("captionMsg").getData()["INFO_PURORG_REQUIRED"]);
+                        return;
+                    }else{
+                        await this.onSuggestionItems_VENDOR_PURORG(oEvent);
+                    }
+                }
+                if(oSource.getId().includes("PURORG")){
+                    var sRowPath = oSource.oParent.getBindingContext().sPath;
+                    var oSource = oEvent.getSource();
+                    var vPlantCd= oEvent.getSource().oParent.oParent.getModel().getProperty(sRowPath + "/PLANTCD");
+                    if(vPlantCd === undefined || vPlantCd === "" || vPlantCd === null){
+                        oEvent.getSource().setValue("");
+                        MessageBox.error("Plant is Required!");
+                        return;
+                    }else{
+                        await this.onSuggestionItems_VENDOR_PURORG(oEvent);
+                    }
+                }
             }
 
 

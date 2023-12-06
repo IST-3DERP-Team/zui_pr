@@ -28,7 +28,6 @@ sap.ui.define(
             that = this;
             Common.openLoadingDialog(that);
 
-            
             this.callCaptionsAPI(); //call captions function
             this.getView().setModel(new JSONModel(this.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").getData().text), "ddtext");
             this._validationErrors = []; //store errors in field validations
@@ -725,7 +724,6 @@ sap.ui.define(
                                 item.Item = item.PURORG;
                                 item.Desc = item.Description;
                             })
-
                             me.getView().setModel(new JSONModel(oModelData),"onSuggPURORG");
                             resolve();
                         },
@@ -1223,14 +1221,13 @@ sap.ui.define(
                         var oValue = me.getView().getModel("onSugg"+ columnnName +"").getData().filter(v => v[columnnName] === sColumnId);
                         
                         if (oValue && oValue.length > 0) {
-                            return oValue[0].Desc + " (" + sColumnId + ")";
+                            return sColumnId;
+                            // return oValue[0].Desc + " (" + sColumnId + ")";
                         }
                         else return sColumnId;
                     }
                 })
             }
-
-
 
             if (sColumnId === "DELETED") { 
                 //Manage button
@@ -1573,16 +1570,16 @@ sap.ui.define(
                         if (sColumnType === "STRING") {
                             if(sColumnName === "REQSTNR" || sColumnName === "TRCKNO"){
                                 col.setTemplate(new sap.m.Input({
-                                    // id: "ipt" + ci.name,
+                                    id: "col-" + sColumnName,
                                     type: "Text",
                                     value: "{path: '" + ci.ColumnName + "', mandatory: '" + ci.Mandatory + "'}",
                                     maxLength: +ci.Length,
                                     showValueHelp: false,
                                     liveChange: this.onInputLiveChange.bind(this)
                                 }));
-                            }else{
+                            }else if(sColumnName === "MATNO"){
                                 col.setTemplate(new sap.m.Input({
-                                    // id: "ipt" + ci.name,
+                                    id: "col-" + sColumnName,
                                     type: "Text",
                                     // maxLength: +ci.Length,
                                     // showValueHelp: true,
@@ -1631,12 +1628,85 @@ sap.ui.define(
                                             { value: "onSugg" + ci.ColumnName }, 
                                             { value: 'Item' }, 
                                             { value: 'Desc' }, 
-                                            { value: 'ValueKey' }
+                                            { value: 'Other' }
                                         ],
                                         formatter: this.formatValueHelp.bind(this),
                                         mandatory: ci.Mandatory
                                     },
-                                    textFormatMode: 'ValueKey',
+                                    textFormatMode: 'Key',
+                                    showValueHelp: true,
+                                    valueHelpRequest: TableValueHelp.handleTableValueHelp.bind(this),//this.handleValueHelp.bind(this),
+                                    showSuggestion: true,
+                                    suggestionItems: {
+                                        path: 'onSugg' + ci.ColumnName + '>/',
+                                        length: 10000,
+                                        template: new sap.ui.core.ListItem({
+                                            key: '{onSugg' + ci.ColumnName + '>Item}',
+                                            text: '{onSugg' + ci.ColumnName + '>Desc}',
+                                            additionalText: '{onSugg' + ci.ColumnName + '>Item}'
+                                        }),
+                                        templateShareable: false
+                                    },
+                                    maxSuggestionWidth: "160px",
+                                    change: this.onInputLiveChangeSuggestion.bind(this)
+                                }));
+                            }else{
+                                col.setTemplate(new sap.m.Input({
+                                    id: "col-" + sColumnName,
+                                    type: "Text",
+                                    // maxLength: +ci.Length,
+                                    // showValueHelp: true,
+                                    // valueHelpRequest: this.handleValueHelp.bind(this),
+                                    // showSuggestion: true,
+                                    // liveChange: this.onInputLiveChange.bind(this),
+                                    enabled: {
+                                        path: "DOCTYP",
+                                        formatter: function (DOCTYP) {
+                                            var result = true; 
+                                            oParamData.forEach(async (data)=>{
+                                                if(DOCTYP === data.DOCTYP){
+                                                    for(var x = 0; x < data.results.length; x++){
+                                                        var data1 = data.results[x];
+                                                        if(ci.ColumnName === data1.FIELD2){
+                                                            if(data1.FIELD3 == "D"){
+                                                                result = false;
+                                                            }else if(data1.FIELD3 == "MD"){
+                                                                result = false;
+                                                            }
+
+                                                            if(data1.FIELD3 === "MU"){
+                                                                ci.Mandatory = true;
+                                                            }else if(data1.FIELD3 === "OU"){
+                                                                ci.Mandatory = false;
+                                                            }else if(data1.FIELD3 === "R"){
+                                                                ci.Mandatory = true;
+                                                            }else if(data1.FIELD3 === "U"){
+                                                                ci.Mandatory = true;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                            return result;
+                                        }
+
+                                    },
+                                    // value: {
+                                    //     path: ci.ColumnName, 
+                                    //     mandatory: ci.Mandatory 
+                                    // },
+                                    value: {
+                                        parts: [
+                                            { path: ci.ColumnName }, 
+                                            { value: "onSugg" + ci.ColumnName }, 
+                                            { value: 'Item' }, 
+                                            { value: 'Desc' }, 
+                                            { value: 'Other' }
+                                        ],
+                                        formatter: this.formatValueHelp.bind(this),
+                                        mandatory: ci.Mandatory
+                                    },
+                                    textFormatMode: 'Key',
                                     showValueHelp: true,
                                     valueHelpRequest: TableValueHelp.handleTableValueHelp.bind(this),//this.handleValueHelp.bind(this),
                                     showSuggestion: true,
@@ -1656,7 +1726,7 @@ sap.ui.define(
                             }
                         }else if (sColumnType === "DATETIME"){
                             col.setTemplate(new sap.m.DatePicker({
-                                // id: "ipt" + ci.name,
+                                id: "col-" + sColumnName,
                                 displayFormat:"short",
                                 change:"handleChange",
                                 
@@ -1696,7 +1766,7 @@ sap.ui.define(
                             }));
                         }else if (sColumnType === "NUMBER"){
                             col.setTemplate(new sap.m.Input({
-                                // id: "ipt" + ci.name,
+                                id: "col-" + sColumnName,
                                 type: sap.m.InputType.Number,
                                 value: "{path:'" + ci.ColumnName + "', mandatory: '"+ ci.Mandatory +"', type:'sap.ui.model.type.Decimal', formatOptions:{ minFractionDigits:" + null + ", maxFractionDigits:" + null + " }, constraints:{ precision:" + ci.Decimal + ", scale:" + null + " }}",
 
@@ -3272,6 +3342,7 @@ sap.ui.define(
         },
 
         prLock: async (me) => {
+            return true;
             var oModelLock = me.getOwnerComponent().getModel("ZGW_3DERP_LOCK_SRV");
             var oParamLock = {};
             var sError = "";
