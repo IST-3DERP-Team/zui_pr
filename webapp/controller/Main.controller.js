@@ -3320,6 +3320,8 @@ sap.ui.define(
             oDDTextParam.push({CODE: "USERDEF"});
             oDDTextParam.push({CODE: "SEARCH"});
 
+            oDDTextParam.push({CODE: "INFO_PURORG_REQUIRED"});
+            oDDTextParam.push({CODE: "INFO_PLANT_REQUIRED"});
             oDDTextParam.push({CODE: "FULLSCREEN"});
             oDDTextParam.push({CODE: "EXITFULLSCREEN"});
 
