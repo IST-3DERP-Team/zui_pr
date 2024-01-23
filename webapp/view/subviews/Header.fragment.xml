@@ -7,8 +7,8 @@ xmlns:core="sap.ui.core" class="sapUiSizeCompact"
                 <Toolbar id="TB1" height="2rem">
                     <Title text="{captionMsg>/HEADER}" />
                     <ToolbarSpacer />
-                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" text="{captionMsg>/SAVE}" tooltip="{captionMsg>/SAVE}" press="onSaveHeader" visible="true"/> 
-                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" text="{captionMsg>/CANCEL}" tooltip="{captionMsg>/CANCEL}" press="cancelHeaderEdit" visible="true"/> 
+                    <Button id="btnHdrSave" type="Ghost" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveHeader" visible="true"/> 
+                    <Button id="btnHdrCancel" type="Ghost" icon="sap-icon://decline" tooltip="{captionMsg>/CANCEL}" press="cancelHeaderEdit" visible="true"/> 
                     
                 </Toolbar>
             </headerToolbar>

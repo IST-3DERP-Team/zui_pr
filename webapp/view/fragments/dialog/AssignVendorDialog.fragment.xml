@@ -1,0 +1,130 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        id="fragment-1" 
+        fragmentName="fragment1">
+    <Dialog contentWidth="1000px"
+        contentHeight="285px"
+        title="Assign Vendor"
+        resizable="true"
+        draggable="true">
+        <beginButton>
+			<Button type="Emphasized" text="Save" press=".onAssignVendorManualSave" width="4rem" />
+		</beginButton>
+        <endButton>
+			<Button text="Cancel" press=".onAssignVendorManualCancel"/>
+		</endButton>
+        <uit:Table id="assignVendorTab"
+            rows="{/items}"
+            selectionMode="MultiToggle"
+            visibleRowCount="{/rowCount}"
+            paste="onPaste">
+            <uit:columns>
+                <uit:Column width="7rem">
+                    <Text text="{captionMsg>/PRNUMBER}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PRNUMBER}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>                
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/PRITEMNO}" wrapping="true"/>
+                    <uit:template>
+                        <Text text="{PRITEMNO}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="{captionMsg>/INFORECORD}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{InfoRec}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="25rem">
+                    <Text text="{captionMsg>/VENDOR}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{VENDORCDNAME}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="8rem">
+                    <Text text="{captionMsg>/MATERIALNO}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{Material}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5em">
+                    <Text text="{captionMsg>/PURCHORG}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PurchOrg}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/PURCHPLANT}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PURCHPLANT}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/PURGRP}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PurGroup}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/CURR}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{Currency}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="6rem" hAlign="End">
+                    <Text text="{captionMsg>/PRICE}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{NetPrice}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="6rem" hAlign="End">
+                    <Text text="{captionMsg>/PRICEUNIT}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PriceUnit}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/UOM}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{PoUnit}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="6rem" hAlign="End">
+                    <Text text="{captionMsg>/CONVNUM}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{ConvNum1}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem" hAlign="End">
+                    <Text text="{captionMsg>/CONVDEN}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{ConvDen1}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="{captionMsg>/TAXCODE}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{TaxCode}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="6rem">
+                    <Text text="{captionMsg>/INCO1}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{Incoterms1}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>                
+                <uit:Column width="6rem">
+                    <Text text="{captionMsg>/INCO2}" wrapping="true" />
+                    <uit:template>
+                        <Text text="{Incoterms2}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+            </uit:columns>
+        </uit:Table>    
+    </Dialog>
+</core:FragmentDefinition>

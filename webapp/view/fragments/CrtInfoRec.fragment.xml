@@ -1,0 +1,29 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form" xmlns:l="sap.ui.layout" xmlns:mvc="sap.ui.core.mvc" class="sapUiSizeCompact" xmlns:tnt="sap.tnt" xmlns:c="zuiio2.control" xmlns:t="sap.ui.table" xmlns:t2="sap.m.Table">
+    <Dialog title="Create Info Record" xmlns:c="zuiio2.control" xmlns:t="sap.ui.table" xmlns:tnt="sap.tnt"
+    escapeHandler=".onCancelInfoRec" afterClose=".onCancelInfoRec">
+        <Panel width="100%" height="100%" class="sapUiNoContentPadding">
+            <!-- Versions Table -->
+            <t:Table id="GENINFORECTbl" 
+                    rows="{GENINFORECDataModel>/results}" 
+                    class="sapUiSizeCompact" 
+                    showColumnVisibilityMenu="true" 
+                    enableColumnFreeze="true" 
+                    enableCellFilter="true" 
+                    selectionMode="MultiToggle" 
+                    selectionBehavior="RowSelector" 
+                    alternateRowColors="true">
+                <t:extension>
+                    <!-- <Toolbar>
+                        <ToolbarSpacer />
+                        <SearchField id="searchFieldInfoRec" placeholder="Filter" value="" search="filterGlobally" width="15rem" />
+                    </Toolbar> -->
+                </t:extension>
+            </t:Table>
+        </Panel>
+        <buttons>
+            <Button id="btnINFNRSubmit" text="{i18n>Submit}" press="onfragmentCreateInfoRec" tooltip="Submit" visible="true" />
+            <Button id="btnINFNRCancel" text="{i18n>Cancel}" press="onCancelInfoRec" tooltip="Cancel" visible="true" />
+            <Button id="btnINFNRClose" text="{i18n>Close}" press="onCancelInfoRec" tooltip="Close" visible="false" />
+        </buttons>
+    </Dialog>
+</core:FragmentDefinition>

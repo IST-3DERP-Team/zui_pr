@@ -222,6 +222,14 @@
             }
         }
     ],
+    "GENINFORECTbl":[
+        {"ColumnName": "ORDERUOM", "TextFormatMode": "ValueKey",
+            "ValueHelp": {"show": true, "items": {"path": "onSuggORDERUOM", "value": "Item", "text": "Desc"},
+                "SuggestionItems": {"path": "onSuggORDERUOM>/", "text": "{onSuggORDERUOM>Item}", "additionalText": "{onSuggORDERUOM>Desc}", "maxSuggestionWidth": "300px" },
+                "columns": "tvh_orderuom"
+            }
+        }
+    ],
     "tvdtl_matno": [
         {"ColumnName": "MATNO", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
         {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
@@ -304,6 +312,29 @@
     ],
     "tvMPRDocTyp_seasoncd": [
         {"ColumnName": "DOCTYP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": false, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+    "assignVendorManual": [
+        {"ColumnName": "VENDOR", "TextFormatMode": "Key",
+            "ValueHelp": {"show": true, "items": {"path": "vendors", "value": "LIFNR", "text": "NAME1"},
+                "columns": "tvh_vendor"
+            }
+        }
+    ],
+    "tvh_vendor": [
+        {"ColumnName": "LIFNR", "DataType": "STRING", "ColumnWidth": "100px", "Visible": true, "Key": true, "Value": true},
+        {"ColumnName": "NAME1", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "EKORG", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false},
+        {"ColumnName": "INCO1", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false},
+        {"ColumnName": "INCO2", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false},
+        {"ColumnName": "MATNO", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false},
+        {"ColumnName": "WAERS", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false},
+        {"ColumnName": "ZTERM", "DataType": "STRING", "ColumnWidth": "100px", "Visible": false, "Key": false, "Value": false}
+    ],
+    "tvh_orderuom": [
+        {"ColumnName": "UOM", "DataType": "STRING", "ColumnWidth": "100px", "Visible": true, "Key": true, "Value": false},
         {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
