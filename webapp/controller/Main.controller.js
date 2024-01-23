@@ -5132,7 +5132,20 @@ sap.ui.define(
 
             oDDTextParam.push({CODE: "INFO_SEL1_PR_ONLY"});
             oDDTextParam.push({CODE: "INFO_NO_SEL_RECORD_TO_PROC"});
-            
+
+            oDDTextParam.push({CODE: "PRNUMBER"});
+            oDDTextParam.push({CODE: "PRITEMNO"});
+            oDDTextParam.push({CODE: "INFORECORD"});
+            oDDTextParam.push({CODE: "PURCHPLANT"});
+            oDDTextParam.push({CODE: "CURR"});
+            oDDTextParam.push({CODE: "PRICE"});
+            oDDTextParam.push({CODE: "PRICEUNIT"});
+            oDDTextParam.push({CODE: "UOM"});
+            oDDTextParam.push({CODE: "CONVNUM"});
+            oDDTextParam.push({CODE: "CONVDEN"});
+            oDDTextParam.push({CODE: "TAXCODE"});
+            oDDTextParam.push({CODE: "INCO1"});
+            oDDTextParam.push({CODE: "INCO2"});
 
             await oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
                 method: "POST",
