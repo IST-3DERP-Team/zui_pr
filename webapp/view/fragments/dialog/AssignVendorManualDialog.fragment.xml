@@ -1,0 +1,67 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        id="fragment-assignvendormanual" 
+        fragmentName="assignvendormanual">
+    <Dialog contentWidth="850px"
+        contentHeight="395px"
+        title="Assign Vendor Manually"
+        beforeOpen="beforeOpenAVM"
+        resizable="true"
+        draggable="true">
+        <content>
+            <uit:Table id="assignVendorManualTab"
+                rows="{/rows}"
+                selectionMode="MultiToggle"
+                visibleRowCount="{/rowCount}"
+                paste="onPaste"
+                class="sapUiTinyMargin">
+                <uit:rowSettingsTemplate>
+                    <uit:RowSettings highlight="{= ${EDITED} === true ? 'Warning' : null}" />
+                </uit:rowSettingsTemplate>
+                <uit:columns>
+                    <uit:Column width="150px">
+                        <Text text="{captionMsg>/MATERIALNO}" />
+                        <uit:template>
+                            <Text text="{MATERIALNO}" wrapping="false" />
+                        </uit:template>
+                    </uit:Column>
+                    <uit:Column width="150px">
+                        <Text text="{captionMsg>/VENDOR}" class="sapMLabelRequired" />
+                        <uit:template>
+                            <Input id="iptManualVendor"
+                                type="Text" 
+                                value="{VENDOR}"
+                                textFormatMode="Key"	
+                                showValueHelp="true"
+                                valueHelpRequest="handleStaticValueHelp"  
+                                showSuggestion="true" 
+                                maxSuggestionWidth="600px"
+                                suggestionItemSelected="handleSuggestionItemSelected"
+                                change="onStaticValueHelpInputChange">
+                            </Input>
+                        </uit:template>
+                    </uit:Column>
+                    <uit:Column width="350px">
+                        <Text text="{captionMsg>/VENDORNAME}" />
+                        <uit:template>
+                            <Text text="{VENDORNAME}" wrapping="false" />
+                        </uit:template>
+                    </uit:Column>
+                    <uit:Column width="120px">
+                        <Text text="{captionMsg>/PURCHORG}" />
+                        <uit:template>
+                            <Text text="{PURCHORG}" wrapping="false" />
+                        </uit:template>
+                    </uit:Column>
+                </uit:columns>
+            </uit:Table>
+        </content> 
+        <buttons>
+            <Button id="btnAVM" icon="sap-icon://accept" text="{captionMsg>/ASSIGN}" tooltip="{captionMsg>/ASSIGN}" press="onManualAV" visible="true" />
+            <Button id="btnAVMCancel" icon="sap-icon://decline" text="{captionMsg>/CANCEL}" tooltip="{captionMsg>/CANCEL}" press="onCancelAVM" visible="true" />
+        </buttons>        
+    </Dialog>
+</core:FragmentDefinition>

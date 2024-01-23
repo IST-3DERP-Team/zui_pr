@@ -1,0 +1,91 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+        xmlns:f="sap.ui.layout.form"
+		xmlns:core="sap.ui.core"
+        xmlns:uit="sap.ui.table"
+        id="fragment-1" 
+        fragmentName="fragment1">
+    <Dialog contentWidth="1000px"
+        contentHeight="285px"
+        title="Assign Vendor Result"
+        resizable="true"
+        draggable="true">
+        <endButton>
+			<Button text="Close" press=".onAssignVendorClose"/>
+		</endButton>
+        <uit:Table id="assignVendorResultTab"
+            rows="{/items}"
+            selectionMode="None"
+            visibleRowCount="{/rowCount}"
+            paste="onPaste">
+            <uit:columns>
+                <uit:Column width="7rem">
+                    <Text text="PR#" />
+                    <uit:template>
+                        <Text text="{PRNUMBER}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>                
+                <uit:Column width="5rem">
+                    <Text text="PR Item" />
+                    <uit:template>
+                        <Text text="{PRITEMNO}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="20rem">
+                    <Text text="Remarks" />
+                    <uit:template>
+                        <Text text="{REMARKS}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="10rem">
+                    <Text text="Material No." />
+                    <uit:template>
+                        <Text text="{MATERIALNO}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="IO No." />
+                    <uit:template>
+                        <Text text="{IONUMBER}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="4rem">
+                    <Text text="Qty" />
+                    <uit:template>
+                        <Text text="{QTY}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="5rem">
+                    <Text text="UOM" />
+                    <uit:template>
+                        <Text text="{UNIT}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="Vendor" />
+                    <uit:template>
+                        <Text text="{VENDOR}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="Purch Org" />
+                    <uit:template>
+                        <Text text="{PURCHORG}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="Purch Plant" />
+                    <uit:template>
+                        <Text text="{PURCHPLANT}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+                <uit:Column width="7rem">
+                    <Text text="Purch Group" />
+                    <uit:template>
+                        <Text text="{PURCHGRP}" wrapping="false" />
+                    </uit:template>
+                </uit:Column>
+            </uit:columns>
+        </uit:Table>    
+    </Dialog>
+</core:FragmentDefinition>

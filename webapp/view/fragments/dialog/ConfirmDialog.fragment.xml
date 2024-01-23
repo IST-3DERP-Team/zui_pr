@@ -1,0 +1,11 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog title="">
+		<Panel>
+			<Text text="{/Text}"/>
+		</Panel>
+		<buttons>
+			<Button text="Yes" press="onCloseConfirmDialog"/>
+			<Button text="No" press="onCancelConfirmDialog"/>
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

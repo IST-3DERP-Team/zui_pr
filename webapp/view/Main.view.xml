@@ -224,22 +224,30 @@
                                 value=""
                                 search=".searchGlobal"
                                 width="15rem"/>
+                            <m:MenuButton id="_IDGenMenuButton3" icon="sap-icon://add">
+                                <m:menu>
+                                    <m:Menu id="_IDGenMenu3">
+                                        <m:MenuItem id="_IDGenMenuItem_03_1" text="{captionMsg>/ASSIGNVENDOR}" press="onAssignVendorAuto"/>
+                                        <m:MenuItem id="_IDGenMenuItem_03_2" text="{captionMsg>/UNDOASSIGNVENDOR}" press="onUndoAssignVendor"/>
+                                        <m:MenuItem id="_IDGenMenuItem_03_3" text="{captionMsg>/CRTINFOREC}" press="onCreateInfoRecord"/>
+                                    </m:Menu>
+                                </m:menu>                    
+                            </m:MenuButton>
                             <m:Button id="btnPOList" text="{captionMsg>/POLIST}" icon="sap-icon://list" tooltip="{captionMsg>/POLIST}" press="onPOListView" />
-                            <m:Button id="btnRefresh" text="{captionMsg>/REFRESH}" icon="sap-icon://refresh" tooltip="{captionMsg>/REFRESH}" press="onRefreshMain" />
-                            <m:Button id="btnSave" text="{captionMsg>/SAVE}" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveEdit" visible="false" />
-                            <m:Button id="btnCancel" text="{captionMsg>/CANCEL}" icon="sap-icon://sys-cancel" tooltip="{captionMsg>/CANCEL}" press="onCancelEdit" visible="false" />
-                            <m:Button id="btnNew" text="{captionMsg>/NEW}" icon="sap-icon://add-document" tooltip="{captionMsg>/NEW}" press="onCreateNewPR"/>
-                            <m:Button id="btnEdit" text="{captionMsg>/EDIT}" icon="sap-icon://edit" tooltip="{captionMsg>/EDIT}" press="onEditTbl"/>
-                            <m:Button id="btnDelete" text="{captionMsg>/DELETE}" icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onDeletePR"/>
-                            <m:Button id="btnClose" text="{captionMsg>/CLOSE}" icon="sap-icon://complete" tooltip="{captionMsg>/CLOSE}" press="onClosePR"/>
-                            <m:Button id="btnTabLayout" text="{captionMsg>/SAVELAYOUT}" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>   
-                            <m:Button id="btnView" text="{captionMsg>/VIEW}" icon="sap-icon://detail-view" tooltip="{captionMsg>/VIEW}" press="goToDetail"/> 
+                            <m:Button id="btnRefresh" icon="sap-icon://refresh" tooltip="{captionMsg>/REFRESH}" press="onRefreshMain" />
+                            <m:Button id="btnSave" icon="sap-icon://save" tooltip="{captionMsg>/SAVE}" press="onSaveEdit" visible="false" />
+                            <m:Button id="btnCancel" icon="sap-icon://sys-cancel" tooltip="{captionMsg>/CANCEL}" press="onCancelEdit" visible="false" />
+                            <m:Button id="btnNew" icon="sap-icon://add-document" tooltip="{captionMsg>/NEW}" press="onCreateNewPR"/>
+                            <m:Button id="btnEdit" icon="sap-icon://edit" tooltip="{captionMsg>/EDIT}" press="onEditTbl"/>
+                            <m:Button id="btnDelete" icon="sap-icon://delete" tooltip="{captionMsg>/DELETE}" press="onDeletePR"/>
+                            <m:Button id="btnClose" icon="sap-icon://complete" tooltip="{captionMsg>/CLOSE}" press="onClosePR"/>
+                            <m:Button id="btnTabLayout" icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout"/>   
+                            <m:Button id="btnView" icon="sap-icon://detail-view" tooltip="{captionMsg>/VIEW}" press="goToDetail"/> 
                             <m:Button id="btnFullScreen" 
                                 icon="sap-icon://full-screen"
                                 type="Ghost"
                                 press="onTableResize"
                                 tooltip="{captionMsg>/FULLSCREEN}"
-                                text="{captionMsg>/FULLSCREEN}"
                                 visible="true" >
                                 <m:customData>
                                     <core:CustomData key="Type" value="Hdr" />
@@ -251,7 +259,6 @@
                                 type="Ghost"
                                 press="onTableResize"
                                 tooltip="{captionMsg>/EXITFULLSCREEN}"
-                                text="{captionMsg>/EXITFULLSCREEN}"
                                 visible="false">
                                 <m:customData>
                                     <core:CustomData key="Type" value="Hdr" />
