@@ -3497,7 +3497,7 @@ sap.ui.define(
             //get information of columns, add to payload
             oColumns.forEach((column) => {
                 oParam.TableLayoutToItems.push({
-                    COLUMNNAME: column.sId,
+                    COLUMNNAME: column.sId.split("-")[1],
                     ORDER: ctr.toString(),
                     SORTED: column.mProperties.sorted,
                     SORTORDER: column.mProperties.sortOrder,
