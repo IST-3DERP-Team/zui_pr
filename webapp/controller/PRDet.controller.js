@@ -21,9 +21,14 @@ sap.ui.define([
 
         return Controller.extend("zuipr.controller.PRDet", {
 
-            onInit: function () {
+            onInit: async function () {
                 that = this;
                 
+                this._validationErrors = [];
+                this._oDataOnEditValidate = [];
+                this._getFieldResultsData = [];
+                this._resultfields = {}
+
                 //Initialize router
                 var oComponent = this.getOwnerComponent();
                 this._router = oComponent.getRouter();
@@ -31,12 +36,14 @@ sap.ui.define([
                 this.getView().setModel(new JSONModel(this.getOwnerComponent().getModel("CAPTION_MSGS_MODEL").getData().text), "ddtext");
                 this._router.getRoute("PRDetail").attachPatternMatched(this._routePatternMatched, this);
                 
-                this._validationErrors = [];
-                this._oDataOnEditValidate = [];
-                this._getFieldResultsData = [];
-                this._resultfields = {}
-
                 this._tableValueHelp = TableValueHelp; 
+
+                this._appAction = "" //global variable of Application Action if Display or Change
+                await this.getAppAction(); //Get the Application actions if Display or Change in LTD
+
+                if(this._appAction === "display"){
+                    this.byId("editPRBtn").setVisible(false);
+                }
 
             },
             _routePatternMatched: async function (oEvent) {
@@ -44,6 +51,8 @@ sap.ui.define([
                 this._prno = oEvent.getParameter("arguments").PRNO; //get Style from route pattern
                 this._pritm = oEvent.getParameter("arguments").PRITM; //get SBU from route pattern
                 
+                Common.openLoadingDialog(that);
+                await this.initButtons();
                 // //Load header
                 // this.getHeaderData(); //get header data
 
@@ -58,7 +67,19 @@ sap.ui.define([
                 // this.bindUploadCollection();
                 // this.getView().getModel("FileModel").refresh();
                 await this.loadAllData();
+                Common.closeLoadingDialog(that);
             },
+
+            getAppAction: async function(){
+                if(sap.ushell.Container !==undefined){
+                    const fullHash = new HashChanger().getHash();
+                    const urlParsing = await sap.ushell.Container.getServiceAsync("URLParsing");
+                    const shellHash = urlParsing.parseShellHash(fullHash);
+                    const sAction = shellHash.action;
+                    this._appAction = sAction;
+                }
+            },
+
             callCaptionsAPI: async function(){
                 var oJSONModel = new JSONModel();
                 var oDDTextParam = [];
@@ -138,13 +159,38 @@ sap.ui.define([
             },
 
             loadAllData: async function(){
-                Common.openLoadingDialog(that);
                 await this.getColumnProp();
                 await this.getHeaderData();
                 await this.getHeaderConfig();
                 // await new Promise((resolve, reject)=>{
                 //     resolve(this.handleSuggestions())
                 // });
+            },
+
+            initButtons: async function(){
+                await this.loadAllData();
+                if(this._appAction === "display"){
+                    this.byId("editPRBtn").setVisible(false);
+                }else{
+                    this.byId("editPRBtn").setVisible(true);
+                    this.byId("savePRBtn").setVisible(false);
+                    this.byId("cancelPRBtn").setVisible(false);
+                    this.byId("refreshPRBtn").setVisible(true);
+                }
+                this.setReqField("MatDataDetailForm", "ReadMode");
+                this.setReqField("QtyDtHeaderForm", "ReadMode");
+                this.setReqField("SupplyTypHeaderForm", "ReadMode");
+                this.setReqField("CustDataHeaderForm", "ReadMode");
+
+                this.setFieldEditable("MatDataDetailForm", "ReadMode");
+                this.setFieldEditable("QtyDtHeaderForm", "ReadMode");
+                this.setFieldEditable("SupplyTypHeaderForm", "ReadMode");
+                this.setFieldEditable("CustDataHeaderForm", "ReadMode");
+            },
+
+            onRefresh: async function(){
+                Common.openLoadingDialog(that);
+                await this.loadAllData();
                 Common.closeLoadingDialog(that);
             },
             getHeaderData: async function () {
@@ -269,6 +315,10 @@ sap.ui.define([
                     return;
                 }
 
+                if(this._appAction === "display"){
+                    return;
+                }
+
                 //check ZERP_CHECK to validate Mandatory and Editable Fields
                 await this.chkZERP_CHECKvalidate();
 
@@ -283,6 +333,7 @@ sap.ui.define([
                 this.setFieldEditable("CustDataHeaderForm", "EditMode");
 
                 this.byId("editPRBtn").setVisible(false);
+                this.byId("refreshPRBtn").setVisible(false);
                 this.byId("savePRBtn").setVisible(true);
                 this.byId("cancelPRBtn").setVisible(true);
             },
@@ -474,7 +525,10 @@ sap.ui.define([
                     MessageBox.error("Please Fill Required Fields!");
                     bProceed = false;
                 }
-                
+
+                if(this._appAction === "display"){
+                    bProceed = false;
+                }
 
                 if(bProceed){
                     Common.openLoadingDialog(that);
@@ -561,6 +615,7 @@ sap.ui.define([
                         this.setFieldEditable("CustDataHeaderForm", "ReadMode");
 
                         this.byId("editPRBtn").setVisible(true);
+                        this.byId("refreshPRBtn").setVisible(true);
                         this.byId("savePRBtn").setVisible(false);
                         this.byId("cancelPRBtn").setVisible(false);
 
@@ -718,6 +773,7 @@ sap.ui.define([
                 this.setFieldEditable("CustDataHeaderForm", "ReadMode");
 
                 this.byId("editPRBtn").setVisible(true);
+                this.byId("refreshPRBtn").setVisible(true);
                 this.byId("savePRBtn").setVisible(false);
                 this.byId("cancelPRBtn").setVisible(false);
                 Common.closeLoadingDialog(that);
