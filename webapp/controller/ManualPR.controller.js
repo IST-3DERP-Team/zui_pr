@@ -2135,6 +2135,8 @@ sap.ui.define([
                                 if(item.SBU === vSBU){
                                     item.Item = item.MATNO;
                                     item.Desc = item.GMCDescen;
+                                    item.GMCDESCEN = item.GMCDescen;
+                                    item.MATTYP = item.MatTyp;
                                     dataResult.push(item);
                                 }
                             })
@@ -2153,14 +2155,14 @@ sap.ui.define([
                                     if(item.SBU === vSBU){
                                         item.Item = item.BATCH;
                                         item.Desc = item.Description;
-                                        item.Desc2 = item.OrderNo;
+                                        item.ORDERNO = item.OrderNo;
                                         dataResult.push(item);
                                     }
                                     if(item.SBU == ""){
                                         item.SBU = vSBU
                                         item.Item = item.BATCH;
                                         item.Desc = item.Description;
-                                        item.Desc2 = item.OrderNo;
+                                        item.ORDERNO = item.OrderNo;
                                         dataResult.push(item);
                                     }
                                 }
@@ -2248,6 +2250,7 @@ sap.ui.define([
                             data.results.forEach(item=>{
                                 if(item.PurchPlant === purPlantVal){
                                     item.Item = item.PURORG;
+                                    item.PURCHPLANT = item.PurchPlant;
                                     dataResult.push(item);
                                 }
                                 // item.Desc = item.DESCRIPTION;

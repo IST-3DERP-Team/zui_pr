@@ -32,6 +32,7 @@
 					<ObjectPageHeaderActionButton id="editPRBtn" type="Transparent" press="onClickEdit" icon="sap-icon://edit" text="Edit" hideText="false" tooltip="edit"/>
 					<ObjectPageHeaderActionButton id="savePRBtn" type="Transparent" press="onSaveEdit" icon="sap-icon://save" text="Save" visible="false" hideText="false" tooltip="save"/>
 					<ObjectPageHeaderActionButton id="cancelPRBtn" type="Transparent" press="onCancelEdit" icon="sap-icon://cancel" text="Cancel" visible="false" hideText="false" tooltip="cancel"/>
+					<ObjectPageHeaderActionButton id="refreshPRBtn" type="Transparent" press="onRefresh" icon="sap-icon://refresh" text="Refresh" hideText="false" tooltip="Refresh"/>
 				</actions>
 			</ObjectPageDynamicHeaderTitle>
 		</headerTitle>

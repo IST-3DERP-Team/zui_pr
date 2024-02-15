@@ -183,42 +183,42 @@
             "ColumnName": "MATNO", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggMATNO", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggMATNO>/", "text": "{onSuggMATNO>Item}", "additionalText": "{onSuggMATNO>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_matno"
+                "columns": "tvdtlManual_matno"
             }
         },
         {
             "ColumnName": "BATCH", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggBATCH", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggBATCH>/", "text": "{onSuggBATCH>Item}", "additionalText": "{onSuggBATCH>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_batch"
+                "columns": "tvdtlManual_batch"
             }
         },
         {
             "ColumnName": "SEASONCD", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggSEASONCD", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggSEASONCD>/", "text": "{onSuggSEASONCD>Item}", "additionalText": "{onSuggSEASONCD>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_seasoncd"
+                "columns": "tvdtlManual_seasoncd"
             }
         },
         {
             "ColumnName": "PURORG", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggPURORG", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggPURORG>/", "text": "{onSuggPURORG>Item}", "additionalText": "{onSuggPURORG>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_purorg"
+                "columns": "tvdtlManual_purorg"
             }
         },
         {
             "ColumnName": "SUPTYP", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggSUPTYP", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggSUPTYP>/", "text": "{onSuggSUPTYP>Item}", "additionalText": "{onSuggSUPTYP>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_suptyp"
+                "columns": "tvdtlManual_suptyp"
             }
         },
         {
             "ColumnName": "VENDOR", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggVENDOR", "value": "Item", "text": "Desc"},
                 "SuggestionItems": {"path": "onSuggVENDOR>/", "text": "{onSuggVENDOR>Item}", "additionalText": "{onSuggVENDOR>Desc}", "maxSuggestionWidth": "300px" },
-                "columns": "tvdtl_vendor"
+                "columns": "tvdtlManual_vendor"
             }
         }
     ],
@@ -231,13 +231,29 @@
         }
     ],
     "tvdtl_matno": [
-        {"ColumnName": "MATNO", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
         {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
-        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "MATNO", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "GMCDESCEN", "DataType": "STRING", "ColumnWidth": "360px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "BASEUOM", "DataType": "STRING", "ColumnWidth": "100px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "GMCDesc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "BaseUOM", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "MatNo", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "MatGrp", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+    "tvdtlManual_matno":[
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "MATNO", "DataType": "STRING", "ColumnWidth": "120px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "GMCDESCEN", "DataType": "STRING", "ColumnWidth": "320px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "GMCDescen", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "MatGrp", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "UOM", "DataType": "STRING", "ColumnWidth": "60px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "MATTYP", "DataType": "STRING", "ColumnWidth": "120px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "MatTyp", "DataType": "STRING", "ColumnWidth": "120px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_batch": [
         {"ColumnName": "BATCH", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
@@ -247,68 +263,119 @@
         {"ColumnName": "OrderNo", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
+    "tvdtlManual_batch": [
+        {"ColumnName": "BATCH", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "Description", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "ORDERNO", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "OrderNo", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
     "tvdtl_matgrp": [
-        {"ColumnName": "MATGRP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "MATGRP", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "Description", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "MaterialGrp", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_shiptoplant": [
-        {"ColumnName": "plantcd", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": false, "Value": false},
-        {"ColumnName": "SHIPTOPLANT", "DataType": "STRING", "ColumnWidth": "200px", "Visible": false, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
-        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "SHIPTOPLANT", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESC", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "ShipToPlant", "DataType": "STRING", "ColumnWidth": "150px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_plantcd": [
-        {"ColumnName": "PLANTCD", "DataType": "STRING", "ColumnWidth": "200px", "Visible": false, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
-        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "PLANTCD", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESC", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "PurchPlant", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_purgrp": [
-        {"ColumnName": "PURGRP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": false, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
-        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "PURGRP", "DataType": "STRING", "ColumnWidth": "120px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "280px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "Description", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "PurchGrp", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_purorg": [
-        {"ColumnName": "PURORG", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "PURORG", "DataType": "STRING", "ColumnWidth": "120px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "280px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "PURCHPLANT", "DataType": "STRING", "ColumnWidth": "120px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "PurchPlant", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+    "tvdtlManual_purorg": [
+        {"ColumnName": "PURORG", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
         {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
-        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "PURCHPLANT", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "PurchPlant", "DataType": "STRING", "ColumnWidth": "150px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_vendor": [
+        {"ColumnName": "VENDOR", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "PURORG", "DataType": "STRING", "ColumnWidth": "350px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+
+    "tvdtlManual_vendor": [
         {"ColumnName": "VENDOR", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "400px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "PURORG", "DataType": "STRING", "ColumnWidth": "350px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_suptyp": [
+        {"ColumnName": "SUPTYP", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "ShortText", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "SupTyp", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+    "tvdtlManual_suptyp": [
         {"ColumnName": "SUPTYP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
         {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_salesgrp": [
-        {"ColumnName": "SALESGRP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "SALESGRP", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_custgrp": [
-        {"ColumnName": "CUSTGRP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "CUSTGRP", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvdtl_seasoncd": [
-        {"ColumnName": "SEASONCD", "DataType": "STRING", "ColumnWidth": "200px", "Visible": true, "Key": true, "Value": false},
-        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "SEASONCD", "DataType": "STRING", "ColumnWidth": "150px", "Visible": true, "Key": true, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "250px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
         {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
+    ],
+    "tvdtlManual_seasoncd": [
+        {"ColumnName": "SEASONCD", "DataType": "STRING", "ColumnWidth": "100px", "Visible": true, "Key": false, "Value": false},
+        {"ColumnName": "DESCRIPTION", "DataType": "STRING", "ColumnWidth": "300px", "Visible": true, "Key": false, "Value": true},
+        {"ColumnName": "Item", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": true, "Value": true},
+        {"ColumnName": "Desc", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true},
+        {"ColumnName": "SBU", "DataType": "STRING", "ColumnWidth": "300px", "Visible": false, "Key": false, "Value": true}
     ],
     "tvMPRDocTyp_seasoncd": [
         {"ColumnName": "DOCTYP", "DataType": "STRING", "ColumnWidth": "200px", "Visible": false, "Key": true, "Value": false},

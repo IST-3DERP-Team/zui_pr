@@ -87,6 +87,7 @@ sap.ui.define(
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(false);
                 this.byId("btnView").setVisible(false);
+                this.byId("_IDGenMenuButton3").setVisible(false);
             }
 
 
@@ -109,6 +110,7 @@ sap.ui.define(
                         that.byId("btnTabLayout").setEnabled(false);
                         that.byId("btnView").setEnabled(false);
                         that.byId("btnFullScreen").setEnabled(false);
+                        that.byId("_IDGenMenuButton3").setEnabled(false);
                     }
                 },
                 error: function (err) { }
@@ -449,6 +451,7 @@ sap.ui.define(
                 this.byId("btnTabLayout").setEnabled(true);
                 this.byId("btnView").setEnabled(true);
                 this.byId("btnFullScreen").setEnabled(true);
+                this.byId("_IDGenMenuButton3").setEnabled(true);
 
 
                 this.getView().getModel("ui").setProperty("/dataMode", 'READ');
@@ -502,6 +505,8 @@ sap.ui.define(
                             item.MATNO = item.MatNo;
                             item.Item = item.MatNo;
                             item.Desc = item.GMCDesc;
+                            item.GMCDESCEN = item.GMCDesc;
+                            item.BASEUOM = item.BaseUOM;
                         })
                         me.getView().setModel(new JSONModel(data.results),"onSuggMATNO");
                         resolve();
@@ -517,6 +522,7 @@ sap.ui.define(
                     success: function (data, response) {
                         data.results.forEach(item=>{
                             item.MATGRP = item.MaterialGrp;
+                            item.DESCRIPTION = item.Description;
                             item.Item = item.MaterialGrp;
                             item.Desc = item.Description;
                         })
@@ -537,6 +543,7 @@ sap.ui.define(
                             item.SHIPTOPLANT = item.ShipToPlant;
                             item.Item = item.ShipToPlant;
                             item.Desc = item.DESCRIPTION;
+                            item.DESC = item.DESCRIPTION;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggSHIPTOPLANT");
@@ -555,6 +562,7 @@ sap.ui.define(
                             item.PLANTCD = item.PurchPlant;
                             item.Item = item.PurchPlant;
                             item.Desc = item.DESCRIPTION;
+                            item.DESC = item.DESCRIPTION;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggPLANTCD");
@@ -621,6 +629,7 @@ sap.ui.define(
                             item.PURGRP = item.PurchGrp;
                             item.Item = item.PurchGrp;
                             item.Desc = item.Description;
+                            item.DESCRIPTION = item.Description;
                         })
 
                         me.getView().setModel(new JSONModel(data.results),"onSuggPURGRP");
@@ -693,6 +702,7 @@ sap.ui.define(
                     success: function (data, response) {
                         data.results.forEach(item=>{
                             item.Item = item.PURORG;
+                            item.PURCHPLANT = item.PurchPlant;
                             item.Desc = item.Description;
                         })
 
@@ -742,6 +752,7 @@ sap.ui.define(
                             oModelData = data.results.filter(item=> item.PurchPlant === vPlantCd )
                             oModelData.forEach(item=>{
                                 item.Item = item.PURORG;
+                                item.PURCHPLANT = item.PurchPlant;
                                 item.Desc = item.Description;
                             })
                             me.getView().setModel(new JSONModel(oModelData),"onSuggPURORG");
@@ -1144,6 +1155,41 @@ sap.ui.define(
                 var sColumnSorted = context.getObject().Sorted;
                 var sColumnSortOrder = context.getObject().SortOrder;
                 var sColumnWidth = context.getObject().ColumnWidth;
+                
+                if(table === "styleDynTable" && sColumnId === "INFORECORD"){
+                    var oControl = new sap.m.Link({
+                        text: "{" + sColumnId + "}",
+                        wrapping: false, 
+                        tooltip: "{" + sColumnId + "}",
+                        press: function(oEvent) {
+                            const vInfoRec = oEvent.oSource.mProperties.text
+                            // const vRow = oEvent.oSource.getBindingInfo("text").binding.getContext().sPath;
+                            // const vIONo =  oEvent.oSource.mProperties.text;
+                            // const vStyleNo =  oTable.getModel().getProperty(vRow + "/STYLENO");
+                            var oData = {
+                                DOCTYPE: "INFORECORD",
+                                IONO: vInfoRec
+                            }
+                            me.viewDoc(oData);
+                        },
+                    })
+                    oControl.addStyleClass("hyperlink");
+
+                    return new sap.ui.table.Column({
+                        id: model+"-"+sColumnId,
+                        label: new sap.m.Text({text: sColumnLabel}),
+                        template: oControl,
+                        width: sColumnWidth + "px",
+                        hAlign: me.columnSize(sColumnId),
+                        sortProperty: sColumnId,
+                        filterProperty: sColumnId,
+                        autoResizable: true,
+                        visible: sColumnVisible,
+                        sorted: sColumnSorted,
+                        sortOrder: ((sColumnSorted === true) ? sColumnSortOrder : "Ascending" )
+                    });
+                }
+
                 if (sColumnType === "STRING" || sColumnType === "DATETIME"|| sColumnType === "BOOLEAN") {
                     return new sap.ui.table.Column({
                         id: model + "-" + sColumnId,
@@ -1316,6 +1362,20 @@ sap.ui.define(
                 oColumnSize = "Center";
             }
             return oColumnSize;
+        },
+
+        viewDoc: function (oData){
+            var vSBU = this.getView().byId("cboxSBU").getSelectedKey();;
+            var oCrossAppNavigator = sap.ushell.Container.getService("CrossApplicationNavigation");
+
+            if (oData.DOCTYPE === "INFORECORD") {
+                var hash = "PurchasingInfoRecord-create?sap-ui-tech-hint=GUI";
+            }
+            oCrossAppNavigator.toExternal({
+                target: {
+                    shellHash: hash
+                }
+            });
         },
 
         onSapEnter(oEvent) {
