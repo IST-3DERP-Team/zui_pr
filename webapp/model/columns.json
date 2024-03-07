@@ -182,7 +182,7 @@
         {
             "ColumnName": "MATNO", "TextFormatMode": "ValueKey",
             "ValueHelp": {"show": true, "items": {"path": "onSuggMATNO", "value": "Item", "text": "Desc"},
-                "SuggestionItems": {"path": "onSuggMATNO>/", "text": "{onSuggMATNO>Item}", "additionalText": "{onSuggMATNO>Desc}", "maxSuggestionWidth": "300px" },
+                "SuggestionItems": {"path": "onSuggMATNO>/", "text": "{onSuggMATNO>MATNO}", "additionalText": "{onSuggMATNO>GMCDESCEN}", "maxSuggestionWidth": "600px" },
                 "columns": "tvdtlManual_matno"
             }
         },

@@ -402,7 +402,8 @@ sap.ui.define([
                         PLANTCD: purPlantVal,
                         CUSTGRP: custGrpVal,
                         SALESGRP: salesGrpVal,
-                        SHIPTOPLANT: shipToPlant
+                        SHIPTOPLANT: shipToPlant,
+                        DELDT:  dateFormat.format(new Date())
                     }
                     detailsItemObj.push(newInsertField);
 
@@ -2076,6 +2077,7 @@ sap.ui.define([
                                 item.PURGRP = item.PurchGrp;
                                 item.Item = item.PurchGrp;
                                 item.Desc = item.Description;
+                                item.DESCRIPTION = item.Description;
                             })
                             me.getView().setModel(new JSONModel(data.results), "onSuggPURGRP")
                         },

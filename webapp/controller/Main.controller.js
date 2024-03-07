@@ -14,8 +14,9 @@ sap.ui.define(
         "../js/TableValueHelp",
         'sap/m/SearchField',
         'sap/ui/model/type/String',
+        "../js/Utils",
     ],
-    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator,Device, HashChanger, XMLModel, TableFilter, TableValueHelp, SearchField, typeString) {
+    function(BaseController, JSONModel, MessageBox, Common, formatter, Filter, FilterOperator,Device, HashChanger, XMLModel, TableFilter, TableValueHelp, SearchField, typeString, Utils) {
       "use strict";
 
       var that;
@@ -1035,6 +1036,13 @@ sap.ui.define(
                                 me.setTableColumnsData(modCode);
                                 resolve();
                             }
+                            if(modCode === "ASSIGNVENDORPR"){
+                                me._aColumns["assignVendorTab"] = oData.results;
+                                oJSONColumnsModel.setData(oData.results);
+                                me.getView().setModel(oJSONColumnsModel, "ASSIGNVENDORPRCol");
+                                me.setTableColumnsData(modCode);
+                                resolve();
+                            }
                         }else{
                             me._columnLoadError = true;
                             if(modCode === "PRHDR"){
@@ -1049,6 +1057,11 @@ sap.ui.define(
                             }
                             if(modCode === "INFRECLIST_PR"){
                                 me.getView().setModel(oJSONColumnsModel, "GENINFORECCol");
+                                me.setTableColumnsData(modCode);
+                                resolve();
+                            }
+                            if(modCode === "ASSIGNVENDORPR"){
+                                me.getView().setModel(oJSONColumnsModel, "ASSIGNVENDORPRCol");
                                 me.setTableColumnsData(modCode);
                                 resolve();
                             }
@@ -1068,6 +1081,11 @@ sap.ui.define(
                         }
                         if(modCode === "INFRECLIST_PR"){
                             me.getView().setModel(oJSONColumnsModel, "GENINFORECCol");
+                            me.setTableColumnsData(modCode);
+                            resolve();
+                        }
+                        if(modCode === "ASSIGNVENDORPR"){
+                            me.getView().setModel(oJSONColumnsModel, "ASSIGNVENDORPRCol");
                             me.setTableColumnsData(modCode);
                             resolve();
                         }
@@ -1114,6 +1132,18 @@ sap.ui.define(
                     oData = [];
                 }
                 this.addColumns("GENINFORECTbl", oColumnsData, oData, modCode);    
+
+            }else if(modCode === 'ASSIGNVENDORPR'){
+                oColumnsModel = this.getView().getModel("ASSIGNVENDORPRCol");  
+                oDataModel = this.getView().getModel("ASSIGNVENDORPRData"); 
+                
+                oColumnsData = oColumnsModel === undefined ? [] :oColumnsModel.getProperty('/');
+                oData = oDataModel === undefined ? [] :oDataModel.getProperty('/results');
+                
+                if(this._columnLoadError){
+                    oData = [];
+                }
+                this.addColumns("assignVendorTab", oColumnsData, oData, modCode);    
 
             }
         },
@@ -1637,6 +1667,7 @@ sap.ui.define(
                                         me.byId("btnCancel").setVisible(true);
                                         me.byId("btnTabLayout").setVisible(false);
                                         me.byId("btnView").setVisible(false);
+                                        me.byId("_IDGenMenuButton3").setVisible(false);
 
                                         me._oDataBeforeChange = jQuery.extend(true, {}, me.getView().getModel("TableData").getData());
                                         
@@ -3039,6 +3070,7 @@ sap.ui.define(
                 this.byId("btnCancel").setVisible(false);
                 this.byId("btnTabLayout").setVisible(true);
                 this.byId("btnView").setVisible(true);
+                this.byId("_IDGenMenuButton3").setVisible(true);
                 this._validationErrors = [];
                 
                 await this.prUnLock();
@@ -3272,7 +3304,8 @@ sap.ui.define(
                     this.byId("btnSave").setVisible(false);
                     this.byId("btnCancel").setVisible(false);
                     this.byId("btnTabLayout").setVisible(true);
-                    that.byId("btnView").setVisible(true);
+                    this.byId("btnView").setVisible(true);
+                    this.byId("_IDGenMenuButton3").setVisible(true);
                     this._validationErrors = [];
                     this._isEdited = false;
                     
@@ -3539,18 +3572,28 @@ sap.ui.define(
             }
         },
 
-        onSaveTableLayout: function () {
+        onSaveTableLayout: function (table) {
             //saving of the layout of table
             var me = this;
             var ctr = 1;
-            var oTable = this.getView().byId("styleDynTable");
+            var oTable = this.getView().byId(table);
             var oColumns = oTable.getColumns();
             var vSBU = this.getView().byId("cboxSBU").getSelectedKey();
+            var type;
+            var tabName;
+
+            if(table === "styleDynTable"){
+                type = "PRHDR";
+                tabName = "ZDV_3DERP_PR";
+            }else if(table === "assignVendorTab"){
+                type = "ASSIGNVENDORPR";
+                tabName = "ZDV_PR_AVAUTO";
+            }
 
             var oParam = {
                 "SBU": vSBU,
-                "TYPE": "PRHDR",
-                "TABNAME": "ZDV_3DERP_PR",
+                "TYPE": type,
+                "TABNAME": tabName,
                 "TableLayoutToItems": []
             };
             
@@ -3668,14 +3711,14 @@ sap.ui.define(
             var oSource = oEvent.getSource();
             var oTable = oSource.oParent.getContent()[0];
             var oSelectedIndices = oTable.getSelectedIndices();
-            var aData = oTable.getModel().getData().items;
+            var aData = oTable.getModel().getData().rows;
             var oParamData = [];
             var oParam = {};
 
             if (oSelectedIndices.length > 0) {
                 oSelectedIndices.forEach((selItemIdx, index) => {
                     oParamData.push({
-                        PR: aData.at(selItemIdx).PRNUMBER + aData.at(selItemIdx).PRITEMNO
+                        PR: aData.at(selItemIdx).PRNO + aData.at(selItemIdx).PRITM
                     })
                 })
                 
@@ -3688,21 +3731,21 @@ sap.ui.define(
 
                     oSelectedIndices.forEach((selItemIdx, index) => {
                         oParamData.push({
-                            PreqNo: aData.at(selItemIdx).PRNUMBER,
-                            PreqItem: aData.at(selItemIdx).PRITEMNO,
-                            Matno: aData.at(selItemIdx).MATERIALNO,
+                            PreqNo: aData.at(selItemIdx).PRNO,
+                            PreqItem: aData.at(selItemIdx).PRITM,
+                            Matno: aData.at(selItemIdx).MATNO,
                             Uom: aData.at(selItemIdx).UNIT,
                             Quantity: aData.at(selItemIdx).QTY,
                             DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELVDATE)) + "T00:00:00",
                             Batch: aData.at(selItemIdx).IONUMBER,
-                            Plant: aData.at(selItemIdx).PURCHPLANT,
-                            Purgrp: aData.at(selItemIdx).PurGroup,
+                            Plant: aData.at(selItemIdx).PLANTCD,
+                            Purgrp: aData.at(selItemIdx).PURGRP,
                             Reqsnr: aData.at(selItemIdx).REQUISITIONER,
                             DesVendor: aData.at(selItemIdx).Vendor,
-                            PurchOrg: aData.at(selItemIdx).PurchOrg,
+                            PurchOrg: aData.at(selItemIdx).PURORG,
                             Trackingno: aData.at(selItemIdx).TRACKINGNO,
                             Supplytyp: aData.at(selItemIdx).SUPPLYTYPE,
-                            InfoRec: aData.at(selItemIdx).InfoRec,
+                            InfoRec: aData.at(selItemIdx).INFORECORD,
                             Shiptoplant: aData.at(selItemIdx).SHIPTOPLANT,
                             Seasoncd: aData.at(selItemIdx).SEASON,
                             ShortText: aData.at(selItemIdx).SHORTTEXT,
@@ -3763,6 +3806,7 @@ sap.ui.define(
                                     me.exeGlobalSearch();
                                 }
                                 me._AssignVendorDialog.close();
+                                me.prUnLock();
                                 resolve();
                             },
                             error: function() {
@@ -3779,20 +3823,29 @@ sap.ui.define(
             }
         },
 
-        onAssignVendorManualCancel: function(oEvent) {
+        onAssignVendorManualCancel: async function(oEvent) {
             this._AssignVendorDialog.close();
 
             var oSource = oEvent.getSource();
             var oTable = oSource.oParent.getContent()[0];
             
             this._oAssignVendorData.forEach(item => {
-                oTable.getModel().getData().items.filter(fItem => fItem.PRNUMBER === item.PRNUMBER && fItem.PRITEMNO === item.PRITEMNO).forEach(rItem => item.REMARKS = "Assign vendor cancelled.");
+                oTable.getModel().getData().rows.filter(fItem => fItem.PRNO === item.PRNUMBER && fItem.PRITM === item.PRITEMNO).forEach(rItem => item.REMARKS = "Assign vendor cancelled.");
             })
+
+            Common.openLoadingDialog(this);
+            await this.getAllData();
+            await this.getTableColumns();
+            if(this._isSearchGlobalHasValue){
+                if(this._searchQuery.length > 0)
+                this.exeGlobalSearch();
+            }
+            Common.closeLoadingDialog(this);
 
             this.showAssignVendorResult("assign");
         },
 
-        onAssignVendorClose: function(oEvent) {
+        onAssignVendorClose: async function(oEvent) {
             // if (this._refresh) { 
             //     // if (this.byId("mainTab").getBinding("rows").aFilters.length > 0) {
             //     //     this._aColFilters = this.byId("mainTab").getBinding("rows").aFilters;
@@ -3807,12 +3860,20 @@ sap.ui.define(
             //     this.refreshTableData(); 
             // }
 
+            Common.openLoadingDialog(this);
+            await this.getAllData();
+            await this.getTableColumns();
+            if(this._isSearchGlobalHasValue){
+                if(this._searchQuery.length > 0)
+                this.exeGlobalSearch();
+            }
+            Common.closeLoadingDialog(this);
+
             this._AssignVendorResultDialog.close();
             
             if (this._AssignVendorDialog !== undefined) {
-                var oTable = sap.ui.getCore().byId("assignVendorTab");
+                var oTable = this.byId("assignVendorTab");
                 oTable.clearSelection();
-
                 this._AssignVendorDialog.close();
             }
         },
@@ -3862,7 +3923,7 @@ sap.ui.define(
                                                 PRNUMBER: aData.at(item).PRNO,
                                                 PRITEMNO: aData.at(item).PRITM,
                                                 MATERIALNO: aData.at(item).MATNO,
-                                                IONUMBER: aData.at(item).IONO,
+                                                IONUMBER: aData.at(item).BATCH,
                                                 QTY: aData.at(item).QUANTITY,
                                                 UNIT: aData.at(item).UOM,
                                                 VENDOR: aData.at(item).VENDOR,
@@ -3926,7 +3987,7 @@ sap.ui.define(
                                                     Uom: aData.at(selItemIdx).UOM,
                                                     Quantity: aData.at(selItemIdx).QUANTITY,
                                                     DelivDate: sapDateFormat.format(new Date(aData.at(selItemIdx).DELDT)) + "T00:00:00",
-                                                    Batch: aData.at(selItemIdx).IONO,
+                                                    Batch: aData.at(selItemIdx).BATCH,
                                                     Plant: aData.at(selItemIdx).PLANTCD,
                                                     Purgrp: returnData[0].PurGroup,
                                                     Reqsnr: aData.at(selItemIdx).REQSTNR,
@@ -3943,29 +4004,41 @@ sap.ui.define(
                                             }
                                             else if (returnData.length > 1) {
                                                 returnData.forEach(item => {
-                                                    item.PRNUMBER = aData.at(selItemIdx).PRNO;
-                                                    item.PRITEMNO = aData.at(selItemIdx).PRITM;
-                                                    item.MATERIALNO = aData.at(selItemIdx).MATNO;
+                                                    item.PRNO = aData.at(selItemIdx).PRNO;
+                                                    item.PRITM = aData.at(selItemIdx).PRITM;
+                                                    item.INFORECORD = item.InfoRec;
+                                                    item.VENDOR = item.Vendor;
+                                                    item.MATNO = aData.at(selItemIdx).MATNO;
+                                                    item.PURORG = item.PurchOrg; // PURORG
+                                                    item.PLANTCD = aData.at(selItemIdx).PLANTCD;
+                                                    item.PURGRP = item.PurGroup; // PURGRP
+                                                    item.CURRENCY = item.Currency;// CURRENCY
+                                                    item.PRICE = item.NetPrice;// 
+                                                    item.PRICEUNIT = item.PriceUnit;// PRICEUNIT
                                                     item.UNIT = aData.at(selItemIdx).UOM;
+                                                    item.CONVNUM = item.ConvNum1
+                                                    item.CONVDEN = item.ConvDen1
+                                                    item.TAXCODE = item.TaxCode
+                                                    item.INCO1 = item.Incoterms1
+                                                    item.INCO2 = item.Incoterms2
                                                     item.QTY = aData.at(selItemIdx).QUANTITY;
                                                     item.DELVDATE = aData.at(selItemIdx).DELDT;
-                                                    item.IONUMBER = aData.at(selItemIdx).IONO;
+                                                    item.IONUMBER = aData.at(selItemIdx).BATCH;
                                                     item.REQUISITIONER = aData.at(selItemIdx).REQSTNR;
                                                     item.TRACKINGNO = aData.at(selItemIdx).TRCKNO;
                                                     item.SUPPLYTYPE = aData.at(selItemIdx).SUPTYP;
                                                     item.SHIPTOPLANT = aData.at(selItemIdx).SHIPTOPLANT;
                                                     item.SEASON = aData.at(selItemIdx).SEASONCD;
                                                     item.SHORTTEXT = aData.at(selItemIdx).SHORTTEXT;
-                                                    item.PURCHPLANT = aData.at(selItemIdx).PLANTCD;
 
-                                                    var oVendor = me.getView().getModel("onSuggVENDOR").getData().filter(fItem => fItem.LIFNR === item.Vendor);
+                                                    var oVendor = me.getView().getModel("onSuggVENDOR").getData().filter(fItem => fItem.VENDOR === item.Vendor);
                                                     if (oVendor.length > 0) { 
-                                                        item.VENDORNAME = oVendor[0].NAME1;
-                                                        item.VENDORCDNAME = oVendor[0].NAME1 + " (" + item.Vendor + ")";
+                                                        item.VENDORNAME = oVendor[0].Description;
+                                                        item.VENDOR = oVendor[0].Description + " (" + item.Vendor + ")";
                                                     }
                                                     else { 
-                                                        item.VENDORNAME = "" ;
-                                                        item.VENDORCDNAME = item.Vendor;
+                                                        item.VENDORNAME = "";
+                                                        item.VENDOR = item.Vendor;
                                                     }
         
                                                     oManualAssignVendorData.push(item);
@@ -3989,7 +4062,7 @@ sap.ui.define(
                                                 method: "POST",
                                                 success: function(oResultCPR, oResponse) {
                                                     if (oResultCPR.N_ChangePRReturn.results.length > 0) {
-                                                        me._oAssignVendorData.forEach(item => {
+                                                        me._oAssignVendorData.forEach(async item => {
                                                             var oRetMsg = oResultCPR.N_ChangePRReturn.results.filter(fItem => fItem.PreqNo === item.PRNUMBER);
     
                                                             if (oRetMsg.length > 0) {
@@ -4011,7 +4084,12 @@ sap.ui.define(
                                                                                 item.REMARKS = oRetMsg[0].Message;
                                                                             }
                                                                         })
-    
+                                                                        await me.getAllData();
+                                                                        await me.getTableColumns();
+                                                                        if(me._isSearchGlobalHasValue){
+                                                                            if(me._searchQuery.length > 0)
+                                                                            me.exeGlobalSearch();
+                                                                        }
                                                                         me._refresh = true;
                                                                 }
                                                                 else {
@@ -4032,6 +4110,7 @@ sap.ui.define(
                                             });
                                         });
                                         Common.closeLoadingDialog(me);
+
                                         // MessageBox.information(res.RetMsgSet.results[0].Message);
                                         if (oManualAssignVendorData.length > 0) {
                                             // display pop-up for user selection
@@ -4040,41 +4119,62 @@ sap.ui.define(
 
                                                 me._AssignVendorDialog.setModel(
                                                     new JSONModel({
-                                                        items: oManualAssignVendorData,
+                                                        // items: oManualAssignVendorData,
                                                         rowCount: oManualAssignVendorData.length > 6 ? oManualAssignVendorData.length : 6
                                                     })
                                                 )
 
                                                 me.getView().addDependent(me._AssignVendorDialog);
+
+                                                me.getView().setModel(new JSONModel({results:oManualAssignVendorData}), "ASSIGNVENDORPRData");
+                                                TableFilter.applyColFilters("assignVendorTab", me);
+
+                                                await new Promise((resolve, reject)=>{
+                                                    resolve(me.getDynamicColumns('ASSIGNVENDORPR','ZDV_PR_AVAUTO'));
+                                                });
                                             }
                                             else {
-                                                me._AssignVendorDialog.getModel().setProperty("/items", oManualAssignVendorData);
-                                                me._AssignVendorDialog.getModel().setProperty("/rowCount", oManualAssignVendorData.length > 6 ? oManualAssignVendorData.length : 6);
+                                                me.getView().setModel(new JSONModel({results:oManualAssignVendorData}), "ASSIGNVENDORPRData");
+                                                await new Promise((resolve, reject)=>{
+                                                    resolve(me.getDynamicColumns('ASSIGNVENDORPR','ZDV_PR_AVAUTO'));
+                                                });
                                             }
 
                                             me._AssignVendorDialog.open();
                                         }
                                         else {
                                             me.showAssignVendorResult("assign");
+                                            me.prUnLock();
                                         }
                                     }
                                     else if (oManualAssignVendorData.length > 0) {
                                         // display pop-up for user selection
                                         if (!me._AssignVendorDialog) {
-                                            me._AssignVendorDialog = sap.ui.xmlfragment("zuipr.view.fragments.dialog.AssignVendorDialog", me);
+                                            me._AssignVendorDialog = sap.ui.xmlfragment(me.getView().getId(), "zuipr.view.fragments.dialog.AssignVendorDialog", me);
         
                                             me._AssignVendorDialog.setModel(
                                                 new JSONModel({
-                                                    items: oManualAssignVendorData,
+                                                    // items: oManualAssignVendorData,
                                                     rowCount: oManualAssignVendorData.length > 6 ? oManualAssignVendorData.length : 6
                                                 })
                                             )
                                             
                                             me.getView().addDependent(me._AssignVendorDialog);
+
+                                            me.getView().setModel(new JSONModel({results:oManualAssignVendorData}), "ASSIGNVENDORPRData");
+                                            TableFilter.applyColFilters("assignVendorTab", me);
+
+                                            await new Promise((resolve, reject)=>{
+                                                resolve(me.getDynamicColumns('ASSIGNVENDORPR','ZDV_PR_AVAUTO'));
+                                            });
                                         }
                                         else {
-                                            me._AssignVendorDialog.getModel().setProperty("/items", oManualAssignVendorData);
-                                            me._AssignVendorDialog.getModel().setProperty("/rowCount", oManualAssignVendorData.length > 6 ? oManualAssignVendorData.length : 6);
+                                            // me._AssignVendorDialog.getModel().setProperty("/items", oManualAssignVendorData);
+                                            // me._AssignVendorDialog.getModel().setProperty("/rowCount", oManualAssignVendorData.length > 6 ? oManualAssignVendorData.length : 6);
+                                            me.getView().setModel(new JSONModel({results:oManualAssignVendorData}), "ASSIGNVENDORPRData");
+                                            await new Promise((resolve, reject)=>{
+                                                resolve(me.getDynamicColumns('ASSIGNVENDORPR','ZDV_PR_AVAUTO'));
+                                            });
                                         }
 
                                         me._AssignVendorDialog.open();
@@ -5104,6 +5204,8 @@ sap.ui.define(
             }
         },
 
+        onExportToExcel: Utils.onExport,
+
         callCaptionsAPI: async function(){
             var me = this;
             var oJSONModel = new JSONModel();
@@ -5207,6 +5309,8 @@ sap.ui.define(
             oDDTextParam.push({CODE: "INCO1"});
             oDDTextParam.push({CODE: "INCO2"});
 
+            oDDTextParam.push({CODE: "EXPORTTOEXCEL"});
+            
             await oModel.create("/CaptionMsgSet", { CaptionMsgItems: oDDTextParam  }, {
                 method: "POST",
                 success: function(oData, oResponse) {
