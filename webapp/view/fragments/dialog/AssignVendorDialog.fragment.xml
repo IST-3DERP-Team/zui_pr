@@ -17,114 +17,130 @@
 			<Button text="Cancel" press=".onAssignVendorManualCancel"/>
 		</endButton>
         <uit:Table id="assignVendorTab"
-            rows="{/items}"
+            rows="{/ASSIGNVENDORPRData}"
             selectionMode="MultiToggle"
-            visibleRowCount="{/rowCount}"
+            visibleRowCountMode="Auto"
             paste="onPaste">
-            <uit:columns>
-                <uit:Column width="7rem">
+            <uit:extension>
+                <Toolbar class="sapUiTinyMarginBottom">
+                    <ToolbarSpacer/>
+                    <ToolbarSeparator />
+                    <Button icon="sap-icon://grid" tooltip="{captionMsg>/SAVELAYOUT}" press="onSaveTableLayout('assignVendorTab')"/>
+                    <Button 
+                        icon="sap-icon://excel-attachment"
+                        text="{captionMsg>/EXPORTTOEXCEL}"
+                        tooltip="{captionMsg>/EXPORTTOEXCEL}"
+                        press=".onExportToExcel"
+                        visible="true" />
+                </Toolbar>
+            </uit:extension>
+            <uit:layoutData>
+                <FlexItemData growFactor="1" baseSize="0%"/>
+            </uit:layoutData>  
+            <!-- <uit:columns>
+                <uit:Column label="{captionMsg>/PRITEMNO}" width="7rem">
                     <Text text="{captionMsg>/PRNUMBER}" wrapping="true" />
                     <uit:template>
                         <Text text="{PRNUMBER}" wrapping="false" />
                     </uit:template>
                 </uit:Column>                
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/PRITEMNO}" width="5rem">
                     <Text text="{captionMsg>/PRITEMNO}" wrapping="true"/>
                     <uit:template>
                         <Text text="{PRITEMNO}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="7rem">
+                <uit:Column label="{captionMsg>/INFORECORD}" width="7rem">
                     <Text text="{captionMsg>/INFORECORD}" wrapping="true" />
                     <uit:template>
                         <Text text="{InfoRec}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="25rem">
+                <uit:Column label="{captionMsg>/VENDOR}" width="25rem">
                     <Text text="{captionMsg>/VENDOR}" wrapping="true" />
                     <uit:template>
                         <Text text="{VENDORCDNAME}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="8rem">
+                <uit:Column label="{captionMsg>/MATERIALNO}" width="8rem">
                     <Text text="{captionMsg>/MATERIALNO}" wrapping="true" />
                     <uit:template>
                         <Text text="{Material}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5em">
+                <uit:Column label="{captionMsg>/PURCHORG}" width="5em">
                     <Text text="{captionMsg>/PURCHORG}" wrapping="true" />
                     <uit:template>
                         <Text text="{PurchOrg}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/PURCHPLANT}" width="5rem">
                     <Text text="{captionMsg>/PURCHPLANT}" wrapping="true" />
                     <uit:template>
                         <Text text="{PURCHPLANT}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/PURGRP}" width="5rem">
                     <Text text="{captionMsg>/PURGRP}" wrapping="true" />
                     <uit:template>
                         <Text text="{PurGroup}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/CURR}" width="5rem">
                     <Text text="{captionMsg>/CURR}" wrapping="true" />
                     <uit:template>
                         <Text text="{Currency}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="6rem" hAlign="End">
+                <uit:Column label="{captionMsg>/PRICE}" width="6rem" hAlign="End">
                     <Text text="{captionMsg>/PRICE}" wrapping="true" />
                     <uit:template>
                         <Text text="{NetPrice}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="6rem" hAlign="End">
+                <uit:Column label="{captionMsg>/PRICEUNIT}" width="6rem" hAlign="End">
                     <Text text="{captionMsg>/PRICEUNIT}" wrapping="true" />
                     <uit:template>
                         <Text text="{PriceUnit}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/UOM}" width="5rem">
                     <Text text="{captionMsg>/UOM}" wrapping="true" />
                     <uit:template>
                         <Text text="{PoUnit}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="6rem" hAlign="End">
+                <uit:Column label="{captionMsg>/CONVNUM}" width="6rem" hAlign="End">
                     <Text text="{captionMsg>/CONVNUM}" wrapping="true" />
                     <uit:template>
                         <Text text="{ConvNum1}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="7rem" hAlign="End">
+                <uit:Column label="{captionMsg>/CONVDEN}" width="7rem" hAlign="End">
                     <Text text="{captionMsg>/CONVDEN}" wrapping="true" />
                     <uit:template>
                         <Text text="{ConvDen1}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="5rem">
+                <uit:Column label="{captionMsg>/TAXCODE}" width="5rem">
                     <Text text="{captionMsg>/TAXCODE}" wrapping="true" />
                     <uit:template>
                         <Text text="{TaxCode}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-                <uit:Column width="6rem">
+                <uit:Column label="{captionMsg>/INCO1}" width="6rem">
                     <Text text="{captionMsg>/INCO1}" wrapping="true" />
                     <uit:template>
                         <Text text="{Incoterms1}" wrapping="false" />
                     </uit:template>
                 </uit:Column>                
-                <uit:Column width="6rem">
+                <uit:Column label="{captionMsg>/INCO2}" width="6rem">
                     <Text text="{captionMsg>/INCO2}" wrapping="true" />
                     <uit:template>
                         <Text text="{Incoterms2}" wrapping="false" />
                     </uit:template>
                 </uit:Column>
-            </uit:columns>
+            </uit:columns> -->
         </uit:Table>    
     </Dialog>
 </core:FragmentDefinition>
